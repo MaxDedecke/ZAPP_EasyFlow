@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?><!--suppress ALL -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CategoriesFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/categoriesFirstRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/categoriesSecondRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/categoriesFirstRow" />
+
+        <LinearLayout
+            android:id="@+id/categoriesThirdRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/categoriesSecondRow" />
+
+        <LinearLayout
+            android:id="@+id/categoriesFourthRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/categoriesThirdRow" />
+    </LinearLayout>
+
+    <!--
+    <ImageButton
+        android:id="@+id/button"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:background="@drawable/border"
+        android:padding="15dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_car_darkblue_24dp" />
+
+    <Button
+        android:id="@+id/fragment_left_menu_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:drawableTop="@drawable/ic_car_darkblue_24dp"
+        android:text="auto" />
+
+-->
+</FrameLayout>

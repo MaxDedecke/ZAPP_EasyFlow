@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/app_bar_main">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutPlusMinus"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btnAusgabe"
+            style="@style/buttonEinnahmeAusgabe"
+            android:background="@drawable/buttonshapeausgabe"
+            android:text="@string/ausgabe"
+            android:textColor="@color/buttonRed"
+            android:onClick="showMoveActivity"/>
+        <Button
+            android:id="@+id/btnEinnahme"
+            style="@style/buttonEinnahmeAusgabe"
+            android:background="@drawable/buttonshapeeinnahme"
+            android:text="@string/einnahme"
+            android:textColor="@color/buttonGreen"
+            android:onClick="showMoveActivity"/>
+
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
