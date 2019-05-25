@@ -37,4 +37,5 @@
     <string name="categoriy_ersparnisse">Ersparnisse</string>
     <string name="categoriy_gehalt">Gehalt</string>
     <string name="category_bildung">Bildung</string>
+    <string name="notiz_hinzufuegen">Notiz hinzufügen</string>
 </resources>

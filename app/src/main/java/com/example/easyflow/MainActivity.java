@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity
 
     public static List<Category> categoriesIncome=new ArrayList<>();
     public static List<Category> categoriesCost=new ArrayList<>();
+    public static String dateTimeFormat= "EEEE, d MM yyyy";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

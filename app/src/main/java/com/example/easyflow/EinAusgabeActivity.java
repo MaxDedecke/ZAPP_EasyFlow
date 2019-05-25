@@ -1,14 +1,21 @@
 package com.example.easyflow;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Objects;
 
 
 // Art der gewuenschten Operation
@@ -23,21 +30,23 @@ enum State {
 
 public class EinAusgabeActivity extends AppCompatActivity implements View.OnClickListener{
 
-    // Rechenwerk
+    // Rechner
     private State state = State.clean;
     private String op1;
     private Operation op = Operation.none;
     private String op2;
 
     // Display
-    public EditTextWithClear mDisplayValueEdittext;
-    private boolean newOperandExpected = true;
-    private Button[] btnNumArray;
-    private Button[] btnOpArray;
-
-    private boolean mShowEingabeCategories;
+    public EditTextWithClear mDisplayValueEditText;
+    private EditText mDisplayDateEditText;
+    private EditText mNoteEditText;
     private CalcFragment mCalcFragment;
-    private CategoriesFragment mCategoriesFragment;
+    private Spinner mSpinnerFrequence;
+    private boolean mNewOperandExpected = true;
+
+    private final Calendar myCalendar = Calendar.getInstance();
+    private Date mDateOfCosts;
+    private boolean mShowEingabeCategories;
 
     @Override
     protected void onStart() {
@@ -59,6 +68,11 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
             this.setTitle(getString(R.string.new_cost));
         }
 
+        mSpinnerFrequence=findViewById(R.id.spinnerFrequence);
+        ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
+                this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
+        mSpinnerFrequence.setAdapter(frequenceAdapter);
+
         mCalcFragment=CalcFragment.newInstance();
 
         // Begin the transaction
@@ -69,9 +83,38 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         ft.commit();
 
 
-        this.mDisplayValueEdittext = findViewById(R.id.etDisplayValue);
-        this.mDisplayValueEdittext.setInputType(InputType.TYPE_NULL);
+        this.mDisplayValueEditText = findViewById(R.id.etDisplayValue);
+        this.mDisplayValueEditText.setInputType(InputType.TYPE_NULL);
+        this.mDisplayDateEditText=findViewById(R.id.editTextDate);
+        this.mDisplayDateEditText.setInputType(InputType.TYPE_NULL);
+        this.mNoteEditText=findViewById(R.id.editTextNote);
 
+
+        mDisplayDateEditText.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                new DatePickerDialog(EinAusgabeActivity.this, R.style.DialogTheme, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        myCalendar.set(Calendar.YEAR, year);
+                        myCalendar.set(Calendar.MONTH, monthOfYear);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        updateLabelDate();
+                    }
+                }, myCalendar.get(Calendar.YEAR),myCalendar.get(Calendar.MONTH),myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
+        updateLabelDate();
+
+
+    }
+
+    private void updateLabelDate() {
+        mDateOfCosts = myCalendar.getTime();
+        String s=android.text.format.DateFormat.format(MainActivity.dateTimeFormat,mDateOfCosts).toString();
+        mDisplayDateEditText.setText(s);
     }
 
     public void setButtonOnClickListener() {
@@ -82,7 +125,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         Button btnMul = findViewById(R.id.btnOp_Mul);
         Button btnEquals = findViewById(R.id.btnOp_Equals);
 
-        btnOpArray = new Button[]{btnMinus, btnPlus, btnDiv, btnMul, btnEquals};
+        Button[] btnOpArray = new Button[]{btnMinus, btnPlus, btnDiv, btnMul, btnEquals};
 
         for (Button b : btnOpArray) {
             b.setOnClickListener(this);
@@ -101,7 +144,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         Button btn8 = findViewById(R.id.btnNum_8);
         Button btn9 = findViewById(R.id.btnNum_9);
 
-        btnNumArray = new Button[]{btnNumPeriod, btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9};
+        Button[] btnNumArray = new Button[]{btnNumPeriod, btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9};
 
         for (Button b : btnNumArray) {
             b.setOnClickListener(this);
@@ -143,15 +186,15 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void onClickBtnCategorie() {
-        double val =Double.parseDouble(mDisplayValueEdittext.getText().toString());
+        double val =Double.parseDouble(Objects.requireNonNull(mDisplayValueEditText.getText()).toString());
 
         if(val==0){
-            mDisplayValueEdittext.valueIsZero();
+            mDisplayValueEditText.valueIsZero();
             return;
         }
 
 
-        mCategoriesFragment= CategoriesFragment.newInstance(mShowEingabeCategories);
+        CategoriesFragment mCategoriesFragment = CategoriesFragment.newInstance(mShowEingabeCategories);
 
         // Begin the transaction
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -170,9 +213,9 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
         String displayText = "";
 
-        if (this.newOperandExpected) {
+        if (this.mNewOperandExpected) {
             this.writeDisplay("0");
-            this.newOperandExpected = false;
+            this.mNewOperandExpected = false;
         } else {
             displayText = this.readDisplay();
 
@@ -232,7 +275,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         Operation op = Operation.none;
         String result;
 
-        this.newOperandExpected = true;
+        this.mNewOperandExpected = true;
 
         switch (v.getId()) {
 
@@ -266,12 +309,11 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
     }
 
     void writeDisplay(String value) {
-        this.mDisplayValueEdittext.setText(value);
+        this.mDisplayValueEditText.setText(value);
     }
 
     String readDisplay() {
-        String val= this.mDisplayValueEdittext.getText().toString();
-        return val;
+        return this.mDisplayValueEditText.getText().toString();
     }
 
     boolean hasDecimalPoint(String value) {
@@ -331,6 +373,17 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         this.writeDisplay(result);
         this.state = State.clean;
 
+    }
+
+    void finishEinAusgabeActivity(Category c){
+        //mDateOfCosts
+        double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
+        String note=mNoteEditText.getText().toString();
+        int frequence=mSpinnerFrequence.getSelectedItemPosition();
+
+        //todo safe cost
+
+        this.finish();
     }
 
 

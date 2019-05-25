@@ -64,6 +64,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
             Button btn = new Button(context);
             btn.setText(c.getName());
             btn.setTextSize(10);
+            btn.setTag(c);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             params.setMargins(5,0,5,0);
@@ -96,21 +97,24 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         if(mParentActivity==null)
             mParentActivity= (EinAusgabeActivity) this.getActivity();
 
-        mParentActivity.mDisplayValueEdittext.disableInput();
+        mParentActivity.mDisplayValueEditText.disableInput();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
 
-        mParentActivity.mDisplayValueEdittext.enableInput();
+        mParentActivity.mDisplayValueEditText.enableInput();
     }
 
     @Override
     public void onClick(View v) {
+        EinAusgabeActivity activity= (EinAusgabeActivity) getActivity();
+        if (activity != null) {
+            Category c= (Category) v.getTag();
 
-        //todo neuen umsatz hinzufügen und in main anzeigen
-        getActivity().finish();
+            activity.finishEinAusgabeActivity(c);
+        }
 
     }
 }
