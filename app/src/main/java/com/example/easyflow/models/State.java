@@ -1,4 +1,6 @@
 package com.example.easyflow.models;
 
-class State {
+// Zustand des Rechenwerkes
+public enum State {
+    clean, hasOp1, hasOp2
 }

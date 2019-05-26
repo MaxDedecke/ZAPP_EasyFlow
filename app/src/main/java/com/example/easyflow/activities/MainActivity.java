@@ -1,4 +1,4 @@
-package com.example.easyflow;
+package com.example.easyflow.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
+import com.example.easyflow.R;
 import com.example.easyflow.models.Category;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,11 +28,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "EasyFlow_Debug_Tag";
     public static List<Category> categoriesIncome=new ArrayList<>();
     public static List<Category> categoriesCost=new ArrayList<>();
     public static String dateTimeFormat= "EEEE, d MM yyyy";
-    public static DatabaseReference mDbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,25 +47,6 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        FirebaseDatabase database=FirebaseDatabase.getInstance();
-        mDbRef=database.getReference("costs");
-
-        // Read from the database
-        mDbRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                Log.d(TAG, "Value is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
 
 
 
@@ -155,7 +135,7 @@ public class MainActivity extends AppCompatActivity
     public void showMoveActivity(View view) {
         int viewId=view.getId();
 
-        Intent newIntent=new Intent(MainActivity.this,EinAusgabeActivity.class);
+        Intent newIntent=new Intent(MainActivity.this, EinAusgabeActivity.class);
 
         if(viewId==R.id.btnEinnahme){
             newIntent.putExtra(getString(R.string.key_show_ein_or_ausgabe),true);

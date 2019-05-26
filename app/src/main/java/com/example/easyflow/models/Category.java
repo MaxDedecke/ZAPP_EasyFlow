@@ -1,6 +1,6 @@
-package com.example.easyflow;
+package com.example.easyflow.models;
 
-class Category {
+public class Category {
     private static int mIdCounter=1;
 
     public int getId() {
@@ -19,7 +19,7 @@ class Category {
     private String mName;
     private int mIconId;
 
-    Category(String name, int iconId){
+    public Category(String name, int iconId){
         mId=mIdCounter++;
         mName=name;
         mIconId=iconId;

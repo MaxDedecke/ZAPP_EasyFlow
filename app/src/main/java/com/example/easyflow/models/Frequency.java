@@ -1,4 +1,4 @@
-package com.example.easyflow;
+package com.example.easyflow.models;
 
 public enum Frequency {
     Einmalig(0),Täglich(1),Wöchentlich(2),Monatlich(3),Jährlich(4);

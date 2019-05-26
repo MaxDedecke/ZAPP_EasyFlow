@@ -1,4 +1,6 @@
 package com.example.easyflow.models;
 
-class Operation {
+// Art der gewuenschten Operation
+public enum Operation {
+    none, add, sub, mul, div
 }

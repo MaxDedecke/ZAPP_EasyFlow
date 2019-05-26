@@ -1,8 +1,8 @@
-package com.example.easyflow;
+package com.example.easyflow.models;
 
 import java.util.Date;
 
-class Cost {
+public class Cost {
 
     private double mValue;
     private Date mDate;

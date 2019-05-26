@@ -1,4 +1,4 @@
-package com.example.easyflow;
+package com.example.easyflow.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -13,6 +13,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.easyflow.EditTextWithClear;
+import com.example.easyflow.R;
+import com.example.easyflow.fragments.CalcFragment;
+import com.example.easyflow.fragments.CategoriesFragment;
+import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.*;
 
 import java.util.Calendar;
@@ -367,7 +372,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
     }
 
-    void finishEinAusgabeActivity(Category c){
+    public void finishEinAusgabeActivity(Category c){
         //mDateOfCosts
         double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
         String note=mNoteEditText.getText().toString();
@@ -377,7 +382,9 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
         Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
 
-        MainActivity.mDbRef.setValue(cost);
+        FirebaseHelper helper= FirebaseHelper.getInstance();
+        helper.addCost(cost);
+
         this.finish();
     }
 
