@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.example.easyflow.models.Category;
+
 import java.util.List;
 
 public class CategoriesFragment extends Fragment implements View.OnClickListener {

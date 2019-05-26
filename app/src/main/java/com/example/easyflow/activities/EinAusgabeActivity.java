@@ -13,20 +13,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.easyflow.models.*;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-
-// Art der gewuenschten Operation
-enum Operation {
-    none, add, sub, mul, div
-}
-
-// Zustand des Rechenwerkes
-enum State {
-    clean, hasOp1, hasOp2
-}
 
 public class EinAusgabeActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -379,10 +371,13 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         //mDateOfCosts
         double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
         String note=mNoteEditText.getText().toString();
-        int frequence=mSpinnerFrequence.getSelectedItemPosition();
+        int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
 
         //todo safe cost
 
+        Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
+
+        MainActivity.mDbRef.setValue(cost);
         this.finish();
     }
 
