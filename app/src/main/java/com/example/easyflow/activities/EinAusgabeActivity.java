@@ -66,9 +66,10 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         }
 
         mSpinnerFrequence=findViewById(R.id.spinnerFrequence);
-        ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
-                this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
-        mSpinnerFrequence.setAdapter(frequenceAdapter);
+        //ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
+         //       this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
+        //mSpinnerFrequence.setAdapter(frequenceAdapter);
+        mSpinnerFrequence.setAdapter(new ArrayAdapter<Frequency>(this, R.layout.spinner_choose_frequence_item,Frequency.values()));
 
         mCalcFragment=CalcFragment.newInstance();
 
@@ -377,8 +378,6 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
         String note=mNoteEditText.getText().toString();
         int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
-
-        //todo safe cost
 
         Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
 

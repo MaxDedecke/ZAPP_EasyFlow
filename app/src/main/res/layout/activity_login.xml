@@ -47,20 +47,10 @@
         android:layout_marginTop="40dp"
         android:layout_marginRight="30dp"
         android:background="#ffff"
+        android:onClick="login"
         android:text="@string/login"
         android:textColor="@color/colorPrimaryDark" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/transparent"
-        android:onClick="CreateNewAccount_Click"
-        android:paddingBottom="10dp"
-        android:text="Noch keinen Account? Jetzt anmelden."
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="#ffffff" />
 
 
 </RelativeLayout>

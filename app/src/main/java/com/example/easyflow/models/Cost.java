@@ -1,6 +1,8 @@
 package com.example.easyflow.models;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Cost {
 
@@ -10,14 +12,15 @@ public class Cost {
     private Frequency mFrequency;
     private String mNote;
 
-    public Cost(){}
+    public Cost() {
+    }
 
-    public Cost(double value, Date date, Category category, Frequency frequency, String note){
-        mValue=value;
-        mDate=date;
-        mCategory=category;
-        mFrequency=frequency;
-        mNote=note;
+    public Cost(double value, Date date, Category category, Frequency frequency, String note) {
+        mValue = value;
+        mDate = date;
+        mCategory = category;
+        mFrequency = frequency;
+        mNote = note;
     }
 
     public double getValue() {
@@ -58,5 +61,18 @@ public class Cost {
 
     public void setNote(String note) {
         this.mNote = note;
+    }
+
+
+    public Map<String, Object> toMap() {
+
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("value", getValue());
+        result.put("date", getDate());
+        result.put("category", getCategory());
+        result.put("frequency", getFrequency());
+        result.put("note", getNote());
+
+        return result;
     }
 }

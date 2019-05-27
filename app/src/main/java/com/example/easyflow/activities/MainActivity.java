@@ -2,6 +2,9 @@ package com.example.easyflow.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -15,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 import com.example.easyflow.R;
+import com.example.easyflow.adapter.AdapterRecyclerViewOverview;
 import com.example.easyflow.models.Category;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,7 +52,14 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+        RecyclerView mRecyclerView = findViewById(R.id.recycler_view);
 
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(layoutManager);
+        //todo implement livedata
+        //AdapterRecyclerViewOverview adapter = new AdapterRecyclerViewOverview(this, items);
+        //mRecyclerView.setAdapter(adapter);
 
         loadCategories();
     }
