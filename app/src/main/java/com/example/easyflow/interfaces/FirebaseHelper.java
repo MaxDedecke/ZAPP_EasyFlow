@@ -1,8 +1,10 @@
 package com.example.easyflow.interfaces;
 
+import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.easyflow.R;
 import com.example.easyflow.activities.SplashActivity;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
@@ -33,7 +35,6 @@ public class FirebaseHelper {
     private static DatabaseReference mDbRefCost;
     private static FirebaseDatabase mDatabase;
 
-    private static final String TAG = "EasyFlow_Debug_Tag";
 
     static {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -65,13 +66,13 @@ public class FirebaseHelper {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "User saved successfully");
+                        Log.d(Constants.TAG, "User saved successfully");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Failed saving User");
+                        Log.d(Constants.TAG, "Failed saving User");
                     }
                 });
 
@@ -132,7 +133,7 @@ public class FirebaseHelper {
             initDbRefCost();
         }
 
-        SimpleDateFormat sdf= new SimpleDateFormat(SplashActivity.DATETIME_FORMAT);
+        SimpleDateFormat sdf= new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
 
         Calendar calendarStart= GregorianCalendar.getInstance();
         calendarStart.setTime(new Date());
@@ -142,7 +143,7 @@ public class FirebaseHelper {
         calendarStart.set(Calendar.DAY_OF_MONTH,calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
         String endDate =sdf.format(calendarStart.getTime());
 
-
+//todo finanzmonat definieren ermöglichen
 
         Query currentCostsQuery = mDbRefCost.orderByChild("date").startAt(startDate).endAt(endDate);
         currentCostsQuery.addValueEventListener(new ValueEventListener() {
@@ -162,7 +163,7 @@ public class FirebaseHelper {
 
                 for (Cost muteModel : muteModelList) {
                     Category c = muteModel.getCategory();
-                    Log.d(TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
+                    Log.d(Constants.TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
                 }
 
             }
@@ -180,4 +181,21 @@ public class FirebaseHelper {
                 "costs/"+SplashActivity.mCurrenUser.getUserId());
     }
 
+    public Query getQuery() {
+        if(mDbRefCost==null){
+            initDbRefCost();
+        }
+
+        SimpleDateFormat sdf= new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
+
+        Calendar calendarStart= GregorianCalendar.getInstance();
+        calendarStart.setTime(new Date());
+        calendarStart.set(Calendar.DAY_OF_MONTH,1);
+
+        String startDate=sdf.format(calendarStart.getTime());
+        calendarStart.set(Calendar.DAY_OF_MONTH,calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate =sdf.format(calendarStart.getTime());
+
+        return mDbRefCost.orderByChild("date").startAt(startDate).endAt(endDate);
+    }
 }

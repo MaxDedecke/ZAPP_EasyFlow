@@ -17,9 +17,11 @@ import com.example.easyflow.EditTextWithClear;
 import com.example.easyflow.R;
 import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.fragments.CategoriesFragment;
+import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.*;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -111,7 +113,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
     private void updateLabelDate() {
         mDateOfCosts = myCalendar.getTime();
-        String s=android.text.format.DateFormat.format(MainActivity.dateTimeFormat,mDateOfCosts).toString();
+        String s=android.text.format.DateFormat.format(Constants.DATE_FORMAT_WEEKDAY,mDateOfCosts).toString();
         mDisplayDateEditText.setText(s);
     }
 

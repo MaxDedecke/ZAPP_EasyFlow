@@ -3,25 +3,17 @@ package com.example.easyflow.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.easyflow.R;
+import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.User;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 public class SplashActivity extends AppCompatActivity {
 
-    public static final String ACTIVITY_EXECUTED = "activity_executed";
-    public static final String USER_DATABASE = "user_database";
-    public static final String DATETIME_FORMAT = "yyyy-MM-dd";
     public static User mCurrenUser;
 
     @Override
@@ -35,12 +27,12 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
 
-        SharedPreferences pref = getSharedPreferences("ActivityPREF", Context.MODE_PRIVATE);
-        if (pref.getBoolean(ACTIVITY_EXECUTED, false)) {
+        SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        if (pref.getBoolean(Constants.SHARED_PREF_KEY_ACTIVITY_EXECUTED, false)) {
             Intent intent = new Intent(this, MainActivity.class);
 
             Gson gson = new Gson();
-            String json = pref.getString(SplashActivity.USER_DATABASE, "");
+            String json = pref.getString(Constants.SHARED_PREF_KEY_USER_DATABASE, "");
             mCurrenUser=gson.fromJson(json,User.class);
 
             FirebaseHelper helper = FirebaseHelper.getInstance();

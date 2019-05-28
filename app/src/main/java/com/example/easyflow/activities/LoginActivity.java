@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.easyflow.R;
+import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
@@ -37,16 +38,16 @@ public class LoginActivity extends AppCompatActivity {
 
         // Set activity_executed inside login() method.
         // Set userid_database inside login() method.
-        SharedPreferences pref = getSharedPreferences("ActivityPREF", Context.MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = pref.edit();
-        edt.putBoolean(SplashActivity.ACTIVITY_EXECUTED, true);
+        edt.putBoolean(Constants.SHARED_PREF_KEY_ACTIVITY_EXECUTED, true);
 
 
         SplashActivity.mCurrenUser=user;
 
         Gson gson = new Gson();
         String json = gson.toJson(user);
-        edt.putString(SplashActivity.USER_DATABASE, json);
+        edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
 
         edt.commit();
 
