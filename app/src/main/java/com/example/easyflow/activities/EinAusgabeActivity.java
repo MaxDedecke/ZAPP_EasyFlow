@@ -1,4 +1,4 @@
-package com.example.easyflow;
+package com.example.easyflow.activities;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -13,20 +13,17 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.easyflow.EditTextWithClear;
+import com.example.easyflow.R;
+import com.example.easyflow.fragments.CalcFragment;
+import com.example.easyflow.fragments.CategoriesFragment;
+import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.models.*;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-
-// Art der gewuenschten Operation
-enum Operation {
-    none, add, sub, mul, div
-}
-
-// Zustand des Rechenwerkes
-enum State {
-    clean, hasOp1, hasOp2
-}
 
 public class EinAusgabeActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -69,9 +66,10 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         }
 
         mSpinnerFrequence=findViewById(R.id.spinnerFrequence);
-        ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
-                this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
-        mSpinnerFrequence.setAdapter(frequenceAdapter);
+        //ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
+         //       this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
+        //mSpinnerFrequence.setAdapter(frequenceAdapter);
+        mSpinnerFrequence.setAdapter(new ArrayAdapter<Frequency>(this, R.layout.spinner_choose_frequence_item,Frequency.values()));
 
         mCalcFragment=CalcFragment.newInstance();
 
@@ -375,13 +373,16 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
     }
 
-    void finishEinAusgabeActivity(Category c){
+    public void finishEinAusgabeActivity(Category c){
         //mDateOfCosts
         double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
         String note=mNoteEditText.getText().toString();
-        int frequence=mSpinnerFrequence.getSelectedItemPosition();
+        int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
 
-        //todo safe cost
+        Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
+
+        FirebaseHelper helper= FirebaseHelper.getInstance();
+        helper.addCost(cost);
 
         this.finish();
     }
