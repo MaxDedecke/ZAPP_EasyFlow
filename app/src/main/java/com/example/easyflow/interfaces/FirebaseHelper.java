@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.easyflow.activities.SplashActivity;
+import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -12,16 +13,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FirebaseHelper {
 
     private static FirebaseHelper instance;
 
-    private static DatabaseReference mDbRefUser;
     private static DatabaseReference mDbRefCost;
     private static FirebaseDatabase mDatabase;
 
@@ -33,62 +37,22 @@ public class FirebaseHelper {
 
     public static FirebaseHelper getInstance(){
 
+        //todo by load mainactivity user mit userid online abgleichen und costs valueevent setzen
 
         mDatabase=FirebaseDatabase.getInstance();
 
-        // Reference to users
-        mDbRefUser=mDatabase.getReference("users");
+        mDbRefCost=FirebaseDatabase.getInstance().getReference("costs");
 
-        // Read from the database
-        mDbRefUser.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                User user = dataSnapshot.getValue(User.class);
-                if(user!=null)
-                    Log.d(TAG, "Value is: " + user.getEmail());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
-
-
-
-
-        // Reference to costs
-
-        // Reference to users
-        mDbRefCost=mDatabase.getReference("costs");
-
-        // Read from the database
-        mDbRefCost.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Cost cost = dataSnapshot.getValue(Cost.class);
-                if(cost!=null) {
-                    Log.d(TAG, "Value is: " + cost.getNote());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
         return instance;
 
     }
 
     public User addUser(String email, String password) {
-        String key = mDbRefUser.push().getKey();
+
+        // Reference to users
+        DatabaseReference refUsers=mDatabase.getReference("users");
+
+        String key = refUsers.push().getKey();
 
         User user = new User();
         user.setUserId(key);
@@ -96,7 +60,7 @@ public class FirebaseHelper {
         user.setPassword(password);
 
 
-        mDbRefUser.child(key).setValue(user)
+        refUsers.child(key).setValue(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -124,6 +88,77 @@ public class FirebaseHelper {
         childUpdates.put(user.getUserId()+"/"+ key, costValues);
 
         mDbRefCost.updateChildren(childUpdates);
+    }
+
+    public void checkUserDataChanged(){
+
+        // Get Database Reference
+        DatabaseReference refUser=mDatabase.getReference("users/"+SplashActivity.mCurrenUser.getUserId());
+
+        // Read from the database
+        ValueEventListener valueEventListener=new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                User cur=dataSnapshot.getValue(User.class);
+                if(cur!=null){
+                    String email=SplashActivity.mCurrenUser.getEmail();
+                    String password=SplashActivity.mCurrenUser.getPassword();
+
+                    if(!cur.getEmail().equals(email)){
+                        SplashActivity.mCurrenUser.setEmail(email);
+                    }
+                    if(!cur.getPassword().equals(password)) {
+                        SplashActivity.mCurrenUser.setPassword(password);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        refUser.addListenerForSingleValueEvent(valueEventListener);
+
+    }
+
+    public void setLiveDataListener(){
+
+        if(SplashActivity.mCurrenUser!=null) {
+
+            String myUserId = SplashActivity.mCurrenUser.getUserId();
+            Query myTopPostsQuery = mDbRefCost.child(myUserId);
+            myTopPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {
+                    };
+
+                    List<Cost> muteModelList;
+                    HashMap<String, Cost> hashMap = dataSnapshot.getValue(t);
+
+                    if (hashMap == null) {
+                        return;
+                    }
+
+                    muteModelList = new ArrayList<Cost>(hashMap.values()) {};
+
+                    for (Cost muteModel : muteModelList) {
+                        Category c = muteModel.getCategory();
+                        Log.d(TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+
     }
 
 }

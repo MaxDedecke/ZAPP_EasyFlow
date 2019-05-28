@@ -16,6 +16,4 @@ public enum Frequency {
         }
         return Einmalig;
     }
-
-    //todo create spinner from enum?
 }

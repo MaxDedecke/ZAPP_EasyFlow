@@ -77,7 +77,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
             btn.setLayoutParams(params);
             btn.setOnClickListener(this);
             btn.setBackgroundResource(R.drawable.border);
-            btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context,c.getIcon()),null,null);
+            btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context,c.getIconId()),null,null);
 
             LinearLayout l;
             if(countBtnPerLinearLayout<BTN_PER_ROW)
