@@ -1,5 +1,9 @@
 package com.example.easyflow.models;
 
+import com.example.easyflow.activities.SplashActivity;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +35,12 @@ public class Cost {
         this.mValue = value;
     }
 
-    public Date getDate() {
-        return mDate;
+    public Date getDate(){return mDate;}
+
+    public void setDate(String mDateString) throws ParseException {
+        this.mDate=new SimpleDateFormat(SplashActivity.DATETIME_FORMAT).parse(mDateString);
     }
 
-    public void setDate(Date date) {
-        this.mDate = date;
-    }
 
     public Category getCategory() {
         return mCategory;
@@ -66,9 +69,11 @@ public class Cost {
 
     public Map<String, Object> toMap() {
 
+        String dateString=new SimpleDateFormat(SplashActivity.DATETIME_FORMAT).format(getDate());
+
         HashMap<String, Object> result = new HashMap<>();
         result.put("value", getValue());
-        result.put("date", getDate());
+        result.put("date", dateString);
         result.put("category", getCategory());
         result.put("frequency", getFrequency());
         result.put("note", getNote());

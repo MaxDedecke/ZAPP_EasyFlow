@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
         //todo implement livedata
         FirebaseHelper helper= FirebaseHelper.getInstance();
+        helper.setLiveDataListener();
         //AdapterRecyclerViewOverview adapter = new AdapterRecyclerViewOverview(this, items);
         //mRecyclerView.setAdapter(adapter);
 

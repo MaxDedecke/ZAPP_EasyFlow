@@ -21,6 +21,7 @@ public class SplashActivity extends AppCompatActivity {
 
     public static final String ACTIVITY_EXECUTED = "activity_executed";
     public static final String USER_DATABASE = "user_database";
+    public static final String DATETIME_FORMAT = "yyyy-MM-dd";
     public static User mCurrenUser;
 
     @Override

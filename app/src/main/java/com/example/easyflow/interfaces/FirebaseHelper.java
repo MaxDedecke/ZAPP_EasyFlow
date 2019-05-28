@@ -17,7 +17,11 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +36,13 @@ public class FirebaseHelper {
     private static final String TAG = "EasyFlow_Debug_Tag";
 
     static {
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         instance=new FirebaseHelper();
     }
 
     public static FirebaseHelper getInstance(){
 
-        //todo by load mainactivity user mit userid online abgleichen und costs valueevent setzen
-
         mDatabase=FirebaseDatabase.getInstance();
-
-        mDbRefCost=FirebaseDatabase.getInstance().getReference("costs");
 
         return instance;
 
@@ -79,13 +80,16 @@ public class FirebaseHelper {
 
     public void addCost(Cost cost) {
         User user = SplashActivity.mCurrenUser;
+        if(mDbRefCost==null){
+            initDbRefCost();
+        }
 
         String key = mDbRefCost.push().getKey();
         Map<String, Object> costValues = cost.toMap();
 
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put(user.getUserId()+"/"+ key, costValues);
+        childUpdates.put(key, costValues);
 
         mDbRefCost.updateChildren(childUpdates);
     }
@@ -124,41 +128,56 @@ public class FirebaseHelper {
     }
 
     public void setLiveDataListener(){
-
-        if(SplashActivity.mCurrenUser!=null) {
-
-            String myUserId = SplashActivity.mCurrenUser.getUserId();
-            Query myTopPostsQuery = mDbRefCost.child(myUserId);
-            myTopPostsQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {
-                    };
-
-                    List<Cost> muteModelList;
-                    HashMap<String, Cost> hashMap = dataSnapshot.getValue(t);
-
-                    if (hashMap == null) {
-                        return;
-                    }
-
-                    muteModelList = new ArrayList<Cost>(hashMap.values()) {};
-
-                    for (Cost muteModel : muteModelList) {
-                        Category c = muteModel.getCategory();
-                        Log.d(TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
+        if(mDbRefCost==null){
+            initDbRefCost();
         }
 
+        SimpleDateFormat sdf= new SimpleDateFormat(SplashActivity.DATETIME_FORMAT);
+
+        Calendar calendarStart= GregorianCalendar.getInstance();
+        calendarStart.setTime(new Date());
+        calendarStart.set(Calendar.DAY_OF_MONTH,1);
+
+        String startDate=sdf.format(calendarStart.getTime());
+        calendarStart.set(Calendar.DAY_OF_MONTH,calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate =sdf.format(calendarStart.getTime());
+
+
+
+        Query currentCostsQuery = mDbRefCost.orderByChild("date").startAt(startDate).endAt(endDate);
+        currentCostsQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {};
+
+                List<Cost> muteModelList;
+                HashMap<String, Cost> hashMap = dataSnapshot.getValue(t);
+
+                if (hashMap == null) {
+                    return;
+                }
+
+                muteModelList = new ArrayList<Cost>(hashMap.values()) {};
+
+                for (Cost muteModel : muteModelList) {
+                    Category c = muteModel.getCategory();
+                    Log.d(TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void initDbRefCost() {
+        mDbRefCost=mDatabase.getReference(
+                "costs/"+SplashActivity.mCurrenUser.getUserId());
     }
 
 }
