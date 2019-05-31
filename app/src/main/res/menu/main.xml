@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_booking"
+        android:icon="@drawable/ic_swap_horiz_white_32dp"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:title=""
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_account_current"
+        android:icon="@drawable/ic_einzahlungen_white_32_dp"
+        android:orderInCategory="200"
+        android:title="Bargeld"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/action_account_second"
+                android:icon="@drawable/ic_group_white_32dp"
+                android:title="WG"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_account_third"
+                android:icon="@drawable/ic_gehalt_white_32dp"
+                android:title="Bank"
+                app:showAsAction="ifRoom" />
+        </menu>
+
+
+    </item>
 </menu>
