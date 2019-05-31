@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,7 +30,6 @@ public class ViewHolder extends RecyclerView.ViewHolder {
     public ImageView mIVCategory;
     public ImageView mIVArrow;
 
-    // todo make code and view specific for costs
 
     public ViewHolder(View itemView) {
         super(itemView);
@@ -63,11 +63,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         mTxtValue.setText(String.format("%.2f",value));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void setImageViews(final Category category) {
-        //todo get right iconid from database object
-        //todo find object with stream and string value
-
         Context context = root.getContext();
         Category matching = null;
 
@@ -80,8 +76,8 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
 
         if (matching != null) {
-            mIVArrow.setImageDrawable(context.getDrawable(R.drawable.ic_arrow_downward_red_32dp));
-            mIVCategory.setImageDrawable(context.getDrawable(matching.getIconId()));
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_arrow_downward_red_32dp,null));
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),matching.getIconId(),null));
             return;
         }
 
@@ -94,12 +90,9 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         }
 
         if (matching != null) {
-            mIVArrow.setImageDrawable(context.getDrawable(R.drawable.ic_arrow_upward_green_24dp));
-            mIVCategory.setImageDrawable(context.getDrawable(matching.getIconId()));
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_arrow_upward_green_24dp,null));
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),matching.getIconId(),null));
         }
-
-
-        //todo find iconid in list for ausgabe or einnahme
 
     }
 }

@@ -1,17 +1,16 @@
 package com.example.easyflow.activities;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -44,9 +43,7 @@ public class MainActivity extends AppCompatActivity
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
 
-
     private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
     private FirebaseRecyclerAdapter mFirebaseRecyclerAdapter;
     private Toolbar mToolbar;
 
@@ -69,7 +66,7 @@ public class MainActivity extends AppCompatActivity
 
         // Initialize and show LiveData for the Main Content
         mRecyclerView = findViewById(R.id.list);
-        mLinearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         fetch();
@@ -130,29 +127,49 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_account_current) {
             return true;
         }
-
-
-        if (id == R.id.action_account_second) {
-            MenuItem head=mToolbar.getMenu().getItem(1);
-            swapItems(item, head);
+        else if(id==R.id.action_booking){
+            //todo open activity to book money from one account to another
         }
-        else if (id == R.id.action_account_third) {
+
+
+        if (id == R.id.action_account_second||id == R.id.action_account_third) {
             MenuItem head=mToolbar.getMenu().getItem(1);
-            swapItems(item, head);
+            String itemTitle=item.getTitle().toString();
+            String headTitle=head.getTitle().toString();
+
+
+            // Set head title and icon
+            // todo implement different selects from database
+            if(itemTitle==getString(R.string.actionbar_item_bank)){
+                setActionBarItem(head,R.string.actionbar_item_bank,R.drawable.ic_gehalt_white_32dp);
+
+            }else if(itemTitle==getString(R.string.actionbar_item_bargeld)){
+                setActionBarItem(head,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_white_32_dp);
+
+            }else if (itemTitle==getString(R.string.actionbar_item_wg)){
+                setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
+            }
+
+
+            // Set item title and icon
+            if(headTitle==getString(R.string.actionbar_item_bank)){
+                setActionBarItem(item,R.string.actionbar_item_bank,R.drawable.ic_gehalt_black_32dp);
+
+            }else if(headTitle==getString(R.string.actionbar_item_bargeld)){
+                setActionBarItem(item,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_black_24dp);
+
+            }else if (headTitle==getString(R.string.actionbar_item_wg)){
+                setActionBarItem(item,R.string.actionbar_item_wg,R.drawable.ic_group_black_32dp);
+            }
+
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void swapItems(MenuItem item, MenuItem head) {
-        String tmpString=head.getTitle().toString();
-        Drawable tmpDraw= head.getIcon();
-
-        head.setTitle(item.getTitle());
-        head.setIcon(item.getIcon());
-
-        item.setTitle(tmpString);
-        item.setIcon(tmpDraw);
+    private void setActionBarItem(MenuItem head, int stringId, int drawableId) {
+        head.setTitle(getString(stringId));
+        head.setIcon(ResourcesCompat.getDrawable(getResources(),drawableId,null));
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

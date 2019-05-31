@@ -13,19 +13,19 @@
         android:id="@+id/action_account_current"
         android:icon="@drawable/ic_einzahlungen_white_32_dp"
         android:orderInCategory="200"
-        android:title="Bargeld"
+        android:title="@string/actionbar_item_bargeld"
         app:showAsAction="always">
 
         <menu>
             <item
                 android:id="@+id/action_account_second"
-                android:icon="@drawable/ic_group_white_32dp"
-                android:title="WG"
+                android:icon="@drawable/ic_group_black_32dp"
+                android:title="@string/actionbar_item_wg"
                 app:showAsAction="ifRoom" />
             <item
                 android:id="@+id/action_account_third"
-                android:icon="@drawable/ic_gehalt_white_32dp"
-                android:title="Bank"
+                android:icon="@drawable/ic_gehalt_black_32dp"
+                android:title="@string/actionbar_item_bank"
                 app:showAsAction="ifRoom" />
         </menu>
 
