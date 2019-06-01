@@ -1,9 +1,6 @@
 package com.example.easyflow.interfaces;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -14,24 +11,19 @@ import android.widget.TextView;
 import com.example.easyflow.R;
 import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Category;
-import com.example.easyflow.models.Cost;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
-public class ViewHolder extends RecyclerView.ViewHolder {
-    public LinearLayout root;
-    public TextView mTxtTitle;
-    public TextView mTxtDesc;
-    public TextView mTxtValue;
-    public ImageView mIVCategory;
-    public ImageView mIVArrow;
+class ViewHolder extends RecyclerView.ViewHolder {
+    LinearLayout root;
+    private TextView mTxtTitle;
+    private TextView mTxtDesc;
+    private TextView mTxtValue;
+    private ImageView mIVCategory;
+    private ImageView mIVArrow;
 
 
-    public ViewHolder(View itemView) {
+    ViewHolder(View itemView) {
         super(itemView);
         root = itemView.findViewById(R.id.list_root);
         mTxtTitle = itemView.findViewById(R.id.list_title);
@@ -50,20 +42,20 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         */
     }
 
-    public void setTxtTitle(String string) {
+    void setTxtTitle(String string) {
         mTxtTitle.setText(string);
     }
 
 
-    public void setTxtDesc(String string) {
+    void setTxtDesc(String string) {
         mTxtDesc.setText(string);
     }
 
-    public void setTxtValue(Double value) {
-        mTxtValue.setText(String.format("%.2f",value));
+    void setTxtValue(Double value) {
+        mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL,value));
     }
 
-    public void setImageViews(final Category category) {
+    void setImageViews(final Category category) {
         Context context = root.getContext();
         Category matching = null;
 
@@ -95,4 +87,5 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         }
 
     }
+
 }

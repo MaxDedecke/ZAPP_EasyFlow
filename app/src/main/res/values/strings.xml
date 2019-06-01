@@ -52,4 +52,5 @@
     <string name="actionbar_item_bargeld">Bargeld</string>
     <string name="actionbar_item_wg">WG</string>
     <string name="actionbar_item_bank">Bank</string>
+    <string name="placeholder_description">Description</string>
 </resources>

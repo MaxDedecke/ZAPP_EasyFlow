@@ -14,26 +14,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.easyflow.R;
-import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.interfaces.CostAdapter;
 import com.example.easyflow.interfaces.FirebaseHelper;
-import com.example.easyflow.interfaces.ViewHolder;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.firebase.ui.database.SnapshotParser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +36,7 @@ public class MainActivity extends AppCompatActivity
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
 
-    private RecyclerView mRecyclerView;
-    private FirebaseRecyclerAdapter mFirebaseRecyclerAdapter;
+    private CostAdapter mCostAdapter;
     private Toolbar mToolbar;
 
 
@@ -54,6 +46,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -65,11 +58,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // Initialize and show LiveData for the Main Content
-        mRecyclerView = findViewById(R.id.list);
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mRecyclerView.setHasFixedSize(true);
-        fetch();
+        setUpRecyclerView();
 
 
         loadCategories();
@@ -129,6 +118,7 @@ public class MainActivity extends AppCompatActivity
         }
         else if(id==R.id.action_booking){
             //todo open activity to book money from one account to another
+            return true;
         }
 
 
@@ -140,25 +130,25 @@ public class MainActivity extends AppCompatActivity
 
             // Set head title and icon
             // todo implement different selects from database
-            if(itemTitle==getString(R.string.actionbar_item_bank)){
+            if(itemTitle.equals(getString(R.string.actionbar_item_bank))){
                 setActionBarItem(head,R.string.actionbar_item_bank,R.drawable.ic_gehalt_white_32dp);
 
-            }else if(itemTitle==getString(R.string.actionbar_item_bargeld)){
+            }else if(itemTitle.equals(getString(R.string.actionbar_item_bargeld))){
                 setActionBarItem(head,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_white_32_dp);
 
-            }else if (itemTitle==getString(R.string.actionbar_item_wg)){
+            }else if (itemTitle.equals(getString(R.string.actionbar_item_wg))){
                 setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
             }
 
 
             // Set item title and icon
-            if(headTitle==getString(R.string.actionbar_item_bank)){
+            if(headTitle.equals(getString(R.string.actionbar_item_bank))){
                 setActionBarItem(item,R.string.actionbar_item_bank,R.drawable.ic_gehalt_black_32dp);
 
-            }else if(headTitle==getString(R.string.actionbar_item_bargeld)){
+            }else if(headTitle.equals(getString(R.string.actionbar_item_bargeld))){
                 setActionBarItem(item,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_black_24dp);
 
-            }else if (headTitle==getString(R.string.actionbar_item_wg)){
+            }else if (headTitle.equals(getString(R.string.actionbar_item_wg))){
                 setActionBarItem(item,R.string.actionbar_item_wg,R.drawable.ic_group_black_32dp);
             }
 
@@ -174,7 +164,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -216,57 +206,45 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mFirebaseRecyclerAdapter.startListening();
+        mCostAdapter.startListening();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mFirebaseRecyclerAdapter.stopListening();
+        mCostAdapter.stopListening();
     }
 
 
-    private void fetch() {
+    private void setUpRecyclerView() {
 
         Query query = FirebaseHelper.getInstance().getQuery();
 
-        FirebaseRecyclerOptions<Cost> options =
-                new FirebaseRecyclerOptions.Builder<Cost>()
-                        .setQuery(query, new SnapshotParser<Cost>() {
-                            @NonNull
-                            @Override
-                            public Cost parseSnapshot(@NonNull DataSnapshot snapshot) {
-                                return snapshot.getValue(Cost.class);
-                            }
-                        })
-                        .build();
+        FirebaseRecyclerOptions<Cost> options = new FirebaseRecyclerOptions.Builder<Cost>()
+                .setQuery(query, snapshot -> snapshot.getValue(Cost.class))
+                .build();
 
-        mFirebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Cost, ViewHolder>(options) {
+        mCostAdapter=new CostAdapter(MainActivity.this,options);
+
+
+        RecyclerView mRecyclerView = findViewById(R.id.list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setAdapter(mCostAdapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
-            public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.sample_list_item_view, parent, false);
-
-                return new ViewHolder(view);
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
             }
 
-
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
-            protected void onBindViewHolder(ViewHolder holder, final int position, Cost cost) {
-                holder.setTxtTitle(cost.getCategory().getName());
-                holder.setImageViews(cost.getCategory());
-                holder.setTxtDesc(new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(cost.getDate()) + " - " + cost.getNote());
-                holder.setTxtValue(cost.getValue());
-
-                holder.root.setOnClickListener(view -> {
-                    //todo
-                    Toast.makeText(MainActivity.this, String.valueOf(position), Toast.LENGTH_SHORT).show();
-                });
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                mCostAdapter.deleteItem(viewHolder.getAdapterPosition());
             }
+        }).attachToRecyclerView(mRecyclerView);
 
-        };
-        mRecyclerView.setAdapter(mFirebaseRecyclerAdapter);
     }
 
 
