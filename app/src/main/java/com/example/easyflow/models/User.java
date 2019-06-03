@@ -7,6 +7,10 @@ public class User {
     private String mEmail;
     private String mPassword;
 
+    private String mCash;
+    private String mBankAccount;
+    private String mGroup;
+
     public User() { }
 
 
@@ -35,5 +39,27 @@ public class User {
     }
 
 
+    public String getCash() {
+        return mCash;
+    }
 
+    public void setCash(String mCash) {
+        this.mCash = mCash;
+    }
+
+    public String getBankAccount() {
+        return mBankAccount;
+    }
+
+    public void setBankAccount(String mBankAccount) {
+        this.mBankAccount = mBankAccount;
+    }
+
+    public String getGroup() {
+        return mGroup;
+    }
+
+    public void setGroup(String mGroup) {
+        this.mGroup = mGroup;
+    }
 }

@@ -14,8 +14,6 @@ import com.google.gson.Gson;
 
 public class SplashActivity extends AppCompatActivity {
 
-    public static User mCurrenUser;
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -33,10 +31,10 @@ public class SplashActivity extends AppCompatActivity {
 
             Gson gson = new Gson();
             String json = pref.getString(Constants.SHARED_PREF_KEY_USER_DATABASE, "");
-            mCurrenUser=gson.fromJson(json,User.class);
 
-            FirebaseHelper helper = FirebaseHelper.getInstance();
-            helper.checkUserDataChanged();
+            User currentUser =gson.fromJson(json,User.class);
+
+            FirebaseHelper.checkUser(currentUser);
 
             startActivity(intent);
             finish();

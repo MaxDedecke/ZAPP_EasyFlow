@@ -12,14 +12,14 @@
         android:layout_width="229dp"
         android:layout_height="180dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/ic_icon_red_24dp" />
 
     <EditText
         android:id="@+id/email_address_edittext"
         android:layout_width="match_parent"
+        android:layout_above="@id/password_edittext"
         android:layout_height="50dp"
-        android:layout_centerInParent="true"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="200dp"
         android:layout_marginRight="30dp"
@@ -31,7 +31,7 @@
         android:id="@+id/password_edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/email_address_edittext"
+        android:layout_centerInParent="true"
         android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="30dp"

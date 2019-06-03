@@ -17,11 +17,15 @@ import java.text.SimpleDateFormat;
 
 public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
     private Context mContext;
+    // todo sum up over cost objects and show in MainView (green or red)
+    public int mSum;
+
 
 
     public CostAdapter(Context context,@NonNull FirebaseRecyclerOptions options) {
         super(options);
         mContext=context;
+        mSum=0;
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -33,7 +37,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
         holder.setTxtValue(cost.getValue());
 
         holder.root.setOnClickListener(view -> {
-            //todo
+            //todo implement if necessary
             Toast.makeText(mContext, String.valueOf(position), Toast.LENGTH_SHORT).show();
         });
     }
@@ -41,15 +45,12 @@ public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.sample_list_item_view, viewGroup, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.sample_list_item_view, viewGroup, false);
 
         return new ViewHolder(view);
     }
 
     public void deleteItem(int position) {
-
-        //Toast.makeText(mContext, String.valueOf(position), Toast.LENGTH_SHORT).show();
         getSnapshots().getSnapshot(position).getRef().removeValue();
     }
 }

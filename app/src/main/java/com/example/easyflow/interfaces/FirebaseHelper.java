@@ -5,9 +5,11 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.easyflow.R;
+import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.activities.SplashActivity;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
+import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -34,87 +36,123 @@ public class FirebaseHelper {
 
     private static DatabaseReference mDbRefCost;
     private static FirebaseDatabase mDatabase;
+    private static String mStartDate;
+    private static String mEndDate;
+    public static User mCurrentUser;
 
 
     static {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        instance=new FirebaseHelper();
+        instance = new FirebaseHelper();
+        mDatabase = FirebaseDatabase.getInstance();
+
+
+        // Set Start and Enddate for Database Queries
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
+
+        Calendar calendarStart = GregorianCalendar.getInstance();
+        calendarStart.setTime(new Date());
+        calendarStart.set(Calendar.DAY_OF_MONTH, 1);
+
+        mStartDate = sdf.format(calendarStart.getTime());
+        calendarStart.set(Calendar.DAY_OF_MONTH, calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        mEndDate = sdf.format(calendarStart.getTime());
     }
 
-    public static FirebaseHelper getInstance(){
-
-        mDatabase=FirebaseDatabase.getInstance();
-
+    public static FirebaseHelper getInstance() {
         return instance;
+    }
+
+    public static void checkUser(User currentUser) {
+        mCurrentUser = currentUser;
+        checkUserDataChanged();
 
     }
 
     public User addUser(String email, String password) {
 
-        // Reference to users
-        DatabaseReference refUsers=mDatabase.getReference("users");
 
-        String key = refUsers.push().getKey();
+        // Reference to users
+        DatabaseReference refUsers = mDatabase.getReference("users");
+
+        String keyUser = refUsers.push().getKey();
+
+        // Reference to Cost
+        if (mDbRefCost == null) {
+            initDbRefCost(keyUser);
+        }
+
+        String keyBankAccount = mDbRefCost.push().getKey();
+        String keyCash = mDbRefCost.push().getKey();
 
         User user = new User();
-        user.setUserId(key);
+        user.setUserId(keyUser);
         user.setEmail(email);
         user.setPassword(password);
+        user.setBankAccount(keyBankAccount);
+        user.setCash(keyCash);
 
 
-        refUsers.child(key).setValue(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(Constants.TAG, "User saved successfully");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(Constants.TAG, "Failed saving User");
-                    }
-                });
+        refUsers.child(keyUser).setValue(user)
+                .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "User saved successfully"))
+                .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving User"));
 
+        mCurrentUser = user;
         return user;
     }
 
     public void addCost(Cost cost) {
-        User user = SplashActivity.mCurrenUser;
-        if(mDbRefCost==null){
-            initDbRefCost();
+        if (mDbRefCost == null) {
+            initDbRefCost(null);
         }
 
-        String key = mDbRefCost.push().getKey();
+        String keyAccount;
+
+        switch (MainActivity.stateAccount) {
+            case cash:
+                keyAccount = mCurrentUser.getCash();
+                break;
+            case group:
+                keyAccount = mCurrentUser.getGroup();
+                break;
+            case bankAccount:
+                keyAccount = mCurrentUser.getBankAccount();
+                break;
+            default:
+                keyAccount = mCurrentUser.getCash();
+        }
+
+
+        String key = mDbRefCost.child(keyAccount).push().getKey();
         Map<String, Object> costValues = cost.toMap();
 
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(key, costValues);
 
-        mDbRefCost.updateChildren(childUpdates);
+        mDbRefCost.child(keyAccount).updateChildren(childUpdates);
     }
 
-    public void checkUserDataChanged(){
+    private static void checkUserDataChanged() {
 
         // Get Database Reference
-        DatabaseReference refUser=mDatabase.getReference("users/"+SplashActivity.mCurrenUser.getUserId());
+        DatabaseReference refUser = mDatabase.getReference("users/" + mCurrentUser.getUserId());
 
         // Read from the database
-        ValueEventListener valueEventListener=new ValueEventListener() {
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                User cur=dataSnapshot.getValue(User.class);
-                if(cur!=null){
-                    String email=SplashActivity.mCurrenUser.getEmail();
-                    String password=SplashActivity.mCurrenUser.getPassword();
+                User cur = dataSnapshot.getValue(User.class);
+                if (cur != null) {
+                    String email = mCurrentUser.getEmail();
+                    String password = mCurrentUser.getPassword();
 
-                    if(!cur.getEmail().equals(email)){
-                        SplashActivity.mCurrenUser.setEmail(email);
+                    if (!cur.getEmail().equals(email)) {
+                        mCurrentUser.setEmail(email);
                     }
-                    if(!cur.getPassword().equals(password)) {
-                        SplashActivity.mCurrenUser.setPassword(password);
+                    if (!cur.getPassword().equals(password)) {
+                        mCurrentUser.setPassword(password);
                     }
                 }
             }
@@ -128,20 +166,20 @@ public class FirebaseHelper {
 
     }
 
-    public void setLiveDataListener(){
-        if(mDbRefCost==null){
-            initDbRefCost();
+    public void setLiveDataListener() {
+        if (mDbRefCost == null) {
+            initDbRefCost(null);
         }
 
-        SimpleDateFormat sdf= new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
+        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
 
-        Calendar calendarStart= GregorianCalendar.getInstance();
+        Calendar calendarStart = GregorianCalendar.getInstance();
         calendarStart.setTime(new Date());
-        calendarStart.set(Calendar.DAY_OF_MONTH,1);
+        calendarStart.set(Calendar.DAY_OF_MONTH, 1);
 
-        String startDate=sdf.format(calendarStart.getTime());
-        calendarStart.set(Calendar.DAY_OF_MONTH,calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-        String endDate =sdf.format(calendarStart.getTime());
+        String startDate = sdf.format(calendarStart.getTime());
+        calendarStart.set(Calendar.DAY_OF_MONTH, calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate = sdf.format(calendarStart.getTime());
 
 //todo finanzmonat definieren ermöglichen
 
@@ -150,7 +188,8 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {};
+                GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {
+                };
 
                 List<Cost> muteModelList;
                 HashMap<String, Cost> hashMap = dataSnapshot.getValue(t);
@@ -159,7 +198,8 @@ public class FirebaseHelper {
                     return;
                 }
 
-                muteModelList = new ArrayList<Cost>(hashMap.values()) {};
+                muteModelList = new ArrayList<Cost>(hashMap.values()) {
+                };
 
                 for (Cost muteModel : muteModelList) {
                     Category c = muteModel.getCategory();
@@ -176,26 +216,36 @@ public class FirebaseHelper {
 
     }
 
-    private void initDbRefCost() {
-        mDbRefCost=mDatabase.getReference(
-                "costs/"+SplashActivity.mCurrenUser.getUserId());
+    private void initDbRefCost(String userKey) {
+        if (userKey != null) {
+            mDbRefCost = mDatabase.getReference(
+                    "costs/" + userKey);
+        } else {
+            mDbRefCost = mDatabase.getReference(
+                    "costs/" + mCurrentUser.getUserId());
+        }
     }
 
-    public Query getQuery() {
-        if(mDbRefCost==null){
-            initDbRefCost();
+    public Query getQuery(StateAccount stateAccount) {
+        if (mDbRefCost == null) {
+            initDbRefCost(null);
         }
 
-        SimpleDateFormat sdf= new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
 
-        Calendar calendarStart= GregorianCalendar.getInstance();
-        calendarStart.setTime(new Date());
-        calendarStart.set(Calendar.DAY_OF_MONTH,1);
+        String childKey;
 
-        String startDate=sdf.format(calendarStart.getTime());
-        calendarStart.set(Calendar.DAY_OF_MONTH,calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-        String endDate =sdf.format(calendarStart.getTime());
+        switch (stateAccount) {
+            case bankAccount:
+                childKey = mCurrentUser.getBankAccount();
+                break;
+            case group:
+                childKey = mCurrentUser.getGroup();
+                break;
+            case cash:
+            default:
+                childKey = mCurrentUser.getCash();
+        }
 
-        return mDbRefCost.orderByChild("date").startAt(startDate).endAt(endDate);
+        return  mDbRefCost.child(childKey).orderByChild("date").startAt(mStartDate).endAt(mEndDate);
     }
 }

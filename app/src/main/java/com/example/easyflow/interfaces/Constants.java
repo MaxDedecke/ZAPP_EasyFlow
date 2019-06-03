@@ -1,5 +1,7 @@
 package com.example.easyflow.interfaces;
 
+import com.example.easyflow.models.StateAccount;
+
 public interface Constants {
     String DATE_FORMAT_DATABASE = "yyyy-MM-dd";
     String DATE_FORMAT_WEEKDAY = "EEEE, d MM yyyy";

@@ -21,7 +21,6 @@ import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.*;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -30,7 +29,7 @@ import java.util.Objects;
 public class EinAusgabeActivity extends AppCompatActivity implements View.OnClickListener{
 
     // Rechner
-    private State state = State.clean;
+    private StateCalculator stateCalculator = StateCalculator.clean;
     private String op1;
     private Operation op = Operation.none;
     private String op2;
@@ -300,7 +299,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
         this.handleOperand(op);
 
-        if (this.state == State.hasOp2) {
+        if (this.stateCalculator == StateCalculator.hasOp2) {
             result = this.calculate(this.op);
             this.writeDisplay(result);
             this.handleOperand(op);
@@ -322,7 +321,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
     void handleOperand(Operation op) {
 
-        switch (this.state) {
+        switch (this.stateCalculator) {
             case clean :
                 this.setOp1(this.readDisplay());
                 this.op = op;
@@ -337,12 +336,12 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
 
     private void setOp1(String value) {
         this.op1 = value;
-        this.state = State.hasOp1;
+        this.stateCalculator = StateCalculator.hasOp1;
     }
 
     private void setOp2(String value) {
         this.op2 = value;
-        this.state = State.hasOp2;
+        this.stateCalculator = StateCalculator.hasOp2;
     }
 
     private String calculate(Operation op) {
@@ -352,10 +351,10 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         double res = 0;
 
         switch (op) {
-            case add : res = op1 + op2; this.state = State.clean; break;
-            case sub : res = op1 - op2; this.state = State.clean; break;
-            case mul : res = op1 * op2; this.state = State.clean; break;
-            case div : res = op1 / op2; this.state = State.clean; break;
+            case add : res = op1 + op2; this.stateCalculator = StateCalculator.clean; break;
+            case sub : res = op1 - op2; this.stateCalculator = StateCalculator.clean; break;
+            case mul : res = op1 * op2; this.stateCalculator = StateCalculator.clean; break;
+            case div : res = op1 / op2; this.stateCalculator = StateCalculator.clean; break;
             default:
                 break;
 
@@ -371,7 +370,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         String result = this.calculate(this.op);
 
         this.writeDisplay(result);
-        this.state = State.clean;
+        this.stateCalculator = StateCalculator.clean;
 
     }
 

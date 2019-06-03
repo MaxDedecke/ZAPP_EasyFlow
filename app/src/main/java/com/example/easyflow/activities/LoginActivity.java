@@ -42,9 +42,6 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor edt = pref.edit();
         edt.putBoolean(Constants.SHARED_PREF_KEY_ACTIVITY_EXECUTED, true);
 
-
-        SplashActivity.mCurrenUser=user;
-
         Gson gson = new Gson();
         String json = gson.toJson(user);
         edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);

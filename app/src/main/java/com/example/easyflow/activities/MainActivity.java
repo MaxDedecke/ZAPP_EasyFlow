@@ -18,15 +18,19 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.CostAdapter;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
+import com.example.easyflow.models.StateAccount;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.Query;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +39,10 @@ public class MainActivity extends AppCompatActivity
 
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
+    public static StateAccount stateAccount=StateAccount.cash;
 
     private CostAdapter mCostAdapter;
+    private RecyclerView mRecyclerView;
     private Toolbar mToolbar;
 
 
@@ -57,11 +63,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        // Initialize and show LiveData for the Main Content
-        setUpRecyclerView();
 
 
         loadCategories();
+        // Initialize and show LiveData for the Main Content
+        setUpRecyclerView();
     }
 
     private void loadCategories() {
@@ -118,6 +124,7 @@ public class MainActivity extends AppCompatActivity
         }
         else if(id==R.id.action_booking){
             //todo open activity to book money from one account to another
+            Toast.makeText(this,"Note Implemented yet.", Toast.LENGTH_SHORT).show();
             return true;
         }
 
@@ -129,15 +136,23 @@ public class MainActivity extends AppCompatActivity
 
 
             // Set head title and icon
-            // todo implement different selects from database
             if(itemTitle.equals(getString(R.string.actionbar_item_bank))){
                 setActionBarItem(head,R.string.actionbar_item_bank,R.drawable.ic_gehalt_white_32dp);
+                databaseSelectedAccountHasChanged(StateAccount.bankAccount);
 
             }else if(itemTitle.equals(getString(R.string.actionbar_item_bargeld))){
                 setActionBarItem(head,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_white_32_dp);
+                databaseSelectedAccountHasChanged(StateAccount.cash);
 
             }else if (itemTitle.equals(getString(R.string.actionbar_item_wg))){
                 setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
+
+                if(FirebaseHelper.mCurrentUser.getGroup()!=null) {
+                    databaseSelectedAccountHasChanged(StateAccount.group);
+                }
+                else{
+                    // todo form öffnen und fragen, ob man eine wg erstellen möchteS
+                }
             }
 
 
@@ -155,6 +170,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void databaseSelectedAccountHasChanged(StateAccount newSelectedAccount) {
+        stateAccount=newSelectedAccount;
+        updateAndSetCostAdapter();
     }
 
     private void setActionBarItem(MenuItem head, int stringId, int drawableId) {
@@ -217,20 +237,9 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setUpRecyclerView() {
-
-        Query query = FirebaseHelper.getInstance().getQuery();
-
-        FirebaseRecyclerOptions<Cost> options = new FirebaseRecyclerOptions.Builder<Cost>()
-                .setQuery(query, snapshot -> snapshot.getValue(Cost.class))
-                .build();
-
-        mCostAdapter=new CostAdapter(MainActivity.this,options);
-
-
-        RecyclerView mRecyclerView = findViewById(R.id.list);
+        mRecyclerView = findViewById(R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(mCostAdapter);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -245,6 +254,26 @@ public class MainActivity extends AppCompatActivity
             }
         }).attachToRecyclerView(mRecyclerView);
 
+
+        updateAndSetCostAdapter();
+
+    }
+
+    private void updateAndSetCostAdapter(){
+
+        Query query = FirebaseHelper.getInstance().getQuery(stateAccount);
+
+        FirebaseRecyclerOptions<Cost> options = new FirebaseRecyclerOptions.Builder<Cost>()
+                .setQuery(query, snapshot -> snapshot.getValue(Cost.class))
+                .build();
+
+        if(mCostAdapter!=null)
+            mCostAdapter.stopListening();
+
+        mCostAdapter=new CostAdapter(MainActivity.this,options);
+        mRecyclerView.setAdapter(mCostAdapter);
+
+        mCostAdapter.startListening();
     }
 
 

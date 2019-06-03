@@ -23,6 +23,7 @@ class ViewHolder extends RecyclerView.ViewHolder {
     private ImageView mIVArrow;
 
 
+
     ViewHolder(View itemView) {
         super(itemView);
         root = itemView.findViewById(R.id.list_root);
