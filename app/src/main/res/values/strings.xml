@@ -53,4 +53,6 @@
     <string name="actionbar_item_wg">WG</string>
     <string name="actionbar_item_bank">Bank</string>
     <string name="placeholder_description">Description</string>
+    <string name="ueberweisung_hinzufügen">Überweisung hinzufügen</string>
+    <string name="konten_muessen_verschieden_sein">Konten müssen verschieden sein.</string>
 </resources>

@@ -23,7 +23,6 @@ class ViewHolder extends RecyclerView.ViewHolder {
     private ImageView mIVArrow;
 
 
-
     ViewHolder(View itemView) {
         super(itemView);
         root = itemView.findViewById(R.id.list_root);
@@ -36,7 +35,6 @@ class ViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //todo wenn benötigt
 
             }
         });
@@ -53,24 +51,25 @@ class ViewHolder extends RecyclerView.ViewHolder {
     }
 
     void setTxtValue(Double value) {
-        mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL,value));
+        mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, value));
     }
 
     void setImageViews(final Category category) {
         Context context = root.getContext();
         Category matching = null;
+        Integer categoryId = category.getId();
 
         Iterator<Category> iteratorCost = MainActivity.categoriesCost.iterator();
         while (iteratorCost.hasNext() && matching == null) {
             Category c = iteratorCost.next();
-            if (c.getId() == category.getId())
+            if (c.getId() == categoryId)
                 matching = c;
         }
 
 
         if (matching != null) {
-            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_arrow_downward_red_32dp,null));
-            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),matching.getIconId(),null));
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_downward_red_32dp, null));
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), matching.getIconId(), null));
             return;
         }
 
@@ -78,15 +77,24 @@ class ViewHolder extends RecyclerView.ViewHolder {
         Iterator<Category> iteratorIncome = MainActivity.categoriesIncome.iterator();
         while (iteratorIncome.hasNext() && matching == null) {
             Category c = iteratorIncome.next();
-            if (c.getId() == category.getId())
+            if (c.getId() == categoryId)
                 matching = c;
         }
 
         if (matching != null) {
-            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),R.drawable.ic_arrow_upward_green_24dp,null));
-            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(),matching.getIconId(),null));
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_upward_green_24dp, null));
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), matching.getIconId(), null));
+            return;
         }
 
+        if (categoryId == MainActivity.categoryTransferTo.getId()) {
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_upward_green_24dp, null));
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), MainActivity.categoryTransferTo.getIconId(), null));
+            return;
+        } else if (categoryId == MainActivity.categoryTransferFrom.getId())
+            mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_downward_red_32dp, null));
+        mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), MainActivity.categoryTransferFrom.getIconId(), null));
+        return;
     }
 
 }

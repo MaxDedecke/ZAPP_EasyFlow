@@ -18,7 +18,6 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.CostAdapter;
@@ -26,11 +25,9 @@ import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.StateAccount;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.Query;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +36,9 @@ public class MainActivity extends AppCompatActivity
 
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
-    public static StateAccount stateAccount=StateAccount.cash;
+    public static Category categoryTransferFrom;
+    public static Category categoryTransferTo;
+    public static StateAccount stateAccount=StateAccount.Cash;
 
     private CostAdapter mCostAdapter;
     private RecyclerView mRecyclerView;
@@ -90,6 +89,10 @@ public class MainActivity extends AppCompatActivity
         categoriesIncome.add(new Category(getString(R.string.categoriy_einzahlungen), R.drawable.ic_einzahlungen_24dp));
         categoriesIncome.add(new Category(getString(R.string.categoriy_ersparnisse), R.drawable.ic_trending_up_black_24dp));
         categoriesIncome.add(new Category(getString(R.string.categoriy_gehalt), R.drawable.ic_gehalt_24dp));
+
+        // Kategorien für Transfer
+        categoryTransferFrom=new Category("Überweisung",R.drawable.ic_swap_horiz_red_32dp);
+        categoryTransferTo=new Category("Überweisung",R.drawable.ic_swap_horiz_green_32dp);
     }
 
     @Override
@@ -123,8 +126,8 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         else if(id==R.id.action_booking){
-            //todo open activity to book money from one account to another
-            Toast.makeText(this,"Note Implemented yet.", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, BookCostActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -138,17 +141,17 @@ public class MainActivity extends AppCompatActivity
             // Set head title and icon
             if(itemTitle.equals(getString(R.string.actionbar_item_bank))){
                 setActionBarItem(head,R.string.actionbar_item_bank,R.drawable.ic_gehalt_white_32dp);
-                databaseSelectedAccountHasChanged(StateAccount.bankAccount);
+                databaseSelectedAccountHasChanged(StateAccount.BankAccount);
 
             }else if(itemTitle.equals(getString(R.string.actionbar_item_bargeld))){
                 setActionBarItem(head,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_white_32_dp);
-                databaseSelectedAccountHasChanged(StateAccount.cash);
+                databaseSelectedAccountHasChanged(StateAccount.Cash);
 
             }else if (itemTitle.equals(getString(R.string.actionbar_item_wg))){
                 setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
 
                 if(FirebaseHelper.mCurrentUser.getGroup()!=null) {
-                    databaseSelectedAccountHasChanged(StateAccount.group);
+                    databaseSelectedAccountHasChanged(StateAccount.Group);
                 }
                 else{
                     // todo form öffnen und fragen, ob man eine wg erstellen möchteS

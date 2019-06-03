@@ -1,18 +1,13 @@
 package com.example.easyflow.interfaces;
 
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.easyflow.R;
 import com.example.easyflow.activities.MainActivity;
-import com.example.easyflow.activities.SplashActivity;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -101,21 +96,21 @@ public class FirebaseHelper {
         return user;
     }
 
-    public void addCost(Cost cost) {
+    public void addCost(Cost cost, StateAccount account){
         if (mDbRefCost == null) {
             initDbRefCost(null);
         }
 
         String keyAccount;
 
-        switch (MainActivity.stateAccount) {
-            case cash:
+        switch (account) {
+            case Cash:
                 keyAccount = mCurrentUser.getCash();
                 break;
-            case group:
+            case Group:
                 keyAccount = mCurrentUser.getGroup();
                 break;
-            case bankAccount:
+            case BankAccount:
                 keyAccount = mCurrentUser.getBankAccount();
                 break;
             default:
@@ -132,6 +127,7 @@ public class FirebaseHelper {
 
         mDbRefCost.child(keyAccount).updateChildren(childUpdates);
     }
+
 
     private static void checkUserDataChanged() {
 
@@ -235,13 +231,13 @@ public class FirebaseHelper {
         String childKey;
 
         switch (stateAccount) {
-            case bankAccount:
+            case BankAccount:
                 childKey = mCurrentUser.getBankAccount();
                 break;
-            case group:
+            case Group:
                 childKey = mCurrentUser.getGroup();
                 break;
-            case cash:
+            case Cash:
             default:
                 childKey = mCurrentUser.getCash();
         }

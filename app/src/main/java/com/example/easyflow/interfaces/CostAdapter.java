@@ -33,13 +33,17 @@ public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Cost cost) {
         holder.setTxtTitle(cost.getCategory().getName());
         holder.setImageViews(cost.getCategory());
-        holder.setTxtDesc(new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(cost.getDate()) + " - " + cost.getNote());
+        String desc=new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(cost.getDate());
+        if(cost.getNote()!=null)
+            desc+= " - " + cost.getNote();
+        holder.setTxtDesc(desc);
         holder.setTxtValue(cost.getValue());
 
+        /*
         holder.root.setOnClickListener(view -> {
-            //todo implement if necessary
             Toast.makeText(mContext, String.valueOf(position), Toast.LENGTH_SHORT).show();
         });
+        */
     }
 
     @NonNull

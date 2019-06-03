@@ -19,6 +19,7 @@ import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.fragments.CategoriesFragment;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.interfaces.OnFragCalcFinishEventListener;
 import com.example.easyflow.models.*;
 
 import java.util.Calendar;
@@ -26,13 +27,8 @@ import java.util.Date;
 import java.util.Objects;
 
 
-public class EinAusgabeActivity extends AppCompatActivity implements View.OnClickListener{
+public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcFinishEventListener {
 
-    // Rechner
-    private StateCalculator stateCalculator = StateCalculator.clean;
-    private String op1;
-    private Operation op = Operation.none;
-    private String op2;
 
     // Display
     public EditTextWithClear mDisplayValueEditText;
@@ -40,7 +36,6 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
     private EditText mNoteEditText;
     private CalcFragment mCalcFragment;
     private Spinner mSpinnerFrequence;
-    private boolean mNewOperandExpected = true;
 
     private final Calendar myCalendar = Calendar.getInstance();
     private Date mDateOfCosts;
@@ -67,12 +62,10 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         }
 
         mSpinnerFrequence=findViewById(R.id.spinnerFrequence);
-        //ArrayAdapter<CharSequence> frequenceAdapter =ArrayAdapter.createFromResource(
-         //       this,R.array.wiederkehrend_array,R.layout.spinner_choose_frequence_item);
-        //mSpinnerFrequence.setAdapter(frequenceAdapter);
         mSpinnerFrequence.setAdapter(new ArrayAdapter<Frequency>(this, R.layout.spinner_choose_frequence_item,Frequency.values()));
 
         mCalcFragment=CalcFragment.newInstance();
+        mCalcFragment.setOnFragCalcFinishEventListener(this);
 
         // Begin the transaction
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -116,82 +109,25 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         mDisplayDateEditText.setText(s);
     }
 
-    public void setButtonOnClickListener() {
-        // Set onClickListener for Operation Buttons.
-        Button btnMinus = findViewById(R.id.btnOp_Minus);
-        Button btnPlus = findViewById(R.id.btnOp_Plus);
-        Button btnDiv = findViewById(R.id.btnOp_Div);
-        Button btnMul = findViewById(R.id.btnOp_Mul);
-        Button btnEquals = findViewById(R.id.btnOp_Equals);
 
-        Button[] btnOpArray = new Button[]{btnMinus, btnPlus, btnDiv, btnMul, btnEquals};
 
-        for (Button b : btnOpArray) {
-            b.setOnClickListener(this);
-        }
+    public void finishEinAusgabeActivity(Category c){
+        //mDateOfCosts
+        double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
+        String note=mNoteEditText.getText().toString();
+        int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
 
-        // Set onClickListener for Num Buttons.
-        Button btnNumPeriod = findViewById(R.id.btnNum_Period);
-        Button btn0 = findViewById(R.id.btnNum_0);
-        Button btn1 = findViewById(R.id.btnNum_1);
-        Button btn2 = findViewById(R.id.btnNum_2);
-        Button btn3 = findViewById(R.id.btnNum_3);
-        Button btn4 = findViewById(R.id.btnNum_4);
-        Button btn5 = findViewById(R.id.btnNum_5);
-        Button btn6 = findViewById(R.id.btnNum_6);
-        Button btn7 = findViewById(R.id.btnNum_7);
-        Button btn8 = findViewById(R.id.btnNum_8);
-        Button btn9 = findViewById(R.id.btnNum_9);
+        Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
 
-        Button[] btnNumArray = new Button[]{btnNumPeriod, btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9};
+        FirebaseHelper helper= FirebaseHelper.getInstance();
+        helper.addCost(cost,MainActivity.stateAccount);
 
-        for (Button b : btnNumArray) {
-            b.setOnClickListener(this);
-        }
-
-        // Set onClickListener for Category.
-        Button btnCategory = findViewById(R.id.btnCategory);
-        btnCategory.setOnClickListener(this);
+        this.finish();
     }
 
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnNum_Period:
-            case R.id.btnNum_0:
-            case R.id.btnNum_1:
-            case R.id.btnNum_2:
-            case R.id.btnNum_3:
-            case R.id.btnNum_4:
-            case R.id.btnNum_5:
-            case R.id.btnNum_6:
-            case R.id.btnNum_7:
-            case R.id.btnNum_8:
-            case R.id.btnNum_9:
-                onClickBtnNum(v);
-                break;
-            case R.id.btnOp_Plus:
-            case R.id.btnOp_Minus:
-            case R.id.btnOp_Div:
-            case R.id.btnOp_Mul:
-            case R.id.btnOp_Equals:
-                onClickBtnOp(v);
-                break;
-            case R.id.btnCategory:
-                onClickBtnCategorie();
-                break;
-        }
-    }
-
-    private void onClickBtnCategorie() {
-        double val =Double.parseDouble(Objects.requireNonNull(mDisplayValueEditText.getText()).toString());
-
-        if(val==0){
-            mDisplayValueEditText.valueIsZero();
-            return;
-        }
-
+    public void OnFragCalcFinish() {
 
         CategoriesFragment mCategoriesFragment = CategoriesFragment.newInstance(mShowEingabeCategories);
 
@@ -204,189 +140,4 @@ public class EinAusgabeActivity extends AppCompatActivity implements View.OnClic
         // Complete the changes added above
         ft.commit();
     }
-
-
-    public void onClickBtnNum(View v) {
-
-        String num = "";
-
-        String displayText = "";
-
-        if (this.mNewOperandExpected) {
-            this.writeDisplay("0");
-            this.mNewOperandExpected = false;
-        } else {
-            displayText = this.readDisplay();
-
-
-            if(displayText.substring(0,1).equals("0"))
-                displayText="";
-
-        }
-
-        // Auswerten des betaetigten Schalters
-        switch (v.getId()) {
-
-            case R.id.btnNum_0:
-                num = "0";
-                break;
-            case R.id.btnNum_1:
-                num = "1";
-                break;
-            case R.id.btnNum_2:
-                num = "2";
-                break;
-            case R.id.btnNum_3:
-                num = "3";
-                break;
-            case R.id.btnNum_4:
-                num = "4";
-                break;
-            case R.id.btnNum_5:
-                num = "5";
-                break;
-            case R.id.btnNum_6:
-                num = "6";
-                break;
-            case R.id.btnNum_7:
-                num = "7";
-                break;
-            case R.id.btnNum_8:
-                num = "8";
-                break;
-            case R.id.btnNum_9:
-                num = "9";
-                break;
-            case R.id.btnNum_Period:
-                if (!this.hasDecimalPoint(displayText)) {
-                    num = ".";
-                }
-                break;
-        }
-
-
-
-        this.writeDisplay(displayText + num);
-    }
-
-    public void onClickBtnOp(View v) {
-
-        Operation op = Operation.none;
-        String result;
-
-        this.mNewOperandExpected = true;
-
-        switch (v.getId()) {
-
-            case R.id.btnOp_Plus:
-                op = Operation.add;
-                break;
-            case R.id.btnOp_Minus:
-                op = Operation.sub;
-                break;
-            case R.id.btnOp_Mul:
-                op = Operation.mul;
-                break;
-            case R.id.btnOp_Div:
-                op = Operation.div;
-                break;
-            case R.id.btnOp_Equals:
-                equalsOp();
-                return;
-
-
-        }
-
-        this.handleOperand(op);
-
-        if (this.stateCalculator == StateCalculator.hasOp2) {
-            result = this.calculate(this.op);
-            this.writeDisplay(result);
-            this.handleOperand(op);
-        }
-
-    }
-
-    void writeDisplay(String value) {
-        this.mDisplayValueEditText.setText(value);
-    }
-
-    String readDisplay() {
-        return this.mDisplayValueEditText.getText().toString();
-    }
-
-    boolean hasDecimalPoint(String value) {
-        return value.contains(".");
-    }
-
-    void handleOperand(Operation op) {
-
-        switch (this.stateCalculator) {
-            case clean :
-                this.setOp1(this.readDisplay());
-                this.op = op;
-                break;
-            case hasOp1 :
-                this.setOp2(this.readDisplay());
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void setOp1(String value) {
-        this.op1 = value;
-        this.stateCalculator = StateCalculator.hasOp1;
-    }
-
-    private void setOp2(String value) {
-        this.op2 = value;
-        this.stateCalculator = StateCalculator.hasOp2;
-    }
-
-    private String calculate(Operation op) {
-
-        double op1 = Double.parseDouble(this.op1);
-        double op2 = Double.parseDouble(this.op2);
-        double res = 0;
-
-        switch (op) {
-            case add : res = op1 + op2; this.stateCalculator = StateCalculator.clean; break;
-            case sub : res = op1 - op2; this.stateCalculator = StateCalculator.clean; break;
-            case mul : res = op1 * op2; this.stateCalculator = StateCalculator.clean; break;
-            case div : res = op1 / op2; this.stateCalculator = StateCalculator.clean; break;
-            default:
-                break;
-
-        }
-
-        return Double.toString(res);
-    }
-
-    void equalsOp() {
-
-        this.setOp2(this.readDisplay());
-
-        String result = this.calculate(this.op);
-
-        this.writeDisplay(result);
-        this.stateCalculator = StateCalculator.clean;
-
-    }
-
-    public void finishEinAusgabeActivity(Category c){
-        //mDateOfCosts
-        double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
-        String note=mNoteEditText.getText().toString();
-        int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
-
-        Cost cost = new Cost(valueOfCosts,mDateOfCosts,c,Frequency.fromId(frequenceId),note);
-
-        FirebaseHelper helper= FirebaseHelper.getInstance();
-        helper.addCost(cost);
-
-        this.finish();
-    }
-
-
 }
