@@ -13,9 +13,10 @@
         android:id="@+id/tvSummary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="placeholder"
-        android:visibility="invisible"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:text="Noch keine Ausgaben"
+        android:visibility="visible"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+        android:layout_margin="4dp"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent"/>
 

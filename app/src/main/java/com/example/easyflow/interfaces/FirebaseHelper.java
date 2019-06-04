@@ -1,9 +1,10 @@
 package com.example.easyflow.interfaces;
 
+import android.graphics.Path;
+import android.icu.text.RelativeDateTimeFormatter;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.StateAccount;
@@ -84,8 +85,8 @@ public class FirebaseHelper {
         user.setUserId(keyUser);
         user.setEmail(email);
         user.setPassword(password);
-        user.setBankAccount(keyBankAccount);
-        user.setCash(keyCash);
+        user.setBankAccountId(keyBankAccount);
+        user.setCashId(keyCash);
 
 
         refUsers.child(keyUser).setValue(user)
@@ -105,16 +106,16 @@ public class FirebaseHelper {
 
         switch (account) {
             case Cash:
-                keyAccount = mCurrentUser.getCash();
+                keyAccount = mCurrentUser.getCashId();
                 break;
             case Group:
-                keyAccount = mCurrentUser.getGroup();
+                keyAccount = mCurrentUser.getGroupId();
                 break;
             case BankAccount:
-                keyAccount = mCurrentUser.getBankAccount();
+                keyAccount = mCurrentUser.getBankAccountId();
                 break;
             default:
-                keyAccount = mCurrentUser.getCash();
+                keyAccount = mCurrentUser.getCashId();
         }
 
 
@@ -232,14 +233,14 @@ public class FirebaseHelper {
 
         switch (stateAccount) {
             case BankAccount:
-                childKey = mCurrentUser.getBankAccount();
+                childKey = mCurrentUser.getBankAccountId();
                 break;
             case Group:
-                childKey = mCurrentUser.getGroup();
+                childKey = mCurrentUser.getGroupId();
                 break;
             case Cash:
             default:
-                childKey = mCurrentUser.getCash();
+                childKey = mCurrentUser.getCashId();
         }
 
         return  mDbRefCost.child(childKey).orderByChild("date").startAt(mStartDate).endAt(mEndDate);

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,7 @@ import com.example.easyflow.EditTextWithClear;
 import com.example.easyflow.activities.BookCostActivity;
 import com.example.easyflow.activities.EinAusgabeActivity;
 import com.example.easyflow.R;
-import com.example.easyflow.interfaces.OnFragCalcFinishEventListener;
+import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.Operation;
 import com.example.easyflow.models.StateCalculator;
 
@@ -25,7 +24,7 @@ public class CalcFragment extends Fragment implements View.OnClickListener {
 
     private EditTextWithClear mEditText;
     private View mView;
-    OnFragCalcFinishEventListener mListener;
+    NotifyEventHandler mListener;
 
 
     // Rechner
@@ -347,10 +346,10 @@ public class CalcFragment extends Fragment implements View.OnClickListener {
             return;
         }
 
-        mListener.OnFragCalcFinish();
+        mListener.Notify();
     }
 
-    public void setOnFragCalcFinishEventListener(OnFragCalcFinishEventListener eventListener) {
+    public void setOnFragCalcFinishEventListener(NotifyEventHandler eventListener) {
         mListener = eventListener;
     }
 }

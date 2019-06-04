@@ -1,18 +1,13 @@
 package com.example.easyflow.activities;
 
 import android.app.DatePickerDialog;
-import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.example.easyflow.EditTextWithClear;
@@ -20,10 +15,9 @@ import com.example.easyflow.R;
 import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
-import com.example.easyflow.interfaces.OnFragCalcFinishEventListener;
+import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.interfaces.SpinnerAccountAdapter;
 import com.example.easyflow.models.AccountData;
-import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.Frequency;
 import com.example.easyflow.models.StateAccount;
@@ -31,10 +25,9 @@ import com.example.easyflow.models.StateAccount;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Objects;
 
-public class BookCostActivity extends AppCompatActivity implements OnFragCalcFinishEventListener {
+public class BookCostActivity extends AppCompatActivity implements NotifyEventHandler {
 
     private Spinner mSpinnerFrom;
     private Spinner mSpinnerTo;
@@ -106,7 +99,7 @@ public class BookCostActivity extends AppCompatActivity implements OnFragCalcFin
     }
 
     @Override
-    public void OnFragCalcFinish() {
+    public void Notify() {
         if(mSpinnerFrom.getSelectedItemPosition()==mSpinnerTo.getSelectedItemPosition()){
             Toast.makeText(this,getString(R.string.konten_muessen_verschieden_sein),Toast.LENGTH_LONG).show();
             return;
@@ -115,13 +108,16 @@ public class BookCostActivity extends AppCompatActivity implements OnFragCalcFin
         Cost fromCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, MainActivity.categoryTransferFrom, Frequency.Einmalig,null);
         Cost toCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, MainActivity.categoryTransferTo, Frequency.Einmalig,null);
 
-        AccountData fromAccount= (AccountData) mSpinnerFrom.getSelectedItem();
-        AccountData toAccount= (AccountData) mSpinnerTo.getSelectedItem();
+        StateAccount fromStateAccount=((AccountData) mSpinnerFrom.getSelectedItem()).getStateAccountObject();
+        StateAccount toStateAccount=((AccountData) mSpinnerTo.getSelectedItem()).getStateAccountObject();
 
+        if((fromStateAccount==StateAccount.Group || toStateAccount==StateAccount.Group)&&FirebaseHelper.mCurrentUser.getGroupId()==null){
+            Toast.makeText(this,"Sie befinden sich derzeit in keiner Gruppe",Toast.LENGTH_SHORT);
+        }
 
         FirebaseHelper helper= FirebaseHelper.getInstance();
-        helper.addCost(fromCost,fromAccount.getStateAccountObject());
-        helper.addCost(toCost,toAccount.getStateAccountObject());
+        helper.addCost(fromCost,fromStateAccount);
+        helper.addCost(toCost,toStateAccount);
 
         this.finish();
     }

@@ -3,42 +3,45 @@ package com.example.easyflow.interfaces;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.easyflow.R;
+import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Cost;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
 
-import java.text.SimpleDateFormat;
 
-public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
+public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, ViewHolder> {
     private Context mContext;
-    // todo sum up over cost objects and show in MainView (green or red)
-    public int mSum;
+    public NotifyEventHandler mListener;
 
 
 
     public CostAdapter(Context context,@NonNull FirebaseRecyclerOptions options) {
         super(options);
         mContext=context;
-        mSum=0;
     }
 
     @SuppressLint("SimpleDateFormat")
     @Override
-    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull Cost cost) {
-        holder.setTxtTitle(cost.getCategory().getName());
-        holder.setImageViews(cost.getCategory());
-        String desc=new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(cost.getDate());
-        if(cost.getNote()!=null)
-            desc+= " - " + cost.getNote();
-        holder.setTxtDesc(desc);
-        holder.setTxtValue(cost.getValue());
+    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot dataSnapshot) {
+        Cost cost = dataSnapshot.getValue(Cost.class);
+        String key = dataSnapshot.getKey();
+        holder.setData(cost);
 
+        if(!MainActivity.mSumHashMap.containsKey(key))
+            MainActivity.mSumHashMap.put(key,holder.getValue());
+        else {
+            MainActivity.mSumHashMap.remove(key);
+            MainActivity.mSumHashMap.put(key,holder.getValue());
+        }
+        if(mListener!=null)
+            mListener.Notify();
         /*
         holder.root.setOnClickListener(view -> {
             Toast.makeText(mContext, String.valueOf(position), Toast.LENGTH_SHORT).show();
@@ -55,6 +58,20 @@ public class CostAdapter extends FirebaseRecyclerAdapter<Cost, ViewHolder> {
     }
 
     public void deleteItem(int position) {
-        getSnapshots().getSnapshot(position).getRef().removeValue();
+        DataSnapshot snapshot=getSnapshots().getSnapshot(position);
+
+        Cost cost = snapshot.getValue(Cost.class);
+
+        if(MainActivity.mSumHashMap.containsKey(snapshot.getKey()))
+            MainActivity.mSumHashMap.remove(snapshot.getKey());
+        if(mListener!=null)
+            mListener.Notify();
+
+        snapshot.getRef().removeValue();
     }
+
+    public void setNotifyEventListener(NotifyEventHandler eventListener) {
+        mListener=eventListener;
+    }
+
 }

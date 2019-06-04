@@ -11,16 +11,21 @@ import android.widget.TextView;
 import com.example.easyflow.R;
 import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Category;
+import com.example.easyflow.models.Cost;
 
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 class ViewHolder extends RecyclerView.ViewHolder {
-    LinearLayout root;
+    private LinearLayout root;
     private TextView mTxtTitle;
     private TextView mTxtDesc;
     private TextView mTxtValue;
     private ImageView mIVCategory;
     private ImageView mIVArrow;
+    private Cost mCost;
+    private double mValue=0;
+
 
 
     ViewHolder(View itemView) {
@@ -41,60 +46,77 @@ class ViewHolder extends RecyclerView.ViewHolder {
         */
     }
 
-    void setTxtTitle(String string) {
-        mTxtTitle.setText(string);
+    void setTxtTitle() {
+        mTxtTitle.setText(mCost.getCategory().getName());
     }
 
 
-    void setTxtDesc(String string) {
-        mTxtDesc.setText(string);
+    void setTxtDesc() {
+        String description = new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(mCost.getDate());
+        if (mCost.getNote()!=null && !mCost.getNote().isEmpty())
+            description += " - " + mCost.getNote();
+        mTxtDesc.setText(description);
     }
 
-    void setTxtValue(Double value) {
-        mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, value));
+    void setTxtValue() {
+        mValue=mCost.getValue();
+        mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, mValue));
     }
 
-    void setImageViews(final Category category) {
+    void setImageViews() {
         Context context = root.getContext();
-        Category matching = null;
-        Integer categoryId = category.getId();
+        Integer categoryId = mCost.getCategory().getId();
 
+
+        Category matching = null;
+
+        // Search for matching Category in categoriesCost.
         Iterator<Category> iteratorCost = MainActivity.categoriesCost.iterator();
         while (iteratorCost.hasNext() && matching == null) {
             Category c = iteratorCost.next();
             if (c.getId() == categoryId)
                 matching = c;
         }
-
-
+        // Set specified data and return, if matching category was found.
         if (matching != null) {
             mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_downward_red_32dp, null));
             mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), matching.getIconId(), null));
             return;
         }
 
-
+        // Search for matching Category in categoriesIncome.
         Iterator<Category> iteratorIncome = MainActivity.categoriesIncome.iterator();
         while (iteratorIncome.hasNext() && matching == null) {
             Category c = iteratorIncome.next();
             if (c.getId() == categoryId)
                 matching = c;
         }
-
+        // Set specified data and return, if matching category was found.
         if (matching != null) {
             mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_upward_green_24dp, null));
             mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), matching.getIconId(), null));
             return;
         }
 
+        // If matching Category was not in categories Income or Cost, look for it in transfer categories.
         if (categoryId == MainActivity.categoryTransferTo.getId()) {
             mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_upward_green_24dp, null));
             mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), MainActivity.categoryTransferTo.getIconId(), null));
-            return;
-        } else if (categoryId == MainActivity.categoryTransferFrom.getId())
+        } else if (categoryId == MainActivity.categoryTransferFrom.getId()) {
             mIVArrow.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_arrow_downward_red_32dp, null));
-        mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), MainActivity.categoryTransferFrom.getIconId(), null));
-        return;
+            mIVCategory.setImageDrawable(ResourcesCompat.getDrawable(context.getResources(), MainActivity.categoryTransferFrom.getIconId(), null));
+        }
     }
 
+    public void setData(Cost cost) {
+        mCost = cost;
+        setTxtTitle();
+        setImageViews();
+        setTxtDesc();
+        setTxtValue();
+    }
+
+    public double getValue() {
+        return mValue;
+    }
 }

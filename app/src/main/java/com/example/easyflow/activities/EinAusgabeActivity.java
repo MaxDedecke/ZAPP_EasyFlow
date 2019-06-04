@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -19,15 +18,14 @@ import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.fragments.CategoriesFragment;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.FirebaseHelper;
-import com.example.easyflow.interfaces.OnFragCalcFinishEventListener;
+import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.*;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 
-public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcFinishEventListener {
+public class EinAusgabeActivity extends AppCompatActivity implements NotifyEventHandler {
 
 
     // Display
@@ -40,6 +38,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcF
     private final Calendar myCalendar = Calendar.getInstance();
     private Date mDateOfCosts;
     private boolean mShowEingabeCategories;
+    private double mFaktor;
 
     @Override
     protected void onStart() {
@@ -57,8 +56,10 @@ public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcF
 
         if(mShowEingabeCategories){
             this.setTitle(getString(R.string.new_income));
+            mFaktor=1;
         }else {
             this.setTitle(getString(R.string.new_cost));
+            mFaktor=-1;
         }
 
         mSpinnerFrequence=findViewById(R.id.spinnerFrequence);
@@ -113,7 +114,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcF
 
     public void finishEinAusgabeActivity(Category c){
         //mDateOfCosts
-        double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString());
+        double valueOfCosts =Double.parseDouble(mDisplayValueEditText.getText().toString())*mFaktor;
         String note=mNoteEditText.getText().toString();
         int frequenceId=mSpinnerFrequence.getSelectedItemPosition();
 
@@ -127,7 +128,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements OnFragCalcF
 
 
     @Override
-    public void OnFragCalcFinish() {
+    public void Notify() {
 
         CategoriesFragment mCategoriesFragment = CategoriesFragment.newInstance(mShowEingabeCategories);
 

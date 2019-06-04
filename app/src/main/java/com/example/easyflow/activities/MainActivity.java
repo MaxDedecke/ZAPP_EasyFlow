@@ -5,11 +5,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,21 +20,26 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.easyflow.R;
+import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.CostAdapter;
 import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.StateAccount;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandler {
 
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
@@ -43,6 +50,8 @@ public class MainActivity extends AppCompatActivity
     private CostAdapter mCostAdapter;
     private RecyclerView mRecyclerView;
     private Toolbar mToolbar;
+    private TextView mSumTextView;
+    public static HashMap<String,Double> mSumHashMap=new HashMap<>();
 
 
     @Override
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-
+        mSumTextView =findViewById(R.id.tvSummary);
 
         loadCategories();
         // Initialize and show LiveData for the Main Content
@@ -150,11 +159,12 @@ public class MainActivity extends AppCompatActivity
             }else if (itemTitle.equals(getString(R.string.actionbar_item_wg))){
                 setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
 
-                if(FirebaseHelper.mCurrentUser.getGroup()!=null) {
+                if(FirebaseHelper.mCurrentUser.getGroupId()!=null) {
                     databaseSelectedAccountHasChanged(StateAccount.Group);
                 }
                 else{
                     // todo form öffnen und fragen, ob man eine wg erstellen möchteS
+                    // !!!! AlertDialog
                 }
             }
 
@@ -176,6 +186,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void databaseSelectedAccountHasChanged(StateAccount newSelectedAccount) {
+        mSumHashMap.clear();
         stateAccount=newSelectedAccount;
         updateAndSetCostAdapter();
     }
@@ -241,8 +252,13 @@ public class MainActivity extends AppCompatActivity
 
     private void setUpRecyclerView() {
         mRecyclerView = findViewById(R.id.list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
+
+
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -266,8 +282,8 @@ public class MainActivity extends AppCompatActivity
 
         Query query = FirebaseHelper.getInstance().getQuery(stateAccount);
 
-        FirebaseRecyclerOptions<Cost> options = new FirebaseRecyclerOptions.Builder<Cost>()
-                .setQuery(query, snapshot -> snapshot.getValue(Cost.class))
+        FirebaseRecyclerOptions<DataSnapshot> options = new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
                 .build();
 
         if(mCostAdapter!=null)
@@ -276,8 +292,25 @@ public class MainActivity extends AppCompatActivity
         mCostAdapter=new CostAdapter(MainActivity.this,options);
         mRecyclerView.setAdapter(mCostAdapter);
 
+        mCostAdapter.setNotifyEventListener(this);
         mCostAdapter.startListening();
     }
 
 
+    @Override
+    public void Notify() {
+        double sum=0;
+        for(double d :mSumHashMap.values()){
+            sum+=d;
+        }
+
+        if(sum>=0){
+            mSumTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
+        }
+        else{
+            mSumTextView.setTextColor(getResources().getColor(R.color.buttonRed));
+        }
+        mSumTextView.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL,sum));
+
+    }
 }

@@ -7,9 +7,9 @@ public class User {
     private String mEmail;
     private String mPassword;
 
-    private String mCash;
-    private String mBankAccount;
-    private String mGroup;
+    private String mCashId;
+    private String mBankAccountId;
+    private String mGroupId;
 
     public User() { }
 
@@ -39,27 +39,27 @@ public class User {
     }
 
 
-    public String getCash() {
-        return mCash;
+    public String getCashId() {
+        return mCashId;
     }
 
-    public void setCash(String mCash) {
-        this.mCash = mCash;
+    public void setCashId(String mCash) {
+        this.mCashId = mCash;
     }
 
-    public String getBankAccount() {
-        return mBankAccount;
+    public String getBankAccountId() {
+        return mBankAccountId;
     }
 
-    public void setBankAccount(String mBankAccount) {
-        this.mBankAccount = mBankAccount;
+    public void setBankAccountId(String mBankAccount) {
+        this.mBankAccountId = mBankAccount;
     }
 
-    public String getGroup() {
-        return mGroup;
+    public String getGroupId() {
+        return mGroupId;
     }
 
-    public void setGroup(String mGroup) {
-        this.mGroup = mGroup;
+    public void setGroupId(String mGroup) {
+        this.mGroupId = mGroup;
     }
 }
