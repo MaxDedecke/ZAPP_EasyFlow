@@ -73,15 +73,19 @@ public class Cost {
 
     public Map<String, Object> toMap() {
 
-        String dateString=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
 
         HashMap<String, Object> result = new HashMap<>();
         result.put("value", getValue());
-        result.put("date", dateString);
+        result.put("date", getDateString());
         result.put("category", getCategory());
         result.put("frequency", getFrequency());
         result.put("note", getNote());
 
         return result;
+    }
+
+    public String getDateString() {
+        String dateString=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
+        return dateString;
     }
 }

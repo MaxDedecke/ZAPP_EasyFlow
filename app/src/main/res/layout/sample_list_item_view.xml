@@ -51,25 +51,27 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/list_arrow"
-        android:layout_width="30dp"
-        android:layout_height="match_parent"
-        android:src="@drawable/ic_arrow_upward_green_24dp"
-        app:layout_constraintStart_toEndOf="@id/list_root"
-        app:layout_constraintEnd_toStartOf="@id/list_value"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
 
     <TextView
         android:id="@+id/list_value"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:text="XX.X"
+        android:text="XX.XX"
         android:textColor="@android:color/black"
-        android:textSize="30sp"
+        android:textSize="25sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/list_arrow"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+
+    <ImageView
+        android:id="@+id/list_arrow"
+        android:layout_width="30dp"
+        android:layout_margin="4dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_arrow_upward_green_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -1,11 +1,14 @@
 package com.example.easyflow.activities;
 
+import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
-import android.support.constraint.solver.widgets.Snapshot;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
@@ -27,31 +30,37 @@ import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.CostAdapter;
 import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.interfaces.NotifyEventHandler;
+import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
 import com.example.easyflow.models.Category;
-import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.StateAccount;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Query;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandler {
+        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerDouble {
 
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
     public static Category categoryTransferFrom;
     public static Category categoryTransferTo;
-    public static StateAccount stateAccount=StateAccount.Cash;
+    public static StateAccount stateAccount = StateAccount.Cash;
 
     private CostAdapter mCostAdapter;
     private RecyclerView mRecyclerView;
     private Toolbar mToolbar;
     private TextView mSumTextView;
-    public static HashMap<String,Double> mSumHashMap=new HashMap<>();
+    private MenuItem mMenuItemGroup;
+    private MenuItem mMenuItemSelectAccount;
+
+    static {
+        loadCategories();
+    }
 
 
     @Override
@@ -61,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
-
+        /*
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -69,39 +78,42 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+*/
 
+        mSumTextView = findViewById(R.id.tvSummary);
 
-        mSumTextView =findViewById(R.id.tvSummary);
+        FirebaseHelper.setKeyAccount(stateAccount);
 
-        loadCategories();
         // Initialize and show LiveData for the Main Content
         setUpRecyclerView();
     }
 
-    private void loadCategories() {
+    private static void loadCategories() {
+        Context context=SplashActivity.getContext();
+
         // Kategorien für Ausgaben.
-        categoriesCost.add(new Category(getString(R.string.categoriy_reisen), R.drawable.ic_airplane_brown_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_auto), R.drawable.ic_car_darkblue_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_kommunikation), R.drawable.ic_communication_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_eating), R.drawable.ic_eating_green_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_lebensmittel), R.drawable.ic_food_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_gesundheit), R.drawable.ic_health_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_haus), R.drawable.ic_home_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_taxi), R.drawable.ic_local_taxi_black_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_geschenke), R.drawable.ic_present_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_sport), R.drawable.ic_sport_24dp));
-        categoriesCost.add(new Category(getString(R.string.categoriy_verkehrsmittel), R.drawable.ic_traffic_24dp));
-        categoriesCost.add(new Category(getString(R.string.category_bildung), R.drawable.ic_school_black_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_reisen), R.drawable.ic_airplane_brown_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_auto), R.drawable.ic_car_darkblue_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_kommunikation), R.drawable.ic_communication_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_eating), R.drawable.ic_eating_green_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_lebensmittel), R.drawable.ic_food_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_gesundheit), R.drawable.ic_health_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_haus), R.drawable.ic_home_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_taxi), R.drawable.ic_local_taxi_black_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_geschenke), R.drawable.ic_present_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_sport), R.drawable.ic_sport_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoriy_verkehrsmittel), R.drawable.ic_traffic_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_bildung), R.drawable.ic_school_black_24dp));
 
 
         // Kategorien für Einkommen.
-        categoriesIncome.add(new Category(getString(R.string.categoriy_einzahlungen), R.drawable.ic_einzahlungen_24dp));
-        categoriesIncome.add(new Category(getString(R.string.categoriy_ersparnisse), R.drawable.ic_trending_up_black_24dp));
-        categoriesIncome.add(new Category(getString(R.string.categoriy_gehalt), R.drawable.ic_gehalt_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.categoriy_einzahlungen), R.drawable.ic_einzahlungen_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.categoriy_ersparnisse), R.drawable.ic_trending_up_black_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.categoriy_gehalt), R.drawable.ic_gehalt_24dp));
 
         // Kategorien für Transfer
-        categoryTransferFrom=new Category("Überweisung",R.drawable.ic_swap_horiz_red_32dp);
-        categoryTransferTo=new Category("Überweisung",R.drawable.ic_swap_horiz_green_32dp);
+        categoryTransferFrom = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_red_32dp);
+        categoryTransferTo = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_green_32dp);
     }
 
     @Override
@@ -133,67 +145,105 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_account_current) {
             return true;
-        }
-        else if(id==R.id.action_booking){
+        } else if (id == R.id.action_booking) {
             Intent intent = new Intent(this, BookCostActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_menu_group) {
+            Intent intent = new Intent(this, GroupSettingsActivity.class);
             startActivity(intent);
             return true;
         }
 
 
-        if (id == R.id.action_account_second||id == R.id.action_account_third) {
-            MenuItem head=mToolbar.getMenu().getItem(1);
-            String itemTitle=item.getTitle().toString();
-            String headTitle=head.getTitle().toString();
-
-
-            // Set head title and icon
-            if(itemTitle.equals(getString(R.string.actionbar_item_bank))){
-                setActionBarItem(head,R.string.actionbar_item_bank,R.drawable.ic_gehalt_white_32dp);
-                databaseSelectedAccountHasChanged(StateAccount.BankAccount);
-
-            }else if(itemTitle.equals(getString(R.string.actionbar_item_bargeld))){
-                setActionBarItem(head,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_white_32_dp);
-                databaseSelectedAccountHasChanged(StateAccount.Cash);
-
-            }else if (itemTitle.equals(getString(R.string.actionbar_item_wg))){
-                setActionBarItem(head,R.string.actionbar_item_wg,R.drawable.ic_group_white_32dp);
-
-                if(FirebaseHelper.mCurrentUser.getGroupId()!=null) {
-                    databaseSelectedAccountHasChanged(StateAccount.Group);
-                }
-                else{
-                    // todo form öffnen und fragen, ob man eine wg erstellen möchteS
-                    // !!!! AlertDialog
-                }
-            }
-
-
-            // Set item title and icon
-            if(headTitle.equals(getString(R.string.actionbar_item_bank))){
-                setActionBarItem(item,R.string.actionbar_item_bank,R.drawable.ic_gehalt_black_32dp);
-
-            }else if(headTitle.equals(getString(R.string.actionbar_item_bargeld))){
-                setActionBarItem(item,R.string.actionbar_item_bargeld,R.drawable.ic_einzahlungen_black_24dp);
-
-            }else if (headTitle.equals(getString(R.string.actionbar_item_wg))){
-                setActionBarItem(item,R.string.actionbar_item_wg,R.drawable.ic_group_black_32dp);
-            }
-
+        if (id != R.id.action_account_second && id != R.id.action_account_third) {
+            return super.onOptionsItemSelected(item);
         }
+
+        if (mMenuItemSelectAccount == null)
+            mMenuItemSelectAccount = mToolbar.getMenu().getItem(1);
+        if (mMenuItemGroup == null)
+            mMenuItemGroup = mToolbar.getMenu().getItem(2);
+        mMenuItemGroup.setVisible(false);
+
+
+        String itemTitle = item.getTitle().toString();
+        String headTitle = mMenuItemSelectAccount.getTitle().toString();
+
+
+        // Set head title and icon
+        if (itemTitle.equals(getString(R.string.actionbar_item_bank))) {
+            setActionBarHeadItem(mMenuItemSelectAccount, R.string.actionbar_item_bank, R.drawable.ic_gehalt_white_32dp);
+            setActionBarItem(item, headTitle);
+            databaseSelectedAccountHasChanged(StateAccount.BankAccount);
+
+        } else if (itemTitle.equals(getString(R.string.actionbar_item_bargeld))) {
+            setActionBarHeadItem(mMenuItemSelectAccount, R.string.actionbar_item_bargeld, R.drawable.ic_einzahlungen_white_32_dp);
+            setActionBarItem(item, headTitle);
+            databaseSelectedAccountHasChanged(StateAccount.Cash);
+
+        } else if (itemTitle.equals(getString(R.string.actionbar_item_wg))) {
+
+            if (FirebaseHelper.mCurrentUser.getGroupId() != null) {
+                setActionBarHeadItem(mMenuItemSelectAccount, R.string.actionbar_item_wg, R.drawable.ic_group_white_32dp);
+                setActionBarItem(item, headTitle);
+                mMenuItemGroup.setVisible(true);
+                databaseSelectedAccountHasChanged(StateAccount.Group);
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(getString(R.string.alertdialog_keine_gruppe_message));
+                builder.setTitle(getString(R.string.alertdialog_keine_gruppe_title));
+                builder.setPositiveButton(getString(R.string.alertdialog_keine_gruppe_positive_button), (dialog, which) -> {
+                    FirebaseHelper helper = FirebaseHelper.getInstance();
+                    helper.createGroup();
+
+                    SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor edt = pref.edit();
+
+                    Gson gson = new Gson();
+                    String json = gson.toJson(FirebaseHelper.mCurrentUser);
+                    edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
+                    edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
+                    edt.commit();
+
+                    setActionBarHeadItem(mMenuItemSelectAccount, R.string.actionbar_item_wg, R.drawable.ic_group_white_32dp);
+                    setActionBarItem(item, headTitle);
+                    mMenuItemGroup.setVisible(true);
+                    databaseSelectedAccountHasChanged(StateAccount.Group);
+
+                });
+                builder.setNegativeButton(getString(R.string.alertdialog_keine_gruppe_negative_button), null);
+                builder.show();
+            }
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void databaseSelectedAccountHasChanged(StateAccount newSelectedAccount) {
-        mSumHashMap.clear();
-        stateAccount=newSelectedAccount;
-        updateAndSetCostAdapter();
+    private void setActionBarItem(MenuItem item, String headTitle) {
+        // Set item title and icon
+        if (headTitle.equals(getString(R.string.actionbar_item_bank))) {
+            setActionBarHeadItem(item, R.string.actionbar_item_bank, R.drawable.ic_gehalt_black_32dp);
+
+        } else if (headTitle.equals(getString(R.string.actionbar_item_bargeld))) {
+            setActionBarHeadItem(item, R.string.actionbar_item_bargeld, R.drawable.ic_einzahlungen_black_24dp);
+
+        } else if (headTitle.equals(getString(R.string.actionbar_item_wg))) {
+            setActionBarHeadItem(item, R.string.actionbar_item_wg, R.drawable.ic_group_black_32dp);
+        }
     }
 
-    private void setActionBarItem(MenuItem head, int stringId, int drawableId) {
+
+    private void setActionBarHeadItem(MenuItem head, int stringId, int drawableId) {
         head.setTitle(getString(stringId));
-        head.setIcon(ResourcesCompat.getDrawable(getResources(),drawableId,null));
+        head.setIcon(ResourcesCompat.getDrawable(getResources(), drawableId, null));
+    }
+
+    private void databaseSelectedAccountHasChanged(StateAccount newSelectedAccount) {
+        stateAccount = newSelectedAccount;
+        FirebaseHelper.setKeyAccount(newSelectedAccount);
+        updateAndSetCostAdapter();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -255,7 +305,7 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setHasFixedSize(true);
 
 
-        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
@@ -278,39 +328,36 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void updateAndSetCostAdapter(){
+    private void updateAndSetCostAdapter() {
+        FirebaseHelper helper = FirebaseHelper.getInstance();
+        helper.setListener(this);
+        helper.getActualAccountSum();
 
-        Query query = FirebaseHelper.getInstance().getQuery(stateAccount);
+        Query query = helper.getQuery();
 
         FirebaseRecyclerOptions<DataSnapshot> options = new FirebaseRecyclerOptions.Builder<DataSnapshot>()
                 .setQuery(query, snapshot -> snapshot)
                 .build();
 
-        if(mCostAdapter!=null)
+        if (mCostAdapter != null)
             mCostAdapter.stopListening();
 
-        mCostAdapter=new CostAdapter(MainActivity.this,options);
+        mCostAdapter = new CostAdapter(MainActivity.this, options);
         mRecyclerView.setAdapter(mCostAdapter);
 
-        mCostAdapter.setNotifyEventListener(this);
         mCostAdapter.startListening();
     }
 
 
     @Override
-    public void Notify() {
-        double sum=0;
-        for(double d :mSumHashMap.values()){
-            sum+=d;
-        }
+    public void Notify(double sumActualAccount) {
 
-        if(sum>=0){
+        if (sumActualAccount >= 0) {
             mSumTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
-        }
-        else{
+        } else {
             mSumTextView.setTextColor(getResources().getColor(R.color.buttonRed));
         }
-        mSumTextView.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL,sum));
+        mSumTextView.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, sumActualAccount));
 
     }
 }

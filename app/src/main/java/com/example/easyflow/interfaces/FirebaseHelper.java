@@ -1,29 +1,26 @@
 package com.example.easyflow.interfaces;
 
-import android.graphics.Path;
-import android.icu.text.RelativeDateTimeFormatter;
 import android.support.annotation.NonNull;
+import android.support.constraint.solver.widgets.Snapshot;
 import android.util.Log;
 
-import com.example.easyflow.models.Category;
+import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Cost;
+import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FirebaseHelper {
@@ -31,28 +28,41 @@ public class FirebaseHelper {
     private static FirebaseHelper instance;
 
     private static DatabaseReference mDbRefCost;
+    private static DatabaseReference mDbRefCostSum;
     private static FirebaseDatabase mDatabase;
-    private static String mStartDate;
-    private static String mEndDate;
+    private static Date mStartDate;
+    private static Date mEndDate;
+    private static String mStartDateString;
+    private static String mEndDateString;
+    private static String mKeyAccount;
     public static User mCurrentUser;
+    public static NotifyEventHandlerDouble mListener;
 
 
     static {
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         instance = new FirebaseHelper();
         mDatabase = FirebaseDatabase.getInstance();
+        mDbRefCost = mDatabase.getReference("costs/");
+        mDbRefCostSum = mDatabase.getReference("costs-sum/");
 
 
         // Set Start and Enddate for Database Queries
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
 
-        Calendar calendarStart = GregorianCalendar.getInstance();
-        calendarStart.setTime(new Date());
-        calendarStart.set(Calendar.DAY_OF_MONTH, 1);
+        Calendar calendar = GregorianCalendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
-        mStartDate = sdf.format(calendarStart.getTime());
-        calendarStart.set(Calendar.DAY_OF_MONTH, calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-        mEndDate = sdf.format(calendarStart.getTime());
+        mStartDateString = sdf.format(calendar.getTime());
+        mStartDate = calendar.getTime();
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        mEndDateString = sdf.format(calendar.getTime());
+        mEndDate = calendar.getTime();
     }
 
     public static FirebaseHelper getInstance() {
@@ -67,16 +77,10 @@ public class FirebaseHelper {
 
     public User addUser(String email, String password) {
 
-
         // Reference to users
         DatabaseReference refUsers = mDatabase.getReference("users");
 
         String keyUser = refUsers.push().getKey();
-
-        // Reference to Cost
-        if (mDbRefCost == null) {
-            initDbRefCost(keyUser);
-        }
 
         String keyBankAccount = mDbRefCost.push().getKey();
         String keyCash = mDbRefCost.push().getKey();
@@ -97,36 +101,62 @@ public class FirebaseHelper {
         return user;
     }
 
-    public void addCost(Cost cost, StateAccount account){
-        if (mDbRefCost == null) {
-            initDbRefCost(null);
-        }
+    public void addCost(Cost cost) {
+        addCost(cost, mKeyAccount);
+    }
 
-        String keyAccount;
+    public void addCost(Cost cost, StateAccount account) {
+        addCost(cost, getKeyAccountString(account));
+    }
 
-        switch (account) {
-            case Cash:
-                keyAccount = mCurrentUser.getCashId();
-                break;
-            case Group:
-                keyAccount = mCurrentUser.getGroupId();
-                break;
-            case BankAccount:
-                keyAccount = mCurrentUser.getBankAccountId();
-                break;
-            default:
-                keyAccount = mCurrentUser.getCashId();
-        }
-
+    public void addCost(Cost cost, String keyAccount) {
 
         String key = mDbRefCost.child(keyAccount).push().getKey();
+
         Map<String, Object> costValues = cost.toMap();
-
-
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(key, costValues);
 
         mDbRefCost.child(keyAccount).updateChildren(childUpdates);
+
+        if (cost.getDate().before(mStartDate))
+            return;
+
+        // Update Sum over all Costs for this month
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                CostSum cur = dataSnapshot.getValue(CostSum.class);
+                Double newValue = cost.getValue();
+                String newDateString = cost.getDateString();
+
+                if (cur != null) {
+                    if (!cur.getDateLastUpdated().before(mStartDate)) {
+                        newValue += cur.getValue();
+                    }
+                    dataSnapshot.getRef().child("value").setValue(newValue);
+                    dataSnapshot.getRef().child("dateLastUpdated").setValue(newDateString);
+                } else {
+                    CostSum newCostSum = new CostSum();
+                    newCostSum.setDateLastUpdated(newDateString);
+                    newCostSum.setValue(newValue);
+
+                    Map<String, Object> costSumValues = newCostSum.toMap();
+                    dataSnapshot.getRef().updateChildren(costSumValues);
+                }
+
+                if (mListener != null&&mKeyAccount==keyAccount)
+                    mListener.Notify(newValue);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        mDbRefCostSum.child(keyAccount).addListenerForSingleValueEvent(valueEventListener);
+
+
     }
 
 
@@ -163,86 +193,109 @@ public class FirebaseHelper {
 
     }
 
-    public void setLiveDataListener() {
-        if (mDbRefCost == null) {
-            initDbRefCost(null);
-        }
 
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
+    public Query getQuery() {
+        return mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mStartDateString).endAt(mEndDateString);
+    }
 
-        Calendar calendarStart = GregorianCalendar.getInstance();
-        calendarStart.setTime(new Date());
-        calendarStart.set(Calendar.DAY_OF_MONTH, 1);
 
-        String startDate = sdf.format(calendarStart.getTime());
-        calendarStart.set(Calendar.DAY_OF_MONTH, calendarStart.getActualMaximum(Calendar.DAY_OF_MONTH));
-        String endDate = sdf.format(calendarStart.getTime());
+    public void createGroup() {
+        String key = mDbRefCost.push().getKey();
+        mCurrentUser.setGroupId(key);
 
-//todo finanzmonat definieren ermöglichen
 
-        Query currentCostsQuery = mDbRefCost.orderByChild("date").startAt(startDate).endAt(endDate);
-        currentCostsQuery.addValueEventListener(new ValueEventListener() {
+        // Reference to users
+        DatabaseReference refUser = mDatabase.getReference("users/" + mCurrentUser.getUserId());
+
+        refUser.child("groupId").setValue(key)
+                .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupId saved successfully"))
+                .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupId"));
+
+    }
+
+    public void deleteCost(DataSnapshot snapshot) {
+        Cost cost = snapshot.getValue(Cost.class);
+        snapshot.getRef().removeValue();
+
+        if(mListener==null)
+            return;
+
+        // Update Sum over all Costs for this month
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Double newValue=cost.getValue();
 
-                GenericTypeIndicator<HashMap<String, Cost>> t = new GenericTypeIndicator<HashMap<String, Cost>>() {
-                };
+                CostSum cur = dataSnapshot.getValue(CostSum.class);
+                if (cur != null) {
+                    newValue = cur.getValue() -newValue;
 
-                List<Cost> muteModelList;
-                HashMap<String, Cost> hashMap = dataSnapshot.getValue(t);
+                    dataSnapshot.getRef().child("value").setValue(newValue);
+                } else {
+                    CostSum newCostSum = new CostSum();
+                    newCostSum.setDateLastUpdated(cost.getDateString());
+                    newCostSum.setValue(newValue);
 
-                if (hashMap == null) {
-                    return;
+                    Map<String, Object> costSumValues = newCostSum.toMap();
+                    dataSnapshot.getRef().updateChildren(costSumValues);
                 }
 
-                muteModelList = new ArrayList<Cost>(hashMap.values()) {
-                };
+                    mListener.Notify(newValue);
+            }
 
-                for (Cost muteModel : muteModelList) {
-                    Category c = muteModel.getCategory();
-                    Log.d(Constants.TAG, muteModel.getCategory().getName() + " " + muteModel.getValue());
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+
+        mDbRefCostSum.child(mKeyAccount).addListenerForSingleValueEvent(valueEventListener);
+
+    }
+
+    public void getActualAccountSum() {
+        if (mListener == null)
+            return;
+
+
+        // Get Sum over all Costs for this month
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                CostSum cur = dataSnapshot.getValue(CostSum.class);
+                if (cur != null) {
+                    mListener.Notify(cur.getValue());
+                } else {
+                    mListener.Notify(0.0);
                 }
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
-        });
+        };
+        mDbRefCostSum.child(mKeyAccount).addListenerForSingleValueEvent(valueEventListener);
 
     }
 
-    private void initDbRefCost(String userKey) {
-        if (userKey != null) {
-            mDbRefCost = mDatabase.getReference(
-                    "costs/" + userKey);
-        } else {
-            mDbRefCost = mDatabase.getReference(
-                    "costs/" + mCurrentUser.getUserId());
-        }
+    public void setListener(NotifyEventHandlerDouble listener) {
+        mListener = listener;
     }
 
-    public Query getQuery(StateAccount stateAccount) {
-        if (mDbRefCost == null) {
-            initDbRefCost(null);
-        }
+    public static void setKeyAccount(StateAccount stateAccount) {
+        mKeyAccount = getKeyAccountString(stateAccount);
+    }
 
-
-        String childKey;
-
+    private static String getKeyAccountString(StateAccount stateAccount) {
         switch (stateAccount) {
-            case BankAccount:
-                childKey = mCurrentUser.getBankAccountId();
-                break;
             case Group:
-                childKey = mCurrentUser.getGroupId();
-                break;
+                return mCurrentUser.getGroupId();
+            case BankAccount:
+                return mCurrentUser.getBankAccountId();
             case Cash:
             default:
-                childKey = mCurrentUser.getCashId();
+                return mCurrentUser.getCashId();
         }
-
-        return  mDbRefCost.child(childKey).orderByChild("date").startAt(mStartDate).endAt(mEndDate);
     }
 }

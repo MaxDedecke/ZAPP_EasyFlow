@@ -28,7 +28,13 @@
                 android:title="@string/actionbar_item_bank"
                 app:showAsAction="ifRoom" />
         </menu>
-
-
     </item>
+
+    <item
+        android:id="@+id/action_menu_group"
+        android:icon="@drawable/ic_menu_white_32dp"
+        android:visible="false"
+        android:orderInCategory="300"
+        android:title="@string/guppe_bearbeiten"
+        app:showAsAction="ifRoom"/>
 </menu>

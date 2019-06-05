@@ -55,4 +55,10 @@
     <string name="placeholder_description">Description</string>
     <string name="ueberweisung_hinzufügen">Überweisung hinzufügen</string>
     <string name="konten_muessen_verschieden_sein">Konten müssen verschieden sein.</string>
+    <string name="alertdialog_keine_gruppe_title">Keine Gruppe vorhanden</string>
+    <string name="alertdialog_keine_gruppe_message">Du befindest dich noch nicht in einer Gruppe. Willst du eine Gruppe erstellen?</string>
+    <string name="alertdialog_keine_gruppe_positive_button">Gruppe erstellen</string>
+    <string name="alertdialog_keine_gruppe_negative_button">Abbrechen</string>
+    <string name="guppe_bearbeiten">Guppe bearbeiten</string>
+    <string name="ueberweisung">Überweisung</string>
 </resources>

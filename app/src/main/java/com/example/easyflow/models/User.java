@@ -1,6 +1,12 @@
 package com.example.easyflow.models;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.example.easyflow.interfaces.Constants;
+import com.google.gson.Gson;
+
 public class User {
 
     private String mUserId;

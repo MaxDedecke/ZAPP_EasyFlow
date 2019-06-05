@@ -19,7 +19,7 @@ import java.util.List;
 
 public class CategoriesFragment extends Fragment implements View.OnClickListener {
     private static final String ARG_PARAM = "param1";
-    private static final int BTN_PER_ROW=3;
+    private static final int BTN_PER_ROW = 3;
     private boolean mEingabe;
     private EinAusgabeActivity mParentActivity;
 
@@ -34,6 +34,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         Bundle args = new Bundle();
         args.putBoolean(ARG_PARAM, showEingabeCategories);
         fragment.setArguments(args);
+
 
         return fragment;
     }
@@ -52,55 +53,63 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         // Inflate the layout for this fragment
         View layout = inflater.inflate(R.layout.fragment_categories, container, false);
 
-        if(mEingabe) {
-            loadCategories(layout, MainActivity.categoriesIncome);
-        }else{
-            loadCategories(layout,MainActivity.categoriesCost);
-        }
+            if (mEingabe) {
+                loadCategories(layout, MainActivity.categoriesIncome);
+            } else {
+                loadCategories(layout, MainActivity.categoriesCost);
+            }
 
-        return  layout;
+        return layout;
     }
 
 
     private void loadCategories(View v, List<Category> categories) {
+
         Context context = this.getContext();
-        int countBtnPerLinearLayout=0;
-        for (Category c:categories) {
+        int countBtnPerLinearLayout = 0;
+
+        LinearLayout categoriesRowLinearLayout=v.findViewById(R.id.categoriesFirstRow);
+        categoriesRowLinearLayout.removeAllViews();
+
+        for (Category c : categories) {
             Button btn = new Button(context);
             btn.setText(c.getName());
             btn.setTextSize(10);
             btn.setTag(c);
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            params.setMargins(5,0,5,0);
+            params.setMargins(5, 0, 5, 0);
 
             btn.setLayoutParams(params);
             btn.setOnClickListener(this);
             btn.setBackgroundResource(R.drawable.border);
-            btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context,c.getIconId()),null,null);
+            btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context, c.getIconId()), null, null);
 
-            LinearLayout l;
-            if(countBtnPerLinearLayout<BTN_PER_ROW)
-                l=v.findViewById(R.id.categoriesFirstRow);
-            else if(countBtnPerLinearLayout<BTN_PER_ROW*2)
-                l=v.findViewById(R.id.categoriesSecondRow);
-            else if(countBtnPerLinearLayout<BTN_PER_ROW*3)
-                l=v.findViewById(R.id.categoriesThirdRow);
-            else
-                l=v.findViewById(R.id.categoriesFourthRow);
+
+            if (countBtnPerLinearLayout >= BTN_PER_ROW * 3) {
+                categoriesRowLinearLayout = v.findViewById(R.id.categoriesFourthRow);
+                categoriesRowLinearLayout.removeAllViews();
+            }
+            else if (countBtnPerLinearLayout >= BTN_PER_ROW * 2) {
+                categoriesRowLinearLayout = v.findViewById(R.id.categoriesThirdRow);
+                categoriesRowLinearLayout.removeAllViews();
+            }
+            else if (countBtnPerLinearLayout >= BTN_PER_ROW) {
+                categoriesRowLinearLayout = v.findViewById(R.id.categoriesSecondRow);
+                categoriesRowLinearLayout.removeAllViews();
+            }
 
             countBtnPerLinearLayout++;
-            l.addView(btn);
+            categoriesRowLinearLayout.addView(btn);
         }
     }
-
 
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if(mParentActivity==null)
-            mParentActivity= (EinAusgabeActivity) this.getActivity();
+        if (mParentActivity == null)
+            mParentActivity = (EinAusgabeActivity) this.getActivity();
 
         mParentActivity.mDisplayValueEditText.disableInput();
     }
@@ -108,15 +117,14 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
     @Override
     public void onDetach() {
         super.onDetach();
-
         mParentActivity.mDisplayValueEditText.enableInput();
     }
 
     @Override
     public void onClick(View v) {
-        EinAusgabeActivity activity= (EinAusgabeActivity) getActivity();
+        EinAusgabeActivity activity = (EinAusgabeActivity) getActivity();
         if (activity != null) {
-            Category c= (Category) v.getTag();
+            Category c = (Category) v.getTag();
 
             activity.finishEinAusgabeActivity(c);
         }

@@ -13,6 +13,7 @@ import com.example.easyflow.models.User;
 import com.google.gson.Gson;
 
 public class SplashActivity extends AppCompatActivity {
+    private static Context mContext;
 
     @Override
     protected void onDestroy() {
@@ -22,6 +23,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext=getApplicationContext();
         setContentView(R.layout.activity_splash);
 
 
@@ -43,5 +45,9 @@ public class SplashActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    public static Context getContext(){
+        return mContext;
     }
 }
