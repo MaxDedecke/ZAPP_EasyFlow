@@ -45,14 +45,14 @@
             android:background="@drawable/buttonshapeausgabe"
             android:text="@string/ausgabe"
             android:textColor="@color/buttonRed"
-            android:onClick="showMoveActivity"/>
+            android:onClick="showEinAusgabeActivity"/>
         <Button
             android:id="@+id/btnEinnahme"
             style="@style/buttonEinnahmeAusgabe"
             android:background="@drawable/buttonshapeeinnahme"
             android:text="@string/einnahme"
             android:textColor="@color/buttonGreen"
-            android:onClick="showMoveActivity"/>
+            android:onClick="showEinAusgabeActivity"/>
 
 
     </LinearLayout>

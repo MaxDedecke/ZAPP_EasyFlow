@@ -36,7 +36,6 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
     private Spinner mSpinnerTo;
     public EditTextWithClear mEditText;
     private EditText mDisplayDate;
-    private CalcFragment mCalcFragment;
 
     private final Calendar myCalendar = Calendar.getInstance();
     private Date mDateOfCosts;
@@ -59,8 +58,8 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
 
 
         ArrayList<AccountData> list=new ArrayList<>();
-        list.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_einzahlungen_black_24dp));
-        list.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_gehalt_black_32dp));
+        list.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
+        list.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
         list.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
 
         SpinnerAccountAdapter adapter= new SpinnerAccountAdapter(this,R.layout.spinner_choose_account_item,R.id.textSpinner,list);
@@ -74,7 +73,7 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
         mSpinnerTo.setAdapter(adapter);
 
 
-        mCalcFragment=CalcFragment.newInstance();
+        CalcFragment mCalcFragment = CalcFragment.newInstance();
         mCalcFragment.setOnFragCalcFinishEventListener(this);
 
         // Begin the transaction

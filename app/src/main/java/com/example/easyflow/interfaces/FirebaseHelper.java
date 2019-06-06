@@ -1,10 +1,8 @@
 package com.example.easyflow.interfaces;
 
 import android.support.annotation.NonNull;
-import android.support.constraint.solver.widgets.Snapshot;
 import android.util.Log;
 
-import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.StateAccount;
@@ -32,11 +30,10 @@ public class FirebaseHelper {
     private static FirebaseDatabase mDatabase;
     private static Date mStartDate;
     private static Date mEndDate;
-    private static String mStartDateString;
-    private static String mEndDateString;
+    private static SimpleDateFormat mSimpleDateFormat;
     private static String mKeyAccount;
     public static User mCurrentUser;
-    public static NotifyEventHandlerDouble mListener;
+    private static NotifyEventHandlerDouble mListener;
 
 
     static {
@@ -48,7 +45,7 @@ public class FirebaseHelper {
 
 
         // Set Start and Enddate for Database Queries
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
+        mSimpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
 
         Calendar calendar = GregorianCalendar.getInstance();
         calendar.setTime(new Date());
@@ -58,10 +55,8 @@ public class FirebaseHelper {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        mStartDateString = sdf.format(calendar.getTime());
         mStartDate = calendar.getTime();
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        mEndDateString = sdf.format(calendar.getTime());
         mEndDate = calendar.getTime();
     }
 
@@ -127,7 +122,7 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 CostSum cur = dataSnapshot.getValue(CostSum.class);
-                Double newValue = cost.getValue();
+                double newValue = cost.getValue();
                 String newDateString = cost.getDateString();
 
                 if (cur != null) {
@@ -145,7 +140,7 @@ public class FirebaseHelper {
                     dataSnapshot.getRef().updateChildren(costSumValues);
                 }
 
-                if (mListener != null&&mKeyAccount==keyAccount)
+                if (mListener != null&& mKeyAccount.equals(keyAccount))
                     mListener.Notify(newValue);
             }
 
@@ -195,7 +190,7 @@ public class FirebaseHelper {
 
 
     public Query getQuery() {
-        return mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mStartDateString).endAt(mEndDateString);
+        return mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mSimpleDateFormat.format(mStartDate)).endAt(mSimpleDateFormat.format(mEndDate));
     }
 
 
@@ -213,7 +208,7 @@ public class FirebaseHelper {
 
     }
 
-    public void deleteCost(DataSnapshot snapshot) {
+    void deleteCost(DataSnapshot snapshot) {
         Cost cost = snapshot.getValue(Cost.class);
         snapshot.getRef().removeValue();
 
@@ -224,7 +219,7 @@ public class FirebaseHelper {
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Double newValue=cost.getValue();
+                double newValue=cost.getValue();
 
                 CostSum cur = dataSnapshot.getValue(CostSum.class);
                 if (cur != null) {

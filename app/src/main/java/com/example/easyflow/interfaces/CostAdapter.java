@@ -4,7 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseIntArray;
+import android.util.SparseLongArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,12 +23,14 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 
 public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapter.ViewHolder> {
     private LayoutInflater mInflater;
+    private SparseIntArray sparseIntArray=new SparseIntArray();
 
 
     public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions options) {
@@ -57,6 +62,17 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         holder.mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, Math.abs(cost.getValue())).trim());
         // Set Imageviews.
         setImageViews(holder,cost.getCategory().getId());
+        // Set grey overlay, if cost date is in future
+
+        int temp=View.INVISIBLE;
+        if((temp=sparseIntArray.get(position,-1))==-1){
+            if(cost.getDate().after(Calendar.getInstance().getTime()))
+                temp=View.VISIBLE;
+
+            sparseIntArray.put(position,temp);
+        }
+
+        holder.mConstraintLayoutGrey.setVisibility(temp);
 
     }
 
@@ -66,8 +82,6 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
         FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
         firebaseHelper.deleteCost(snapshot);
-
-
     }
 
     private void setImageViews(ViewHolder holder, int categoryId) {
@@ -124,6 +138,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         private TextView mTxtValue;
         private ImageView mIVCategory;
         private ImageView mIVArrow;
+        private ConstraintLayout mConstraintLayoutGrey;
 
 
         ViewHolder(View itemView) {
@@ -134,6 +149,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
             mTxtValue = itemView.findViewById(R.id.list_value);
             mIVArrow = itemView.findViewById(R.id.list_arrow);
             mIVCategory = itemView.findViewById(R.id.list_category);
+            mConstraintLayoutGrey=itemView.findViewById(R.id.transparent_constraint_layout);
 
             /*
             itemView.setOnClickListener(new View.OnClickListener() {

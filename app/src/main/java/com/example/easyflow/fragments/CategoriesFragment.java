@@ -86,15 +86,15 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
             btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context, c.getIconId()), null, null);
 
 
-            if (countBtnPerLinearLayout >= BTN_PER_ROW * 3) {
+            if (countBtnPerLinearLayout == BTN_PER_ROW * 3) {
                 categoriesRowLinearLayout = v.findViewById(R.id.categoriesFourthRow);
                 categoriesRowLinearLayout.removeAllViews();
             }
-            else if (countBtnPerLinearLayout >= BTN_PER_ROW * 2) {
+            else if (countBtnPerLinearLayout == BTN_PER_ROW * 2) {
                 categoriesRowLinearLayout = v.findViewById(R.id.categoriesThirdRow);
                 categoriesRowLinearLayout.removeAllViews();
             }
-            else if (countBtnPerLinearLayout >= BTN_PER_ROW) {
+            else if (countBtnPerLinearLayout == BTN_PER_ROW) {
                 categoriesRowLinearLayout = v.findViewById(R.id.categoriesSecondRow);
                 categoriesRowLinearLayout.removeAllViews();
             }
