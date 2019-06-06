@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".activities.GroupSettingsActivity">
 
+    <EditText
+        android:id="@+id/email_address_new_member_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginRight="30dp"
+        android:hint="@string/email_adresse"
+        android:inputType="textEmailAddress" />
+
     <Button
         android:id="@+id/add_member_btn"
         android:background="@drawable/border"
@@ -14,6 +24,7 @@
         android:padding="10dp"
         android:layout_margin="20dp"
         android:text="Mitglied einladen"
+        android:onClick="addMember"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

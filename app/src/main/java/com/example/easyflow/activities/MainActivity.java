@@ -1,9 +1,11 @@
 package com.example.easyflow.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +25,9 @@ import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.CostAdapter;
 import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.interfaces.GlobalApplication;
 import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
+import com.example.easyflow.interfaces.NotifyEventHandlerStrinMap;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.StateAccount;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -35,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerDouble {
+        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerDouble, NotifyEventHandlerStrinMap {
 
     public static List<Category> categoriesIncome = new ArrayList<>();
     public static List<Category> categoriesCost = new ArrayList<>();
@@ -75,6 +79,9 @@ public class MainActivity extends AppCompatActivity
         mSumTextView = findViewById(R.id.tvSummary);
 
         FirebaseHelper.setKeyAccount(stateAccount);
+        FirebaseHelper helper=new FirebaseHelper();
+        helper.setListener(this,this);
+
 
         // Initialize and show LiveData for the Main Content
         setUpRecyclerView();
@@ -179,7 +186,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private static void loadCategories() {
-        Context context = SplashActivity.getContext();
+        Context context = GlobalApplication.getAppContext();
 
         // Kategorien für Ausgaben.
         categoriesCost.add(new Category(context.getString(R.string.categoriy_reisen), R.drawable.ic_airplane_brown_24dp));
@@ -301,7 +308,6 @@ public class MainActivity extends AppCompatActivity
 
     private void updateAndSetCostAdapter() {
         FirebaseHelper helper = FirebaseHelper.getInstance();
-        helper.setListener(this);
         helper.getActualAccountSum();
 
         Query query = helper.getQuery();
@@ -320,4 +326,31 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void Notify(String key,String email) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Sie haben eine Einladung von '"+email+"' erhalten.\n Wollen sie der Gruppe beitreten?");
+        builder.setTitle(getString(R.string.invitation));
+        builder.setNegativeButton(getString(R.string.nein), (dialog, which) -> {
+            FirebaseHelper helper = FirebaseHelper.getInstance();
+            helper.declineGroupInvitation(key);
+
+        });
+        builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
+            FirebaseHelper helper = FirebaseHelper.getInstance();
+            helper.followGroupInvitation(key);
+
+            SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+            SharedPreferences.Editor edt = pref.edit();
+
+            Gson gson = new Gson();
+            String json = gson.toJson(FirebaseHelper.mCurrentUser);
+            edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
+            edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
+            edt.commit();
+
+
+        });
+        builder.show();
+    }
 }

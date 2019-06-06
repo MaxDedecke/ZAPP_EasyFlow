@@ -61,4 +61,8 @@
     <string name="alertdialog_keine_gruppe_negative_button">Abbrechen</string>
     <string name="guppe_bearbeiten">Guppe bearbeiten</string>
     <string name="ueberweisung">Überweisung</string>
+    <string name="user_already_in_group">User befindet sich bereits in einer Gruppe.</string>
+    <string name="invitation">Einladung</string>
+    <string name="nein">Nein</string>
+    <string name="ja">Ja</string>
 </resources>
