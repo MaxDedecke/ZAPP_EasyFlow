@@ -65,4 +65,11 @@
     <string name="invitation">Einladung</string>
     <string name="nein">Nein</string>
     <string name="ja">Ja</string>
+    <string name="admin_role_text">Administrator</string>
+    <string name="declined_role_text">Abgelehnt</string>
+    <string name="pending_role_text">Antwort ausstehend</string>
+    <string name="member_role_text">Mitglied</string>
+    <string name="error_no_valid_email">Keine gültige Email Adresse.</string>
+    <string name="login_successfull">Sie wurden erfolgreich eingeloggt.</string>
+    <string name="error_member_already_contains_email">Benutzer mit dieser Email Adresse befindet sich bereits in dieser Gruppe.</string>
 </resources>

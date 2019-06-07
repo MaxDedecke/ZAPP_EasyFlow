@@ -1,4 +1,4 @@
-package com.example.easyflow.interfaces;
+package com.example.easyflow.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
-import android.util.SparseLongArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.easyflow.R;
-import com.example.easyflow.activities.MainActivity;
+import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -41,7 +42,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View mItemVview = mInflater.inflate(R.layout.sample_list_item_view, viewGroup, false);
+        View mItemVview = mInflater.inflate(R.layout.main_recycler_item_view, viewGroup, false);
         return new ViewHolder(mItemVview);
     }
 
@@ -95,22 +96,22 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
 
         // Set specified data and return, if matching category was found.
-        if ((matching = listContainsCategory(MainActivity.categoriesCost, categoryId)) != null) {
+        if ((matching = listContainsCategory(GlobalApplication.categoriesCost, categoryId)) != null) {
             iconId = matching.getIconId();
             arrowId = R.drawable.ic_arrow_downward_red_32dp;
         }
         // Set specified data and return, if matching category was found.
-        else if ((matching = listContainsCategory(MainActivity.categoriesIncome, categoryId)) != null) {
+        else if ((matching = listContainsCategory(GlobalApplication.categoriesIncome, categoryId)) != null) {
             iconId = matching.getIconId();
             arrowId = R.drawable.ic_arrow_upward_green_24dp;
         }
         // If matching Category was not in categories Income or Cost, look for it in transfer categories.
-        else if (categoryId == MainActivity.categoryTransferTo.getId()) {
-            iconId = MainActivity.categoryTransferTo.getIconId();
+        else if (categoryId == GlobalApplication.categoryTransferTo.getId()) {
+            iconId = GlobalApplication.categoryTransferTo.getIconId();
             arrowId = R.drawable.ic_arrow_upward_green_24dp;
         }
-        else if (categoryId == MainActivity.categoryTransferFrom.getId()) {
-            iconId = MainActivity.categoryTransferFrom.getIconId();
+        else if (categoryId == GlobalApplication.categoryTransferFrom.getId()) {
+            iconId = GlobalApplication.categoryTransferFrom.getIconId();
             arrowId = R.drawable.ic_arrow_downward_red_32dp;
         }
 

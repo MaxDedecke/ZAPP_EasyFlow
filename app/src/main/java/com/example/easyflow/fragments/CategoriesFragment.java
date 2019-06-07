@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.example.easyflow.activities.EinAusgabeActivity;
-import com.example.easyflow.activities.MainActivity;
 import com.example.easyflow.R;
+import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.models.Category;
 
 import java.util.List;
@@ -54,9 +54,9 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         View layout = inflater.inflate(R.layout.fragment_categories, container, false);
 
             if (mEingabe) {
-                loadCategories(layout, MainActivity.categoriesIncome);
+                loadCategories(layout, GlobalApplication.categoriesIncome);
             } else {
-                loadCategories(layout, MainActivity.categoriesCost);
+                loadCategories(layout, GlobalApplication.categoriesCost);
             }
 
         return layout;

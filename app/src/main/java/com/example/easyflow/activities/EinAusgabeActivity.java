@@ -2,6 +2,7 @@ package com.example.easyflow.activities;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -11,7 +12,6 @@ import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -20,12 +20,11 @@ import com.example.easyflow.R;
 import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.fragments.CategoriesFragment;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.*;
 
 import java.util.Calendar;
-import java.util.Date;
 
 
 public class EinAusgabeActivity extends AppCompatActivity implements NotifyEventHandler {
@@ -38,11 +37,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
     private CalcFragment mCalcFragment;
     private CategoriesFragment mCategoriesFragment;
     private Spinner mSpinnerFrequence;
-
-    private final Calendar myCalendar = Calendar.getInstance();
-    private Date mDateOfCosts;
-    private boolean mShowEingabeCategories;
-    private double mFaktor;
+    private EinAusgabeViewModel mViewModel;
 
     @Override
     protected void onStart() {
@@ -54,16 +49,19 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ein_ausgabe);
 
+        mViewModel= ViewModelProviders.of(this).get(EinAusgabeViewModel.class);
+
         // Show Categories for Einnahme or Ausgabe
         Intent intent = getIntent();
-        mShowEingabeCategories = intent.getBooleanExtra(getString(R.string.key_show_ein_or_ausgabe), true);
+        mViewModel.setShowEingabeCategories(intent.getBooleanExtra(getString(R.string.key_show_ein_or_ausgabe), true));
 
-        if (mShowEingabeCategories) {
+
+        if (mViewModel.isShowEingabeCategories()) {
             this.setTitle(getString(R.string.new_income));
-            mFaktor = 1;
+            mViewModel.setFaktor(1);
         } else {
             this.setTitle(getString(R.string.new_cost));
-            mFaktor = -1;
+            mViewModel.setFaktor(-1);
         }
 
         mSpinnerFrequence = findViewById(R.id.spinnerFrequence);
@@ -94,16 +92,19 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
         this.mDisplayDateEditText.setInputType(InputType.TYPE_NULL);
         this.mNoteEditText = findViewById(R.id.editTextNote);
 
+        Calendar calendar = mViewModel.getMyCalendar();
+
         mDisplayDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if(!hasFocus)
                 return;
 
             new DatePickerDialog(EinAusgabeActivity.this, R.style.DialogTheme, (view, year, monthOfYear, dayOfMonth) -> {
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, monthOfYear);
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
                 updateLabelDate();
-            }, myCalendar.get(Calendar.YEAR), myCalendar.get(Calendar.MONTH), myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
             v.clearFocus();
         });
 
@@ -113,19 +114,19 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
     }
 
     private void updateLabelDate() {
-        mDateOfCosts = myCalendar.getTime();
-        String s = android.text.format.DateFormat.format(Constants.DATE_FORMAT_WEEKDAY, mDateOfCosts).toString();
+        mViewModel.setDateOfCosts(mViewModel.getMyCalendar().getTime());
+        String s = android.text.format.DateFormat.format(Constants.DATE_FORMAT_WEEKDAY,mViewModel.getDateOfCosts()).toString();
         mDisplayDateEditText.setText(s);
     }
 
 
     public void finishEinAusgabeActivity(Category c) {
         //mDateOfCosts
-        double valueOfCosts = Double.parseDouble(mDisplayValueEditText.getText().toString()) * mFaktor;
+        double valueOfCosts = Double.parseDouble(mDisplayValueEditText.getText().toString()) * mViewModel.getFaktor();
         String note = mNoteEditText.getText().toString();
         int frequenceId = mSpinnerFrequence.getSelectedItemPosition();
 
-        Cost cost = new Cost(valueOfCosts, mDateOfCosts, c, Frequency.fromId(frequenceId), note);
+        Cost cost = new Cost(valueOfCosts, mViewModel.getDateOfCosts(), c, Frequency.fromId(frequenceId), note);
 
         FirebaseHelper helper = FirebaseHelper.getInstance();
         helper.addCost(cost);
@@ -140,7 +141,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
 
     @Override
     public void Notify() {
-        mCategoriesFragment = CategoriesFragment.newInstance(mShowEingabeCategories);
+        mCategoriesFragment = CategoriesFragment.newInstance(mViewModel.isShowEingabeCategories());
 
         // Begin the transaction
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

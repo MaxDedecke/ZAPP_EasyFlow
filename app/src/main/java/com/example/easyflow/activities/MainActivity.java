@@ -1,11 +1,10 @@
 package com.example.easyflow.activities;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,29 +22,22 @@ import android.widget.TextView;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.interfaces.CostAdapter;
-import com.example.easyflow.interfaces.FirebaseHelper;
-import com.example.easyflow.interfaces.GlobalApplication;
+import com.example.easyflow.adapters.CostAdapter;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
 import com.example.easyflow.interfaces.NotifyEventHandlerStrinMap;
-import com.example.easyflow.models.Category;
+import com.example.easyflow.models.MainViewModel;
 import com.example.easyflow.models.StateAccount;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.Query;
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerDouble, NotifyEventHandlerStrinMap {
 
-    public static List<Category> categoriesIncome = new ArrayList<>();
-    public static List<Category> categoriesCost = new ArrayList<>();
-    public static Category categoryTransferFrom;
-    public static Category categoryTransferTo;
-    public static StateAccount stateAccount = StateAccount.Cash;
+
+    private MainViewModel mViewModel;
 
     private CostAdapter mCostAdapter;
     private RecyclerView mRecyclerView;
@@ -54,16 +46,18 @@ public class MainActivity extends AppCompatActivity
     private MenuItem mMenuItemGroup;
     private MenuItem mMenuItemSelectAccount;
 
-    static {
-        loadCategories();
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+
         mToolbar = findViewById(R.id.toolbar);
+        mRecyclerView = findViewById(R.id.list);
+        mSumTextView = findViewById(R.id.tvSummary);
+
         setSupportActionBar(mToolbar);
 
         /*
@@ -76,11 +70,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 */
 
-        mSumTextView = findViewById(R.id.tvSummary);
 
-        FirebaseHelper.setKeyAccount(stateAccount);
-        FirebaseHelper helper=new FirebaseHelper();
-        helper.setListener(this,this);
+        FirebaseHelper.setKeyAccount(mViewModel.getStateAccount());
+        FirebaseHelper helper = new FirebaseHelper();
+        helper.setListener(this, this);
 
 
         // Initialize and show LiveData for the Main Content
@@ -125,8 +118,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        mMenuItemGroup=menu.getItem(2);
-        mMenuItemSelectAccount=menu.getItem(1);
+        mMenuItemGroup = menu.getItem(2);
+        mMenuItemSelectAccount = menu.getItem(1);
         return true;
     }
 
@@ -165,14 +158,7 @@ public class MainActivity extends AppCompatActivity
                 FirebaseHelper helper = FirebaseHelper.getInstance();
                 helper.createGroup();
 
-                SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
-                SharedPreferences.Editor edt = pref.edit();
-
-                Gson gson = new Gson();
-                String json = gson.toJson(FirebaseHelper.mCurrentUser);
-                edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
-                edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
-                edt.commit();
+                GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
 
                 setActionBarHeadItem(StateAccount.Group);
@@ -185,37 +171,8 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private static void loadCategories() {
-        Context context = GlobalApplication.getAppContext();
-
-        // Kategorien für Ausgaben.
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_reisen), R.drawable.ic_airplane_brown_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_auto), R.drawable.ic_car_darkblue_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_kommunikation), R.drawable.ic_communication_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_eating), R.drawable.ic_eating_green_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_lebensmittel), R.drawable.ic_food_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_gesundheit), R.drawable.ic_health_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_haus), R.drawable.ic_home_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_taxi), R.drawable.ic_local_taxi_black_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_geschenke), R.drawable.ic_present_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_sport), R.drawable.ic_sport_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_verkehrsmittel), R.drawable.ic_traffic_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_bildung), R.drawable.ic_school_black_24dp));
-
-        // Kategorien für Einkommen.
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_einzahlungen), R.drawable.ic_einzahlungen_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_ersparnisse), R.drawable.ic_trending_up_black_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_gehalt), R.drawable.ic_gehalt_24dp));
-
-        // Kategorien für Transfer
-        categoryTransferFrom = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_red_32dp);
-        categoryTransferTo = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_green_32dp);
-
-    }
-
     private void setActionBarHeadItem(StateAccount newSelectedAccount) {
-        stateAccount = newSelectedAccount;
-
+        mViewModel.setStateAccount(newSelectedAccount);
         switch (newSelectedAccount) {
             case Cash:
                 mMenuItemSelectAccount.setTitle(getString(R.string.actionbar_item_bargeld));
@@ -234,7 +191,6 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
-        FirebaseHelper.setKeyAccount(newSelectedAccount);
         updateAndSetCostAdapter();
     }
 
@@ -280,13 +236,12 @@ public class MainActivity extends AppCompatActivity
 
 
     private void setUpRecyclerView() {
-        mRecyclerView = findViewById(R.id.list);
-        mRecyclerView.setHasFixedSize(true);
-
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
+
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -307,19 +262,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAndSetCostAdapter() {
-        FirebaseHelper helper = FirebaseHelper.getInstance();
-        helper.getActualAccountSum();
-
-        Query query = helper.getQuery();
-
-        FirebaseRecyclerOptions<DataSnapshot> options = new FirebaseRecyclerOptions.Builder<DataSnapshot>()
-                .setQuery(query, snapshot -> snapshot)
-                .build();
 
         if (mCostAdapter != null)
             mCostAdapter.stopListening();
 
-        mCostAdapter = new CostAdapter(MainActivity.this, options);
+
+        mCostAdapter = new CostAdapter(MainActivity.this, mViewModel.getFirebaseRecyclerOptions());
         mRecyclerView.setAdapter(mCostAdapter);
 
         mCostAdapter.startListening();
@@ -327,9 +275,9 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void Notify(String key,String email) {
+    public void Notify(String key, String email) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Sie haben eine Einladung von '"+email+"' erhalten.\n Wollen sie der Gruppe beitreten?");
+        builder.setMessage("Sie haben eine Einladung von '" + email + "' erhalten.\n Wollen sie der Gruppe beitreten?");
         builder.setTitle(getString(R.string.invitation));
         builder.setNegativeButton(getString(R.string.nein), (dialog, which) -> {
             FirebaseHelper helper = FirebaseHelper.getInstance();

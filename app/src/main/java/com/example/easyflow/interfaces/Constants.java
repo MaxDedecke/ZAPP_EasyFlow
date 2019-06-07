@@ -16,5 +16,14 @@ public interface Constants {
     String SHARED_PREF_KEY_USER_DATABASE = "user_database";
     String SHARED_PREF_KEY = "ActivityPREF";
 
+    public interface GroupDatabase{
+        String GROUP="group";
+        String GROUP_ID="groupId";
+        String INVITATIONS="invitations";
+        String EMAIL="email";
+        String STATEGROUPMEMBERSHIP="stateGroupMemberShip";
+        String USERS="users";
+    }
+
 
 }

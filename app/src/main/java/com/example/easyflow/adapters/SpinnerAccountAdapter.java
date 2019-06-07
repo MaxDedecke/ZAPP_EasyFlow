@@ -1,4 +1,4 @@
-package com.example.easyflow.interfaces;
+package com.example.easyflow.adapters;
 
 import android.app.Activity;
 import android.content.Context;

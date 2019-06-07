@@ -8,7 +8,7 @@ import android.os.Bundle;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
 

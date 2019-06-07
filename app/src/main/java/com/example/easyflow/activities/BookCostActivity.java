@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -17,9 +16,10 @@ import com.example.easyflow.EditTextWithClear;
 import com.example.easyflow.R;
 import com.example.easyflow.fragments.CalcFragment;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.interfaces.FirebaseHelper;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.interfaces.NotifyEventHandler;
-import com.example.easyflow.interfaces.SpinnerAccountAdapter;
+import com.example.easyflow.adapters.SpinnerAccountAdapter;
 import com.example.easyflow.models.AccountData;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.Frequency;
@@ -130,8 +130,8 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
             return;
         }
 
-        Cost fromCost =new Cost(-Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, MainActivity.categoryTransferFrom, Frequency.Einmalig,null);
-        Cost toCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, MainActivity.categoryTransferTo, Frequency.Einmalig,null);
+        Cost fromCost =new Cost(-Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.categoryTransferFrom, Frequency.Einmalig,null);
+        Cost toCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.categoryTransferTo, Frequency.Einmalig,null);
 
 
         FirebaseHelper helper= FirebaseHelper.getInstance();

@@ -1,36 +1,38 @@
-package com.example.easyflow.interfaces;
+package com.example.easyflow.utils;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.TextureView;
 import android.widget.Toast;
 
 import com.example.easyflow.R;
-import com.example.easyflow.activities.SplashActivity;
+import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
+import com.example.easyflow.interfaces.NotifyEventHandlerStrinMap;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.GroupSettings;
 import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.StateGroupMembership;
 import com.example.easyflow.models.User;
+import com.example.easyflow.models.UserGroupSettings;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,11 +49,10 @@ public class FirebaseHelper {
     private static Date mEndDate;
     private static SimpleDateFormat mSimpleDateFormat;
     private static String mKeyAccount;
-    private static GroupSettings mCurrentGroupSettings;
     public static User mCurrentUser;
     private static NotifyEventHandlerDouble mListenerDouble;
     private static NotifyEventHandlerStrinMap mListenerStringMap;
-    private static HashMap<String, String> mUserInvitationMap;
+    private static List<GroupSettings> mCurrentGroupSettings;
 
 
     static {
@@ -105,15 +106,7 @@ public class FirebaseHelper {
 
                     checkInvitationsForGroup();
 
-
-                    SharedPreferences.Editor editor = GlobalApplication.getAppContext().getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE).edit();
-                    editor.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
-
-                    Gson gson = new Gson();
-                    String json = gson.toJson(mCurrentUser);
-
-                    editor.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
-                    editor.commit();
+                    GlobalApplication.saveUserInSharedPreferences(mCurrentUser);
                 }
             }
 
@@ -131,7 +124,13 @@ public class FirebaseHelper {
         mDbRefGroupSettings.child(mCurrentUser.getGroupId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mCurrentGroupSettings = dataSnapshot.getValue(GroupSettings.class);
+                Iterator<DataSnapshot> iterator=dataSnapshot.getChildren().iterator();
+                mCurrentGroupSettings = new ArrayList<>();
+
+                while (iterator.hasNext()){
+                    DataSnapshot snapshot=iterator.next();
+                    mCurrentGroupSettings.add(new GroupSettings(snapshot.getKey(),snapshot.getValue(UserGroupSettings.class)));
+                }
             }
 
             @Override
@@ -236,12 +235,19 @@ public class FirebaseHelper {
         ValueEventListener valueEventListenerGroupInvitaions = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mUserInvitationMap = null;
-                mUserInvitationMap = (HashMap<String, String>) dataSnapshot.getValue();
-                if (mUserInvitationMap == null)
+                HashMap<String, String> userInvitationMap=null;
+
+                for(DataSnapshot snapshot:dataSnapshot.getChildren()){
+                    userInvitationMap=new HashMap<>();
+                    userInvitationMap.put(snapshot.getKey(),snapshot.getValue().toString());
+                }
+
+
+                //HashMap<String, String> userInvitationMap = (HashMap<String, String>) dataSnapshot.getValue();
+                if (userInvitationMap == null)
                     return;
 
-                Set<Map.Entry<String, String>> set = mUserInvitationMap.entrySet();
+                Set<Map.Entry<String, String>> set = userInvitationMap.entrySet();
 
                 if (set.size() != 1)
                     return;
@@ -265,6 +271,18 @@ public class FirebaseHelper {
         return mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mSimpleDateFormat.format(mStartDate)).endAt(mSimpleDateFormat.format(mEndDate));
     }
 
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptions() {
+        getActualAccountSum();
+
+        Query query = getQuery();
+
+        FirebaseRecyclerOptions<DataSnapshot> options = new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
+
+        return options;
+    }
+
 
     public void createGroup() {
         String key = mDbRefCost.push().getKey();
@@ -272,23 +290,21 @@ public class FirebaseHelper {
 
 
         // Reference to users
-        DatabaseReference refUser = mDatabase.getReference("users/" + mCurrentUser.getUserId());
+        DatabaseReference refUser = mDatabase.getReference(Constants.GroupDatabase.USERS+"/" + mCurrentUser.getUserId());
 
-        refUser.child("groupId").setValue(key)
+        refUser.child(Constants.GroupDatabase.GROUP_ID).setValue(key)
                 .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupId saved successfully"))
                 .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupId"));
 
         // Add Settings for Group
-        mCurrentGroupSettings = new GroupSettings();
-        mCurrentGroupSettings.addUser(mCurrentUser.getUserId(), StateGroupMembership.Admin);
+        UserGroupSettings groupSettings = new UserGroupSettings(mCurrentUser.getEmail(),StateGroupMembership.Admin);
 
-        mDbRefGroupSettings.child(key).setValue(mCurrentGroupSettings)
+        mDbRefGroupSettings.child(key).child(mCurrentUser.getUserId()).setValue(groupSettings)
                 .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupSettings saved successfully"))
                 .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupSettings"));
     }
 
     public void addUserToGroup(String newUserEmail) {
-// todo test
         //todo if already in group or pending
         // Reference to users
         DatabaseReference refUser = mDatabase.getReference("users/");
@@ -299,7 +315,6 @@ public class FirebaseHelper {
                 Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
                 User cur = null;
-// todo schaun, dass man sich dass mit dem iterable sparen kann
                 for (DataSnapshot snapshot : iterable) {
                     User temp = snapshot.getValue(User.class);
                     if (temp == null)
@@ -319,10 +334,16 @@ public class FirebaseHelper {
                     Context context = GlobalApplication.getAppContext();
                     Toast.makeText(context, context.getString(R.string.user_already_in_group), Toast.LENGTH_SHORT).show();
                 } else {
+                    GroupSettings groupSettings=new GroupSettings(cur.getUserId(),cur.getEmail(),StateGroupMembership.Pending);
 
-                    mCurrentGroupSettings.addUser(cur.getUserId(), StateGroupMembership.Pending);
 
-                    mDbRefGroupSettings.child(mCurrentUser.getGroupId()).setValue(mCurrentGroupSettings);
+                    //todo changes made because of adapter for listview
+
+                    mCurrentGroupSettings.add(groupSettings);
+
+                    HashMap<String, UserGroupSettings>map=groupSettings.toMap();
+
+                    mDbRefGroupSettings.child(mCurrentUser.getGroupId()).setValue(map);
 
                         mDbRefGroupInvitations.child(cur.getUserId()).child(mCurrentUser.getGroupId()).setValue(mCurrentUser.getEmail());
 
@@ -340,7 +361,7 @@ public class FirebaseHelper {
 
     }
 
-    void deleteCost(DataSnapshot snapshot) {
+    public void deleteCost(DataSnapshot snapshot) {
         Cost cost = snapshot.getValue(Cost.class);
         snapshot.getRef().removeValue();
 
@@ -429,15 +450,19 @@ public class FirebaseHelper {
 
     public void declineGroupInvitation(String key) {
         mDbRefGroupInvitations.child(mCurrentUser.getUserId()).removeValue();
-        mDbRefGroupSettings.child(key).child("members").child(mCurrentUser.getUserId()).setValue(StateGroupMembership.Refused);
+        mDbRefGroupSettings.child(key).child(mCurrentUser.getUserId()).child(Constants.GroupDatabase.STATEGROUPMEMBERSHIP).setValue(StateGroupMembership.Refused);
     }
 
     public void followGroupInvitation(String key) {
-        //todo add group to current user
         mDbRefGroupInvitations.child(mCurrentUser.getUserId()).removeValue();
         mCurrentUser.setGroupId(key);
-        mDatabase.getReference("users/"+mCurrentUser.getUserId()+"/groupId").setValue(key);
-        mDbRefGroupSettings.child(key).child("members").child(mCurrentUser.getUserId()).setValue(StateGroupMembership.Member);
+        mDatabase.getReference(Constants.GroupDatabase.USERS+"/"+mCurrentUser.getUserId()+"/groupId").setValue(key);
+        mDbRefGroupSettings.child(key).child(mCurrentUser.getUserId()).child(Constants.GroupDatabase.STATEGROUPMEMBERSHIP).setValue(StateGroupMembership.Member);
     }
 
+    public List<GroupSettings> getMembersOfGroup() {
+        if(mCurrentGroupSettings==null)
+            mCurrentGroupSettings=new ArrayList<>();
+        return mCurrentGroupSettings;
+    }
 }
