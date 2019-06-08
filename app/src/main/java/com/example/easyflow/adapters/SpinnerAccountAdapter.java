@@ -2,6 +2,7 @@ package com.example.easyflow.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,8 @@ public class SpinnerAccountAdapter extends ArrayAdapter<AccountData> {
         this.mGroupId =groupid;
     }
 
-    public View getView(int position, View convertView, ViewGroup parent ){
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent ){
         View itemView= mInflater.inflate(mGroupId,parent,false);
 
         TextView textView= itemView.findViewById(R.id.textSpinner);
@@ -37,7 +39,7 @@ public class SpinnerAccountAdapter extends ArrayAdapter<AccountData> {
         return itemView;
     }
 
-    public View getDropDownView(int position, View convertView, ViewGroup
+    public View getDropDownView(int position, View convertView, @NonNull ViewGroup
             parent){
         return getView(position,convertView,parent);
 

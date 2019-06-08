@@ -1,9 +1,5 @@
 package com.example.easyflow.models;
 
-import android.content.res.Resources;
-
-import com.example.easyflow.R;
-import com.example.easyflow.activities.SplashActivity;
 import com.example.easyflow.interfaces.Constants;
 
 import java.text.ParseException;
@@ -85,7 +81,6 @@ public class Cost {
     }
 
     public String getDateString() {
-        String dateString=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
-        return dateString;
+        return new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
     }
 }

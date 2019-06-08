@@ -1,6 +1,6 @@
 package com.example.easyflow.interfaces;
 
-import com.example.easyflow.models.StateAccount;
+
 
 public interface Constants {
     String DATE_FORMAT_DATABASE = "yyyy-MM-dd-HH-mm-ss";
@@ -16,14 +16,9 @@ public interface Constants {
     String SHARED_PREF_KEY_USER_DATABASE = "user_database";
     String SHARED_PREF_KEY = "ActivityPREF";
 
-    public interface GroupDatabase{
-        String GROUP="group";
-        String GROUP_ID="groupId";
-        String INVITATIONS="invitations";
-        String EMAIL="email";
-        String STATEGROUPMEMBERSHIP="stateGroupMemberShip";
-        String USERS="users";
-    }
+    String DATABASE_KEY_STATE_GROUP_MEMBERSHIP="stateGroupMemberShip";
+    String DATABASE_KEY_GROUP_ID="groupId";
+
 
 
 }

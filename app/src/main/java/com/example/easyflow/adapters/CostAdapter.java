@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 
 public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapter.ViewHolder> {
@@ -35,7 +36,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
 
     public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions options) {
-        super(options);
+        super(Objects.requireNonNull(options));
         mInflater = LayoutInflater.from(context);
     }
 
@@ -46,7 +47,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         return new ViewHolder(mItemVview);
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint({"SimpleDateFormat", "DefaultLocale"})
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot dataSnapshot) {
         Cost cost = dataSnapshot.getValue(Cost.class);
@@ -65,7 +66,7 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         setImageViews(holder,cost.getCategory().getId());
         // Set grey overlay, if cost date is in future
 
-        int temp=View.INVISIBLE;
+        int temp;
         if((temp=sparseIntArray.get(position,-1))==-1){
             if(cost.getDate().after(Calendar.getInstance().getTime()))
                 temp=View.VISIBLE;
@@ -91,7 +92,6 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         int iconId = R.drawable.ic_error_outline_red_32dp;
         int arrowId = R.drawable.ic_error_outline_red_32dp;
 
-        // todo probleme bei logo bei überweisung
         Category matching;
 
 

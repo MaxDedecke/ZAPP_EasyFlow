@@ -1,7 +1,6 @@
 package com.example.easyflow.models;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class GroupSettings {
 

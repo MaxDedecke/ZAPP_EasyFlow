@@ -29,8 +29,6 @@ import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
 import com.example.easyflow.interfaces.NotifyEventHandlerStrinMap;
 import com.example.easyflow.models.MainViewModel;
 import com.example.easyflow.models.StateAccount;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.database.DataSnapshot;
 import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity
@@ -41,7 +39,6 @@ public class MainActivity extends AppCompatActivity
 
     private CostAdapter mCostAdapter;
     private RecyclerView mRecyclerView;
-    private Toolbar mToolbar;
     private TextView mSumTextView;
     private MenuItem mMenuItemGroup;
     private MenuItem mMenuItemSelectAccount;
@@ -54,17 +51,17 @@ public class MainActivity extends AppCompatActivity
 
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
-        mToolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         mRecyclerView = findViewById(R.id.list);
         mSumTextView = findViewById(R.id.tvSummary);
 
-        setSupportActionBar(mToolbar);
+        setSupportActionBar(toolbar);
 
         /*
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
@@ -295,7 +292,7 @@ public class MainActivity extends AppCompatActivity
             String json = gson.toJson(FirebaseHelper.mCurrentUser);
             edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
             edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
-            edt.commit();
+            edt.apply();
 
 
         });

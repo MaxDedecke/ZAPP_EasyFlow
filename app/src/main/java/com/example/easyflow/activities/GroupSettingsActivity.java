@@ -2,46 +2,49 @@ package com.example.easyflow.activities;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.easyflow.R;
-import com.example.easyflow.utils.FirebaseHelper;
-import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.adapters.MemberAdapter;
 import com.example.easyflow.models.GroupSettings;
 import com.example.easyflow.models.GroupSettingsViewModel;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 
 import java.util.List;
+import java.util.Objects;
 
 public class GroupSettingsActivity extends AppCompatActivity {
     private EditText mNewMemberEmail;
-    private ListView mListView;
     private GroupSettingsViewModel mViewModel;
-    private MemberAdapter mArrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // todo oberfläche und funktionalität hinzufügen
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_settings);
 
         mViewModel = ViewModelProviders.of(this).get(GroupSettingsViewModel.class);
 
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_settings);
         mNewMemberEmail = findViewById(R.id.email_address_new_member_edittext);
-        mListView = findViewById(R.id.listview_members);
-
+        ListView listView = findViewById(R.id.listview_members);
+        Button btnDeleteOrLeaveGroup = findViewById(R.id.delete_leave_group_button);
 
         List<GroupSettings> members = mViewModel.getMembers();
-        mArrayAdapter = new MemberAdapter(GlobalApplication.getAppContext(), R.layout.group_list_item_view, members );
+        MemberAdapter arrayAdapter = new MemberAdapter(GlobalApplication.getAppContext(), R.layout.group_list_item_view, members, mViewModel.isCurrentUserGroupAdmin());
 
-        mListView.setAdapter(mArrayAdapter);
+        listView.setAdapter(arrayAdapter);
 
+
+        if(!mViewModel.isCurrentUserGroupAdmin()){
+            btnDeleteOrLeaveGroup.setText(R.string.leave_group_button);
+        }
 
     }
 
@@ -51,7 +54,7 @@ public class GroupSettingsActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.error_no_valid_email), Toast.LENGTH_SHORT).show();
             return;
         }
-        if(memberAlreadyContains(email)){
+        if(groupAlreadyContainsMember(email)){
             Toast.makeText(this, getString(R.string.error_member_already_contains_email), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -60,21 +63,42 @@ public class GroupSettingsActivity extends AppCompatActivity {
         helper.addUserToGroup(email);
     }
 
-    private boolean memberAlreadyContains(String email) {
+    private boolean groupAlreadyContainsMember(String email) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return mViewModel.getMembers().stream().anyMatch(o->o.getUserGroupSettings().getEmail()==email);
+            return mViewModel.getMembers().stream().anyMatch(o-> Objects.equals(o.getUserGroupSettings().getEmail(), email));
         }
-        else{
-            for(GroupSettings groupSettings:mViewModel.getMembers()){
-                if(groupSettings.getUserGroupSettings().getEmail()==email)
-                    return true;
-            }
-            return false;
+
+        for(GroupSettings groupSettings:mViewModel.getMembers()){
+            if(Objects.equals(groupSettings.getUserGroupSettings().getEmail(), email))
+                return true;
         }
+
+        return false;
     }
 
 
     public void deleteGroup(View view) {
-        // todo nachfragen und anschließend Gruppe löschen
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setNegativeButton(getString(R.string.nein), null);
+
+        if(mViewModel.isCurrentUserGroupAdmin()){
+            builder.setMessage(R.string.alert_delete_group_message);
+            builder.setTitle(R.string.alert_delete_group_title);
+            builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
+                FirebaseHelper firebaseHelper =FirebaseHelper.getInstance();
+                firebaseHelper.removeGroup();
+            });
+        }
+        else{
+            builder.setMessage(R.string.alert_leave_group_message);
+            builder.setTitle(R.string.alert_leave_group_title);
+            builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
+                FirebaseHelper firebaseHelper =FirebaseHelper.getInstance();
+                firebaseHelper.removeUserFromGroup();
+            });
+        }
+
+
+        builder.show();
     }
 }

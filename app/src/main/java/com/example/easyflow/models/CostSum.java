@@ -45,8 +45,7 @@ public class CostSum {
     }
 
     public String getDateString() {
-        String dateString=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDateLastUpdated());
-        return dateString;
+        return new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDateLastUpdated());
     }
 
 

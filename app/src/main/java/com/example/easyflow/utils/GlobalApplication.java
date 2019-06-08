@@ -68,23 +68,23 @@ public class GlobalApplication extends Application {
         Context context = GlobalApplication.getAppContext();
 
         // Kategorien für Ausgaben.
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_reisen), R.drawable.ic_airplane_brown_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_auto), R.drawable.ic_car_darkblue_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_kommunikation), R.drawable.ic_communication_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_eating), R.drawable.ic_eating_green_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_lebensmittel), R.drawable.ic_food_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_gesundheit), R.drawable.ic_health_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_haus), R.drawable.ic_home_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_taxi), R.drawable.ic_local_taxi_black_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_geschenke), R.drawable.ic_present_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_sport), R.drawable.ic_sport_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoriy_verkehrsmittel), R.drawable.ic_traffic_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_reisen), R.drawable.ic_airplane_brown_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_auto), R.drawable.ic_car_darkblue_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_kommunikation), R.drawable.ic_communication_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.categoiy_eating), R.drawable.ic_eating_green_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_lebensmittel), R.drawable.ic_food_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_gesundheit), R.drawable.ic_health_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_haus), R.drawable.ic_home_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_taxi), R.drawable.ic_local_taxi_black_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_geschenke), R.drawable.ic_present_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_sport), R.drawable.ic_sport_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_verkehrsmittel), R.drawable.ic_traffic_24dp));
         categoriesCost.add(new Category(context.getString(R.string.category_bildung), R.drawable.ic_school_black_24dp));
 
         // Kategorien für Einkommen.
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_einzahlungen), R.drawable.ic_einzahlungen_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_ersparnisse), R.drawable.ic_trending_up_black_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.categoriy_gehalt), R.drawable.ic_gehalt_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.category_einzahlungen), R.drawable.ic_einzahlungen_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.category_ersparnisse), R.drawable.ic_trending_up_black_24dp));
+        categoriesIncome.add(new Category(context.getString(R.string.category_gehalt), R.drawable.ic_gehalt_24dp));
 
         // Kategorien für Transfer
         categoryTransferFrom = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_red_32dp);

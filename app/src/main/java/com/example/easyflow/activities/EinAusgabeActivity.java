@@ -35,7 +35,6 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
     private EditText mDisplayDateEditText;
     private EditText mNoteEditText;
     private CalcFragment mCalcFragment;
-    private CategoriesFragment mCategoriesFragment;
     private Spinner mSpinnerFrequence;
     private EinAusgabeViewModel mViewModel;
 
@@ -65,7 +64,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
         }
 
         mSpinnerFrequence = findViewById(R.id.spinnerFrequence);
-        mSpinnerFrequence.setAdapter(new ArrayAdapter<Frequency>(this, R.layout.spinner_choose_frequence_item, Frequency.values()));
+        mSpinnerFrequence.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_choose_frequence_item, Frequency.values()));
 
         mCalcFragment = CalcFragment.newInstance();
         mCalcFragment.setOnFragCalcFinishEventListener(this);
@@ -141,13 +140,13 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
 
     @Override
     public void Notify() {
-        mCategoriesFragment = CategoriesFragment.newInstance(mViewModel.isShowEingabeCategories());
+        CategoriesFragment categoriesFragment = CategoriesFragment.newInstance(mViewModel.isShowEingabeCategories());
 
         // Begin the transaction
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         // Replace the contents of the container with the new fragment
         ft.detach(mCalcFragment);
-        ft.add(R.id.placeholer_ein_ausgabe, mCategoriesFragment);
+        ft.add(R.id.placeholer_ein_ausgabe, categoriesFragment);
         ft.addToBackStack("fragmentCategories");
         // Complete the changes added above
         ft.commit();
