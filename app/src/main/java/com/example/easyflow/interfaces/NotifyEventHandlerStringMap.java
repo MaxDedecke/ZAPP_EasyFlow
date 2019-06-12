@@ -1,5 +1,5 @@
 package com.example.easyflow.interfaces;
 
-public interface NotifyEventHandlerStrinMap {
+public interface NotifyEventHandlerStringMap {
     void Notify(String email,String key);
 }

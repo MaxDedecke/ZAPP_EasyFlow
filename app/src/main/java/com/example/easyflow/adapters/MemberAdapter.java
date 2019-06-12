@@ -1,38 +1,141 @@
 package com.example.easyflow.adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.easyflow.R;
 import com.example.easyflow.models.GroupSettings;
 import com.example.easyflow.models.StateGroupMembership;
+import com.example.easyflow.models.UserGroupSettings;
 import com.example.easyflow.utils.FirebaseHelper;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.DataSnapshot;
 
-import java.util.List;
+import java.util.Objects;
 
 
-public class MemberAdapter extends ArrayAdapter<GroupSettings> implements View.OnClickListener {
-    private List<GroupSettings> mListItemProperties;
+public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberAdapter.ViewHolder> {
     private Context mContext;
     private boolean mIsAdmin;
+    private LayoutInflater mInflater;
 
-    public MemberAdapter(Context context, int resource, List<GroupSettings> listGroupSettings, boolean isAdmin) {
-        super(context, resource, listGroupSettings);
+    // todo test everthing: livedata, delete user, changed user settings, ...
+
+    public MemberAdapter(Context context, @NonNull FirebaseRecyclerOptions options, boolean isAdmin) {
+        super(Objects.requireNonNull(options));
+        mInflater = LayoutInflater.from(context);
         mContext = context;
-        mListItemProperties = listGroupSettings;
 
         mIsAdmin = isAdmin;
     }
 
+    @Override
+    protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot model) {
+        GroupSettings groupSettings = getGroupSettingsFromDataSnapshot(model);
+
+//todo null reference
+        StateGroupMembership stateGroupMembership = groupSettings.getUserGroupSettings().getStateGroupMemberShip();
+
+        int imageId;
+        int roleTextId;
+
+        switch (stateGroupMembership) {
+            case Admin:
+                imageId = R.drawable.ic_admin_role;
+                roleTextId = R.string.admin_role_text;
+                break;
+            case Member:
+                enableDeleteButton(holder.mBtnDelete, position);
+                imageId = R.drawable.ic_accepted_role;
+                roleTextId = R.string.member_role_text;
+                break;
+            case Pending:
+                enableDeleteButton(holder.mBtnDelete, position);
+                imageId = R.drawable.ic_pending_role;
+                roleTextId = R.string.pending_role_text;
+                break;
+            case Refused:
+            default:
+                enableDeleteButton(holder.mBtnDelete, position);
+                imageId = R.drawable.ic_declined_role;
+                roleTextId = R.string.declined_role_text;
+                break;
+        }
+
+        holder.mTvRole.setText(mContext.getString(roleTextId));
+        holder.mTvEmail.setText(groupSettings.getUserGroupSettings().getEmail());
+        holder.mImageRole.setImageResource(imageId);
+
+    }
+
+    private GroupSettings getGroupSettingsFromDataSnapshot(@NonNull DataSnapshot model) {
+        return new GroupSettings(model.getKey(),model.getValue(UserGroupSettings.class));
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View itemVview = mInflater.inflate(R.layout.group_list_item_view, viewGroup, false);
+        return new MemberAdapter.ViewHolder(itemVview);
+    }
+
+    public boolean contains(String email){
+        //todo testen
+        for(DataSnapshot snapshot:getSnapshots ()){
+            UserGroupSettings userGroupSettings=snapshot.getValue(UserGroupSettings.class);
+            if(email.equals(userGroupSettings.getEmail()))
+                return true;
+        }
+
+        return false;
+    }
+
+    private void enableDeleteButton(Button deleteButton, int position) {
+        if (!mIsAdmin)
+            return;
+
+        deleteButton.setBackgroundColor(mContext.getResources().getColor(R.color.buttonRed));
+        deleteButton.setTag(position);
+        deleteButton.setOnClickListener(v -> {
+            GroupSettings snapshot = getGroupSettingsFromDataSnapshot(getSnapshots().getSnapshot(position));
+
+            FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+            firebaseHelper.removeUserFromGroup(snapshot);
+        });
+        deleteButton.setEnabled(true);
+    }
+
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView mTvEmail;
+        private TextView mTvRole;
+        private ImageView mImageRole;
+        private Button mBtnDelete;
+
+
+        ViewHolder(View view) {
+            super(view);
+
+
+            mTvEmail = view.findViewById(R.id.list_email);
+            mTvRole = view.findViewById(R.id.list_role);
+            mImageRole = view.findViewById(R.id.list_group_role);
+            mBtnDelete = view.findViewById(R.id.list_button_delete);
+        }
+    }
+}
+
+
+/*
     //called when rendering the list
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -81,27 +184,4 @@ public class MemberAdapter extends ArrayAdapter<GroupSettings> implements View.O
 
         return view;
     }
-
-    private void enableDeleteButton(Button deleteButton,int position) {
-        if(!mIsAdmin)
-            return;
-
-        deleteButton.setBackgroundColor(mContext.getResources().getColor(R.color.buttonRed));
-        deleteButton.setTag(position);
-        deleteButton.setOnClickListener(this);
-        deleteButton.setEnabled(true);
-    }
-
-    @Override
-    public void onClick(View v) {
-        int position= (int) v.getTag();
-
-        FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
-        firebaseHelper.removeUserFromGroup(mListItemProperties.get(position));
-
-        mListItemProperties.remove(position);
-        notifyDataSetChanged();
-
-        Toast.makeText(mContext,mContext.getResources().getString(R.string.user_removed_from_group), Toast.LENGTH_SHORT);
-    }
-}
+*/

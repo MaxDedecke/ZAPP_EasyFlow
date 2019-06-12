@@ -6,13 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".activities.GroupSettingsActivity">
 
-    <ListView
-        android:id="@+id/listview_members"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview_members"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/email_address_new_member_edittext" />
+
+
     <EditText
         android:id="@+id/email_address_new_member_edittext"
         android:layout_width="0dp"
@@ -23,7 +25,7 @@
         android:layout_marginBottom="40dp"
         android:hint="@string/email_adresse"
         android:inputType="textEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/listview_members"
+        app:layout_constraintTop_toBottomOf="@id/recyclerview_members"
         app:layout_constraintBottom_toTopOf="@id/delete_leave_group_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/add_member_btn"/>

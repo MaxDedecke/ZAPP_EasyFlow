@@ -1,5 +1,7 @@
 package com.example.easyflow.activities;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +13,8 @@ import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
+
+import java.util.Calendar;
 
 public class SplashActivity extends AppCompatActivity {
 

@@ -38,7 +38,6 @@
     <string name="add_note_hint">Notiz hinzufügen</string>
     <string name="email_adresse">Email</string>
     <string name="passwort">Passwort</string>
-    <string name="login">Login</string>
     <string name="create_account">Account erstellen</string>
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
@@ -69,7 +68,7 @@
     <string name="pending_role_text">Antwort ausstehend</string>
     <string name="member_role_text">Mitglied</string>
     <string name="error_no_valid_email">Keine gültige Email Adresse.</string>
-    <string name="login_successfull">Sie wurden erfolgreich eingeloggt.</string>
+    <string name="login_successfull">Du wurdest erfolgreich angemeldet.</string>
     <string name="error_member_already_contains_email">Benutzer mit dieser Email Adresse befindet sich bereits in dieser Gruppe.</string>
     <string name="leave_group_button">Leave Group</string>
     <string name="user_removed_from_group">Mitglied wurde aus der Gruppe entfernt.</string>
@@ -77,4 +76,15 @@
     <string name="alert_delete_group_title">Gruppe löschen</string>
     <string name="alert_leave_group_message">Willst du endgültig aus der Gruppe austreten?</string>
     <string name="alert_leave_group_title">Aus Gruppe austreten</string>
+    <string name="message_group_removed_successfully">Gruppe wurde erfolgreich gelöscht.</string>
+    <string name="messag_user_not_registered">Nutzer ist nicht angemeldet.</string>
+    <string name="category_unterhaltung">Unterhaltung</string>
+    <string name="category_rechnungen">Rechnungen</string>
+    <string name="category_kleidung">Kleidung</string>
+    <string name="category_hygieneartikel">Hygieneartikel</string>
+    <string name="category_haustiere">Haustiere</string>
+    <string name="login_registrieren"> Registrieren</string>
+    <string name="login_frage_kein_konto">Du hast kein Konto?</string>
+    <string name="login_anmelden">Anmelden</string>
+    <string name="login_frage_ein_konto">Du hast ein Konto?</string>
 </resources>

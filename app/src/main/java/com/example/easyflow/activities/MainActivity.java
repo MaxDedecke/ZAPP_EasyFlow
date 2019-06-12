@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -15,26 +16,26 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.easyflow.R;
-import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.adapters.CostAdapter;
-import com.example.easyflow.utils.FirebaseHelper;
-import com.example.easyflow.utils.GlobalApplication;
-import com.example.easyflow.interfaces.NotifyEventHandlerDouble;
-import com.example.easyflow.interfaces.NotifyEventHandlerStrinMap;
+import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.interfaces.NotifyEventHandlerCostSum;
+import com.example.easyflow.interfaces.NotifyEventHandlerStringMap;
+import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.MainViewModel;
 import com.example.easyflow.models.StateAccount;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerDouble, NotifyEventHandlerStrinMap {
-
-
+        implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerCostSum, NotifyEventHandlerStringMap {
     private MainViewModel mViewModel;
 
     private CostAdapter mCostAdapter;
@@ -68,9 +69,10 @@ public class MainActivity extends AppCompatActivity
 */
 
 
-        FirebaseHelper.setKeyAccount(mViewModel.getStateAccount());
         FirebaseHelper helper = new FirebaseHelper();
         helper.setListener(this, this);
+
+        mViewModel.setStateAccount(mViewModel.getStateAccount());
 
 
         // Initialize and show LiveData for the Main Content
@@ -80,7 +82,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mCostAdapter.startListening();
+        updateAndSetCostAdapter();
 
     }
 
@@ -90,15 +92,9 @@ public class MainActivity extends AppCompatActivity
         mCostAdapter.stopListening();
     }
 
-    @Override
-    public void Notify(double sumActualAccount) {
-        if (sumActualAccount >= 0) {
-            mSumTextView.setTextColor(getResources().getColor(R.color.colorPrimary));
-        } else {
-            mSumTextView.setTextColor(getResources().getColor(R.color.buttonRed));
-        }
-        mSumTextView.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, sumActualAccount));
-
+    private String getColoredSpanned(String text, String color) {
+        String input = "<font color=#" + color + ">" + text + "</font>";
+        return input;
     }
 
     @Override
@@ -117,6 +113,8 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         mMenuItemGroup = menu.getItem(2);
         mMenuItemSelectAccount = menu.getItem(1);
+        setActionBarHeadItem(mViewModel.getStateAccount());
+
         return true;
     }
 
@@ -192,7 +190,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
@@ -253,9 +250,6 @@ public class MainActivity extends AppCompatActivity
             }
         }).attachToRecyclerView(mRecyclerView);
 
-
-        updateAndSetCostAdapter();
-
     }
 
     private void updateAndSetCostAdapter() {
@@ -297,5 +291,28 @@ public class MainActivity extends AppCompatActivity
 
         });
         builder.show();
+    }
+
+    @Override
+    public void Notify(CostSum costSum) {
+
+        mViewModel.setCostSum(costSum);
+
+        if (costSum == null)
+            return;
+
+        String color;
+
+
+        if (costSum.getCurrentValue() >= 0) {
+            color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary) & 0x00ffffff);
+        } else {
+            color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.buttonRed) & 0x00ffffff);
+        }
+
+        String actSum = getColoredSpanned(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue()), color);
+        String futureSum = getColoredSpanned(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getFutureValue()), Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.lightGrey) & 0x00ffffff));
+
+        mSumTextView.setText(Html.fromHtml(actSum + " / " + futureSum));
     }
 }

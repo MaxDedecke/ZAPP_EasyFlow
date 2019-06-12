@@ -18,7 +18,5 @@ public interface Constants {
 
     String DATABASE_KEY_STATE_GROUP_MEMBERSHIP="stateGroupMemberShip";
     String DATABASE_KEY_GROUP_ID="groupId";
-
-
-
+    String DATABASE_KEY_DATE_LAST_UPDATED = "dateLastUpdated";
 }

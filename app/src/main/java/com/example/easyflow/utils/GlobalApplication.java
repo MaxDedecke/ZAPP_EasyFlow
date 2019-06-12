@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.models.Category;
+import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
 
@@ -21,6 +22,7 @@ public class GlobalApplication extends Application {
     public static Category categoryTransferFrom;
     public static Category categoryTransferTo;
     private static Context appContext;
+
 
 
     @Override
@@ -68,7 +70,6 @@ public class GlobalApplication extends Application {
         Context context = GlobalApplication.getAppContext();
 
         // Kategorien für Ausgaben.
-        categoriesCost.add(new Category(context.getString(R.string.category_reisen), R.drawable.ic_airplane_brown_24dp));
         categoriesCost.add(new Category(context.getString(R.string.category_auto), R.drawable.ic_car_darkblue_24dp));
         categoriesCost.add(new Category(context.getString(R.string.category_kommunikation), R.drawable.ic_communication_24dp));
         categoriesCost.add(new Category(context.getString(R.string.categoiy_eating), R.drawable.ic_eating_green_24dp));
@@ -79,7 +80,13 @@ public class GlobalApplication extends Application {
         categoriesCost.add(new Category(context.getString(R.string.category_geschenke), R.drawable.ic_present_24dp));
         categoriesCost.add(new Category(context.getString(R.string.category_sport), R.drawable.ic_sport_24dp));
         categoriesCost.add(new Category(context.getString(R.string.category_verkehrsmittel), R.drawable.ic_traffic_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_bildung), R.drawable.ic_school_black_24dp));
+        categoriesCost.add(new Category(context.getString(R.string.category_haustiere), R.drawable.ic_haustier));
+        categoriesCost.add(new Category(context.getString(R.string.category_hygieneartikel), R.drawable.ic_hygieneartikel));
+        categoriesCost.add(new Category(context.getString(R.string.category_kleidung), R.drawable.ic_kleidung));
+        categoriesCost.add(new Category(context.getString(R.string.category_rechnungen), R.drawable.ic_rechnungen));
+        categoriesCost.add(new Category(context.getString(R.string.category_unterhaltung), R.drawable.ic_unterhaltung));
+//Haustiere,hygieneartikel,Kleidung, Rechnungen, unterhaltung
+
 
         // Kategorien für Einkommen.
         categoriesIncome.add(new Category(context.getString(R.string.category_einzahlungen), R.drawable.ic_einzahlungen_24dp));

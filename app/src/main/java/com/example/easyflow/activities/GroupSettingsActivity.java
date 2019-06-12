@@ -3,8 +3,12 @@ package com.example.easyflow.activities;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,15 +19,18 @@ import com.example.easyflow.R;
 import com.example.easyflow.adapters.MemberAdapter;
 import com.example.easyflow.models.GroupSettings;
 import com.example.easyflow.models.GroupSettingsViewModel;
+import com.example.easyflow.models.MainViewModel;
+import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.utils.GlobalApplication;
 
-import java.util.List;
 import java.util.Objects;
 
 public class GroupSettingsActivity extends AppCompatActivity {
     private EditText mNewMemberEmail;
     private GroupSettingsViewModel mViewModel;
+    private RecyclerView mRecyclerView;
+    private MemberAdapter mMemberAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,19 +40,26 @@ public class GroupSettingsActivity extends AppCompatActivity {
         mViewModel = ViewModelProviders.of(this).get(GroupSettingsViewModel.class);
 
         mNewMemberEmail = findViewById(R.id.email_address_new_member_edittext);
-        ListView listView = findViewById(R.id.listview_members);
+        mRecyclerView = findViewById(R.id.recyclerview_members);
         Button btnDeleteOrLeaveGroup = findViewById(R.id.delete_leave_group_button);
 
-        List<GroupSettings> members = mViewModel.getMembers();
-        MemberAdapter arrayAdapter = new MemberAdapter(GlobalApplication.getAppContext(), R.layout.group_list_item_view, members, mViewModel.isCurrentUserGroupAdmin());
 
-        listView.setAdapter(arrayAdapter);
 
 
         if(!mViewModel.isCurrentUserGroupAdmin()){
             btnDeleteOrLeaveGroup.setText(R.string.leave_group_button);
         }
 
+
+
+        setUpRecyclerView();
+        updateAndSetCostAdapter();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mMemberAdapter.stopListening();
     }
 
     public void addMember(View view) {
@@ -54,7 +68,7 @@ public class GroupSettingsActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.error_no_valid_email), Toast.LENGTH_SHORT).show();
             return;
         }
-        if(groupAlreadyContainsMember(email)){
+        if(mMemberAdapter.contains(email)){
             Toast.makeText(this, getString(R.string.error_member_already_contains_email), Toast.LENGTH_SHORT).show();
             return;
         }
@@ -63,6 +77,7 @@ public class GroupSettingsActivity extends AppCompatActivity {
         helper.addUserToGroup(email);
     }
 
+    /*
     private boolean groupAlreadyContainsMember(String email) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return mViewModel.getMembers().stream().anyMatch(o-> Objects.equals(o.getUserGroupSettings().getEmail(), email));
@@ -74,8 +89,10 @@ public class GroupSettingsActivity extends AppCompatActivity {
         }
 
         return false;
-    }
 
+        for(mRecyclerView.getchild)
+    }
+    */
 
     public void deleteGroup(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -87,6 +104,11 @@ public class GroupSettingsActivity extends AppCompatActivity {
             builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
                 FirebaseHelper firebaseHelper =FirebaseHelper.getInstance();
                 firebaseHelper.removeGroup();
+
+                Toast.makeText(this,getString(R.string.message_group_removed_successfully),Toast.LENGTH_SHORT).show();
+
+                MainViewModel.mStateAccount= StateAccount.Cash;
+                finish();
             });
         }
         else{
@@ -95,10 +117,36 @@ public class GroupSettingsActivity extends AppCompatActivity {
             builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
                 FirebaseHelper firebaseHelper =FirebaseHelper.getInstance();
                 firebaseHelper.removeUserFromGroup();
+
+                MainViewModel.mStateAccount= StateAccount.Cash;
+                finish();
             });
+
+
+            //finishActivity(MainActivity.DELETE_GROUP_REQUEST);
         }
 
 
         builder.show();
+    }
+
+    private void setUpRecyclerView() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
+    }
+
+
+    private void updateAndSetCostAdapter() {
+
+        if (mMemberAdapter != null)
+            mMemberAdapter.stopListening();
+
+        mMemberAdapter = new MemberAdapter(GlobalApplication.getAppContext(),mViewModel.getFirebaseRecyclerOptions(),mViewModel.isCurrentUserGroupAdmin());
+        mRecyclerView.setAdapter(mMemberAdapter);
+
+        mMemberAdapter.startListening();
     }
 }

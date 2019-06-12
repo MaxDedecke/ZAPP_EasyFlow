@@ -46,9 +46,38 @@
         android:layout_marginRight="30dp"
         android:background="#ffff"
         android:onClick="login"
-        android:text="@string/login"
+        android:text="@string/login_anmelden"
         android:textColor="@color/colorPrimaryDark" />
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/lightGrey"
+        android:layout_alignParentBottom="true"
+        android:padding="4dp">
+        <TextView
+            android:id="@+id/textview_kein_konto_frage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/login_frage_kein_konto"
+            android:textAlignment="textEnd"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+        <TextView
+            android:id="@+id/textview_anmelden"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingLeft="4dp"
+            android:text="@string/login_registrieren"
+            android:onClick="addNewMember"
+            android:textColor="@color/colorPrimaryDark"
+            android:textAlignment="textStart"
+            android:textStyle="bold"
+
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+    </LinearLayout>
 
 
 </RelativeLayout>

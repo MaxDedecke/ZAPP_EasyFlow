@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.models.CostSum;
 import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.models.Category;
@@ -25,19 +26,32 @@ import com.google.firebase.database.DataSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 
 public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapter.ViewHolder> {
     private LayoutInflater mInflater;
-    private SparseIntArray sparseIntArray=new SparseIntArray();
+    private Date mEndDate;
+    private HashMap<Cost,Integer> mCostHashMap= new HashMap<>();
+    //private SparseIntArray mSparseIntArray =new SparseIntArray();
 
 
     public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions options) {
         super(Objects.requireNonNull(options));
         mInflater = LayoutInflater.from(context);
+        Calendar calendar=Calendar.getInstance(Locale.getDefault());
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+
+        mEndDate=calendar.getTime();
     }
 
     @NonNull
@@ -66,15 +80,30 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         setImageViews(holder,cost.getCategory().getId());
         // Set grey overlay, if cost date is in future
 
-        int temp;
-        if((temp=sparseIntArray.get(position,-1))==-1){
-            if(cost.getDate().after(Calendar.getInstance().getTime()))
-                temp=View.VISIBLE;
 
-            sparseIntArray.put(position,temp);
+        if(!mCostHashMap.containsKey(cost)){
+            if(cost.getDate().after(mEndDate))
+                mCostHashMap.put(cost,View.VISIBLE);
+            else
+                mCostHashMap.put(cost,View.INVISIBLE);
         }
 
-        holder.mConstraintLayoutGrey.setVisibility(temp);
+        holder.mConstraintLayoutGrey.setVisibility(mCostHashMap.get(cost));
+
+        /*
+        int layoutGreyIsVisible= mSparseIntArray.get(position,-1);
+        if(layoutGreyIsVisible==-1){
+            if(cost.getDate().after(Calendar.getInstance().getTime()))
+                layoutGreyIsVisible=View.VISIBLE;
+            else
+                layoutGreyIsVisible=View.INVISIBLE;
+
+            mSparseIntArray.put(position,layoutGreyIsVisible);
+        }
+
+        holder.mConstraintLayoutGrey.setVisibility(layoutGreyIsVisible);
+
+        */
 
     }
 
@@ -82,8 +111,10 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
     public void deleteItem(int position) {
         DataSnapshot snapshot = getSnapshots().getSnapshot(position);
 
+
         FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
         firebaseHelper.deleteCost(snapshot);
+
     }
 
     private void setImageViews(ViewHolder holder, int categoryId) {
@@ -161,7 +192,6 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
             });
             */
         }
-
     }
 
 }
