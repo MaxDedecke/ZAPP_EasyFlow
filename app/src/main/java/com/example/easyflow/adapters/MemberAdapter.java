@@ -27,9 +27,7 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
     private boolean mIsAdmin;
     private LayoutInflater mInflater;
 
-    // todo test everthing: livedata, delete user, changed user settings, ...
-
-    public MemberAdapter(Context context, @NonNull FirebaseRecyclerOptions options, boolean isAdmin) {
+    public MemberAdapter(Context context, @NonNull FirebaseRecyclerOptions<DataSnapshot> options, boolean isAdmin) {
         super(Objects.requireNonNull(options));
         mInflater = LayoutInflater.from(context);
         mContext = context;
@@ -41,7 +39,6 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot model) {
         GroupSettings groupSettings = getGroupSettingsFromDataSnapshot(model);
 
-//todo null reference
         StateGroupMembership stateGroupMembership = groupSettings.getUserGroupSettings().getStateGroupMemberShip();
 
         int imageId;
@@ -73,7 +70,6 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
         holder.mTvRole.setText(mContext.getString(roleTextId));
         holder.mTvEmail.setText(groupSettings.getUserGroupSettings().getEmail());
         holder.mImageRole.setImageResource(imageId);
-
     }
 
     private GroupSettings getGroupSettingsFromDataSnapshot(@NonNull DataSnapshot model) {
@@ -83,12 +79,11 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View itemVview = mInflater.inflate(R.layout.group_list_item_view, viewGroup, false);
-        return new MemberAdapter.ViewHolder(itemVview);
+        View itemView = mInflater.inflate(R.layout.group_recycler_item_view, viewGroup, false);
+        return new MemberAdapter.ViewHolder(itemView);
     }
 
     public boolean contains(String email){
-        //todo testen
         for(DataSnapshot snapshot:getSnapshots ()){
             UserGroupSettings userGroupSettings=snapshot.getValue(UserGroupSettings.class);
             if(email.equals(userGroupSettings.getEmail()))
@@ -141,7 +136,7 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         //get the inflater and inflate the XML layout for each item
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.group_list_item_view, null);
+        View view = inflater.inflate(R.layout.group_recycler_item_view, null);
 
         TextView tvEmail = view.findViewById(R.id.list_email);
         TextView tvRole = view.findViewById(R.id.list_role);

@@ -13,12 +13,21 @@
         android:id="@+id/tvSummary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Noch keine Ausgaben"
+        android:text=""
         android:visibility="visible"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
         android:layout_margin="4dp"
         android:textAlignment="center"
         app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/no_data_available"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"

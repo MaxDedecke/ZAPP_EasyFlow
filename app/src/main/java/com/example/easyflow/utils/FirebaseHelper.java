@@ -3,7 +3,6 @@ package com.example.easyflow.utils;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.solver.widgets.Snapshot;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -89,10 +88,10 @@ public class FirebaseHelper {
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
 
-        mEndOfTodayDate=calendar.getTime();
+        mEndOfTodayDate = calendar.getTime();
 
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        mEndDate=calendar.getTime();
+        mEndDate = calendar.getTime();
 
 
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -157,22 +156,22 @@ public class FirebaseHelper {
     }
 
     private void checkCostSums() {
-        String dateTimeNow=mSimpleDateFormat.format(mEndOfTodayDate);
+        String dateTimeNow = mSimpleDateFormat.format(mEndOfTodayDate);
 
-        checkCostSums(mCurrentUser.getCashId(),dateTimeNow);
-        checkCostSums(mCurrentUser.getBankAccountId(),dateTimeNow);
+        checkCostSums(mCurrentUser.getCashId(), dateTimeNow);
+        checkCostSums(mCurrentUser.getBankAccountId(), dateTimeNow);
         if (mCurrentUser.getGroupId() != null)
-            checkCostSums(mCurrentUser.getGroupId(),dateTimeNow);
+            checkCostSums(mCurrentUser.getGroupId(), dateTimeNow);
     }
 
-    private void checkCostSums(String keyAccount,String dateTimeNow) {
+    private void checkCostSums(String keyAccount, String dateTimeNow) {
 
         mDbRefCostSum.child(keyAccount).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                CostSum costSum=dataSnapshot.getValue(CostSum.class);
+                CostSum costSum = dataSnapshot.getValue(CostSum.class);
 
-                if(costSum==null)
+                if (costSum == null)
                     return;
 
 
@@ -180,11 +179,10 @@ public class FirebaseHelper {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        Iterator<DataSnapshot> iterator =dataSnapshot.getChildren().iterator();
-                        while (iterator.hasNext()) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
 
-                            Cost cost = iterator.next().getValue(Cost.class);
+                            Cost cost = snapshot.getValue(Cost.class);
 
                             if (cost != null) {
                                 addCostValueToCostSum(cost, keyAccount);
@@ -221,10 +219,7 @@ public class FirebaseHelper {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
 
-                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-
-                while (iterator.hasNext()) {
-                    DataSnapshot snapshot = iterator.next();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Cost cost = snapshot.getValue(Cost.class);
 
 
@@ -297,7 +292,8 @@ public class FirebaseHelper {
                     GroupSettings groupSettings = new GroupSettings(snapshot.getKey(), snapshot.getValue(UserGroupSettings.class));
 
 
-                    if (groupSettings.getKey().equals(mCurrentUser.getUserId()))
+                    if (groupSettings.getUserGroupSettings().getStateGroupMemberShip() == StateGroupMembership.Admin
+                            && groupSettings.getKey().equals(mCurrentUser.getUserId()))
                         mCurrentUserGroupAdmin = true;
 
                     mCurrentGroupSettings.add(groupSettings);
@@ -318,7 +314,7 @@ public class FirebaseHelper {
         });
     }
 
-    private static void checkInvitationsForGroup() {
+    private void checkInvitationsForGroup() {
 
         // Check new invitations
         if (mCurrentUser == null || mCurrentUser.getGroupId() != null || mListenerStringMap == null)
@@ -451,8 +447,6 @@ public class FirebaseHelper {
                 if (costSum == null)
                     costSum = new CostSum();
 
-
-                // todo debug and check
                 if (cost.getDate().after(mEndOfTodayDate))
                     costSum.setFutureValue(costSum.getFutureValue() + cost.getValue());
                 else
@@ -487,7 +481,6 @@ public class FirebaseHelper {
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                double newValue = cost.getValue();
 
                 CostSum costSum = dataSnapshot.getValue(CostSum.class);
 
@@ -535,6 +528,9 @@ public class FirebaseHelper {
         mDbRefGroupSettings.child(key).child(mCurrentUser.getUserId()).setValue(groupSettings)
                 .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupSettings saved successfully"))
                 .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupSettings"));
+
+        mCurrentGroupSettings = new ArrayList<>();
+        mCurrentGroupSettings.add(new GroupSettings(mCurrentUser.getUserId(), groupSettings));
     }
 
     public void declineGroupInvitation(String key) {
@@ -559,14 +555,6 @@ public class FirebaseHelper {
     }
 
     public void removeUserFromGroup() {
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            GroupSettings groupSettings = (GroupSettings) mCurrentGroupSettings.stream().filter(o -> o.getKey().equals(mCurrentUser.getUserId()));
-            removeUserFromGroup(groupSettings);
-            return;
-        }*/
-
-        //todo testen austritt bei user, testdaten stimmen nicht aktueller user ist nicht in group
         for (GroupSettings groupSettings : mCurrentGroupSettings) {
             if (!groupSettings.getKey().equals(mCurrentUser.getUserId()))
                 continue;
@@ -621,7 +609,7 @@ public class FirebaseHelper {
                 }
 
                 if (cur == null) {
-                    Toast.makeText(GlobalApplication.getAppContext(), GlobalApplication.getAppContext().getString(R.string.messag_user_not_registered), Toast.LENGTH_SHORT);
+                    Toast.makeText(GlobalApplication.getAppContext(), GlobalApplication.getAppContext().getString(R.string.messag_user_not_registered), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (cur.getGroupId() != null) {
@@ -631,13 +619,7 @@ public class FirebaseHelper {
                     GroupSettings groupSettings = new GroupSettings(cur.getUserId(), cur.getEmail(), StateGroupMembership.Pending);
 
 
-                    //todo changes made because of adapter for listview
-
                     mCurrentGroupSettings.add(groupSettings);
-
-                    //HashMap<String, UserGroupSettings> map = groupSettings.toMap();
-
-                    //mDbRefGroupSettings.child(mCurrentUser.getGroupId()).setValue(map);
 
                     mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(cur.getUserId()).setValue(groupSettings.getUserGroupSettings());
 
@@ -679,7 +661,6 @@ public class FirebaseHelper {
         return user;
     }
 
-
     private void getActualAccountSum() {
         if (mListenerCostSum == null)
             return;
@@ -711,7 +692,9 @@ public class FirebaseHelper {
         mListenerStringMap = listenerStringMap;
     }
 
-    public void setListenerBoolean(NotifyEventHandlerBoolean listenerBoolean){this.mListenerBoolean=listenerBoolean;}
+    public void setListenerBoolean(NotifyEventHandlerBoolean listenerBoolean) {
+        mListenerBoolean = listenerBoolean;
+    }
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsMembersGroup() {
         Query query = mDbRefGroupSettings.child(mCurrentUser.getGroupId());
@@ -731,18 +714,17 @@ public class FirebaseHelper {
                 .build();
     }
 
-
     public void validateUserCredentials(String email, String password) {
 
-        if(mListenerBoolean==null)
+        if (mListenerBoolean == null)
             return;
 
         Query query = mDbRefUser.orderByChild("email").equalTo(email).limitToFirst(1);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> iterator=dataSnapshot.getChildren().iterator();
-                if(!iterator.hasNext()){
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                if (!iterator.hasNext()) {
                     mListenerBoolean.Notify(false, false);
                     query.removeEventListener(this);
                     return;
@@ -750,25 +732,20 @@ public class FirebaseHelper {
 
                 User user = iterator.next().getValue(User.class);
 
-                if(user==null||!user.getEmail().equals(email)) {
+                if (user == null || !user.getEmail().equals(email)) {
                     mListenerBoolean.Notify(false, false);
-                }
-                else if (!user.getPassword().equals(password)) {
+                } else if (!user.getPassword().equals(password)) {
                     mListenerBoolean.Notify(true, false);
-                }
-                else {
+                } else {
                     mCurrentUser = user;
                     mListenerBoolean.Notify(true, true);
                 }
 
-
                 query.removeEventListener(this);
-                return;
-
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });

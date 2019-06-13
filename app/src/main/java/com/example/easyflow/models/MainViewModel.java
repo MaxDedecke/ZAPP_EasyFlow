@@ -9,11 +9,14 @@ import com.google.firebase.database.DataSnapshot;
 public class MainViewModel extends ViewModel {
 
     private FirebaseRecyclerOptions<DataSnapshot> mFireBaseRecyclerOptions;
+    private FirebaseHelper mFirebaseHelper;
     private CostSum mCostSum;
     public static StateAccount mStateAccount =StateAccount.Cash;
 
+
     public MainViewModel() {
         super();
+        mFirebaseHelper=FirebaseHelper.getInstance();
         setStateAccount(mStateAccount);
     }
 
@@ -25,11 +28,10 @@ public class MainViewModel extends ViewModel {
     }
 
     public void setStateAccount(StateAccount stateAccount) {
-        FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
-        firebaseHelper.setKeyAccount(stateAccount);
+        mFirebaseHelper.setKeyAccount(stateAccount);
+        mFireBaseRecyclerOptions=mFirebaseHelper.getFirebaseRecyclerOptionsCosts();
 
         this.mStateAccount =stateAccount;
-        this.mFireBaseRecyclerOptions=firebaseHelper.getFirebaseRecyclerOptionsCosts();
     }
 
 
@@ -41,5 +43,4 @@ public class MainViewModel extends ViewModel {
         mCostSum=costSum;
     }
 
-    public CostSum getCostSum(){return mCostSum;}
 }

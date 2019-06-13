@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -35,7 +36,7 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
     private EditText mDisplayDateEditText;
     private EditText mNoteEditText;
     private CalcFragment mCalcFragment;
-    private Spinner mSpinnerFrequence;
+    private Spinner mSpinnerFrequency;
     private EinAusgabeViewModel mViewModel;
 
     @Override
@@ -63,8 +64,8 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
             mViewModel.setFaktor(-1);
         }
 
-        mSpinnerFrequence = findViewById(R.id.spinnerFrequence);
-        mSpinnerFrequence.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_choose_frequence_item, Frequency.values()));
+        mSpinnerFrequency = findViewById(R.id.spinnerFrequence);
+        mSpinnerFrequency.setAdapter(new ArrayAdapter<>(this, R.layout.spinner_choose_frequence_item, Frequency.values()));
 
         mCalcFragment = CalcFragment.newInstance();
         mCalcFragment.setOnFragCalcFinishEventListener(this);
@@ -120,10 +121,12 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
 
 
     public void finishEinAusgabeActivity(Category c) {
-        //mDateOfCosts
+        if(TextUtils.isEmpty(mDisplayDateEditText.getText()))
+            return;
+        
         double valueOfCosts = Double.parseDouble(mDisplayValueEditText.getText().toString()) * mViewModel.getFaktor();
         String note = mNoteEditText.getText().toString();
-        int frequenceId = mSpinnerFrequence.getSelectedItemPosition();
+        int frequenceId = mSpinnerFrequency.getSelectedItemPosition();
 
         Cost cost = new Cost(valueOfCosts, mViewModel.getDateOfCosts(), c, Frequency.fromId(frequenceId), note);
 

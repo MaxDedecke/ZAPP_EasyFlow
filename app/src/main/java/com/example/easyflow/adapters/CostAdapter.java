@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +14,10 @@ import android.widget.TextView;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.models.CostSum;
-import com.example.easyflow.utils.FirebaseHelper;
-import com.example.easyflow.utils.GlobalApplication;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.Cost;
+import com.example.easyflow.utils.FirebaseHelper;
+import com.example.easyflow.utils.GlobalApplication;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -31,18 +29,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapter.ViewHolder> {
     private LayoutInflater mInflater;
     private Date mEndDate;
     private HashMap<Cost,Integer> mCostHashMap= new HashMap<>();
+    private TextView mEmptyView;
     //private SparseIntArray mSparseIntArray =new SparseIntArray();
 
 
-    public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions options) {
-        super(Objects.requireNonNull(options));
+    public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions<DataSnapshot> options) {
+        super(options);
         mInflater = LayoutInflater.from(context);
         Calendar calendar=Calendar.getInstance(Locale.getDefault());
         calendar.setTime(new Date());
@@ -65,7 +63,6 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot dataSnapshot) {
         Cost cost = dataSnapshot.getValue(Cost.class);
-        String key = dataSnapshot.getKey();
 
         // Set Title text.
         holder.mTxtTitle.setText(cost.getCategory().getName().trim());
@@ -90,31 +87,14 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
         holder.mConstraintLayoutGrey.setVisibility(mCostHashMap.get(cost));
 
-        /*
-        int layoutGreyIsVisible= mSparseIntArray.get(position,-1);
-        if(layoutGreyIsVisible==-1){
-            if(cost.getDate().after(Calendar.getInstance().getTime()))
-                layoutGreyIsVisible=View.VISIBLE;
-            else
-                layoutGreyIsVisible=View.INVISIBLE;
-
-            mSparseIntArray.put(position,layoutGreyIsVisible);
-        }
-
-        holder.mConstraintLayoutGrey.setVisibility(layoutGreyIsVisible);
-
-        */
-
     }
 
 
     public void deleteItem(int position) {
         DataSnapshot snapshot = getSnapshots().getSnapshot(position);
 
-
         FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
         firebaseHelper.deleteCost(snapshot);
-
     }
 
     private void setImageViews(ViewHolder holder, int categoryId) {
@@ -163,6 +143,22 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         return matching;
     }
 
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        initEmptyView();
+    }
+
+    public void setEmptyView(TextView view) {
+        this.mEmptyView = view;
+        initEmptyView();
+    }
+
+    private void initEmptyView() {
+        if (mEmptyView != null) {
+            mEmptyView.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        }
+    }
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView mTxtTitle;

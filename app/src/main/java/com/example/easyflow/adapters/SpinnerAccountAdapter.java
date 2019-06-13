@@ -1,5 +1,6 @@
 package com.example.easyflow.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -16,9 +17,9 @@ import com.example.easyflow.models.AccountData;
 import java.util.ArrayList;
 
 public class SpinnerAccountAdapter extends ArrayAdapter<AccountData> {
-    int mGroupId;
-    ArrayList<AccountData> mList;
-    LayoutInflater mInflater;
+    private int mGroupId;
+    private ArrayList<AccountData> mList;
+    private LayoutInflater mInflater;
 
     public SpinnerAccountAdapter(Activity context, int groupid, int id, ArrayList<AccountData> list){
         super(context,id,list);
@@ -29,6 +30,8 @@ public class SpinnerAccountAdapter extends ArrayAdapter<AccountData> {
 
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup parent ){
+
+        @SuppressLint("ViewHolder")
         View itemView= mInflater.inflate(mGroupId,parent,false);
 
         TextView textView= itemView.findViewById(R.id.textSpinner);

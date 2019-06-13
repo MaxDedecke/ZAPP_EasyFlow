@@ -34,6 +34,8 @@ import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.utils.GlobalApplication;
 import com.google.gson.Gson;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, NotifyEventHandlerCostSum, NotifyEventHandlerStringMap {
     private MainViewModel mViewModel;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mSumTextView;
     private MenuItem mMenuItemGroup;
     private MenuItem mMenuItemSelectAccount;
+    private TextView mEmptyTextView;
 
 
     @Override
@@ -55,8 +58,20 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         mRecyclerView = findViewById(R.id.list);
         mSumTextView = findViewById(R.id.tvSummary);
+        mEmptyTextView=findViewById(R.id.tvEmpty);
 
         setSupportActionBar(toolbar);
+
+
+        // todo sammeln von ideen für drawer
+        /*
+            gruppen einstellungen
+            dark mode
+            monats anfang
+            einträge exportieren
+            einträge löschen
+
+         */
 
         /*
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -80,10 +95,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        updateAndSetCostAdapter();
+    protected void onResume() {
+        super.onResume();
 
+        if(mMenuItemSelectAccount!=null)
+            setActionBarHeadItem();
     }
 
     @Override
@@ -93,8 +109,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String getColoredSpanned(String text, String color) {
-        String input = "<font color=#" + color + ">" + text + "</font>";
-        return input;
+        return "<font color=#" + color + ">" + text + "</font>";
     }
 
     @Override
@@ -113,7 +128,7 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main, menu);
         mMenuItemGroup = menu.getItem(2);
         mMenuItemSelectAccount = menu.getItem(1);
-        setActionBarHeadItem(mViewModel.getStateAccount());
+        setActionBarHeadItem();
 
         return true;
     }
@@ -134,14 +149,19 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             return true;
         } else if (id == R.id.action_account_bank) {
-            setActionBarHeadItem(StateAccount.BankAccount);
+            mViewModel.setStateAccount(StateAccount.BankAccount);
+            setActionBarHeadItem();
             return true;
         } else if (id == R.id.action_account_cash) {
-            setActionBarHeadItem(StateAccount.Cash);
+
+            mViewModel.setStateAccount(StateAccount.Cash);
+            setActionBarHeadItem();
             return true;
         } else if (id == R.id.action_account_group) {
             if (FirebaseHelper.mCurrentUser.getGroupId() != null) {
-                setActionBarHeadItem(StateAccount.Group);
+
+                mViewModel.setStateAccount(StateAccount.Group);
+                setActionBarHeadItem();
                 return true;
             }
 
@@ -156,7 +176,9 @@ public class MainActivity extends AppCompatActivity
                 GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
 
-                setActionBarHeadItem(StateAccount.Group);
+
+                mViewModel.setStateAccount(StateAccount.Group);
+                setActionBarHeadItem();
 
             });
             builder.show();
@@ -166,9 +188,8 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void setActionBarHeadItem(StateAccount newSelectedAccount) {
-        mViewModel.setStateAccount(newSelectedAccount);
-        switch (newSelectedAccount) {
+    private void setActionBarHeadItem() {
+        switch (mViewModel.getStateAccount()) {
             case Cash:
                 mMenuItemSelectAccount.setTitle(getString(R.string.actionbar_item_bargeld));
                 mMenuItemSelectAccount.setIcon(R.drawable.ic_cash_new_white);
@@ -190,6 +211,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
@@ -259,6 +281,7 @@ public class MainActivity extends AppCompatActivity
 
 
         mCostAdapter = new CostAdapter(MainActivity.this, mViewModel.getFirebaseRecyclerOptions());
+        mCostAdapter.setEmptyView(mEmptyTextView);
         mRecyclerView.setAdapter(mCostAdapter);
 
         mCostAdapter.startListening();
@@ -296,22 +319,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void Notify(CostSum costSum) {
 
-        mViewModel.setCostSum(costSum);
-
         if (costSum == null)
             return;
 
+        mViewModel.setCostSum(costSum);
+
+        initSumTextView(costSum);
+    }
+
+    private void initSumTextView(CostSum costSum) {
         String color;
-
-
         if (costSum.getCurrentValue() >= 0) {
             color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary) & 0x00ffffff);
         } else {
             color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.buttonRed) & 0x00ffffff);
         }
 
-        String actSum = getColoredSpanned(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue()), color);
-        String futureSum = getColoredSpanned(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getFutureValue()), Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.lightGrey) & 0x00ffffff));
+        String actSum = getColoredSpanned(String.format(Locale.getDefault(),Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue()), color);
+        String futureSum = getColoredSpanned(String.format(Locale.getDefault(),Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getFutureValue()), Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.lightGrey) & 0x00ffffff));
 
         mSumTextView.setText(Html.fromHtml(actSum + " / " + futureSum));
     }

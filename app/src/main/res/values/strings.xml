@@ -70,7 +70,7 @@
     <string name="error_no_valid_email">Keine gültige Email Adresse.</string>
     <string name="login_successfull">Du wurdest erfolgreich angemeldet.</string>
     <string name="error_member_already_contains_email">Benutzer mit dieser Email Adresse befindet sich bereits in dieser Gruppe.</string>
-    <string name="leave_group_button">Leave Group</string>
+    <string name="leave_group_button">Gruppe verlassen</string>
     <string name="user_removed_from_group">Mitglied wurde aus der Gruppe entfernt.</string>
     <string name="alert_delete_group_message">Willst du die Gruppe endgültig löschen?</string>
     <string name="alert_delete_group_title">Gruppe löschen</string>
@@ -87,4 +87,6 @@
     <string name="login_frage_kein_konto">Du hast kein Konto?</string>
     <string name="login_anmelden">Anmelden</string>
     <string name="login_frage_ein_konto">Du hast ein Konto?</string>
+    <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
+    <string name="delete">Löschen</string>
 </resources>

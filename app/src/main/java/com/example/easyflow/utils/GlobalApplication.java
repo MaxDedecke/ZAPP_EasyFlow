@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.models.Category;
-import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
 
@@ -36,8 +35,9 @@ public class GlobalApplication extends Application {
         return appContext;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()&&!TextUtils.isEmpty(target);
     }
 
     public static void saveUserInSharedPreferences(User user){
@@ -48,7 +48,7 @@ public class GlobalApplication extends Application {
         String json = gson.toJson(user);
         edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
         edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
-        edt.commit();
+        edt.apply();
     }
 
     public static void saveStartUpInSharedPreferences(User user,boolean started) {
@@ -61,7 +61,7 @@ public class GlobalApplication extends Application {
         String json = gson.toJson(user);
         edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
 
-        edt.commit();
+        edt.apply();
     }
 
 

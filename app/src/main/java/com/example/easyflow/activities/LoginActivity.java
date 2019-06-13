@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity implements NotifyEventHandl
 
         mFirebaseHelper.validateUserCredentials(email, password);
 
-        //todo weiter in eventhandler
+        // Returning to NotifyEventHandler after user credentials got validated.
 
 
     }

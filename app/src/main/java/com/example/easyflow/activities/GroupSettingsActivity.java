@@ -1,30 +1,23 @@
 package com.example.easyflow.activities;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.easyflow.R;
 import com.example.easyflow.adapters.MemberAdapter;
-import com.example.easyflow.models.GroupSettings;
 import com.example.easyflow.models.GroupSettingsViewModel;
 import com.example.easyflow.models.MainViewModel;
 import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.utils.GlobalApplication;
-
-import java.util.Objects;
 
 public class GroupSettingsActivity extends AppCompatActivity {
     private EditText mNewMemberEmail;
@@ -64,6 +57,7 @@ public class GroupSettingsActivity extends AppCompatActivity {
 
     public void addMember(View view) {
         String email=mNewMemberEmail.getText().toString();
+        mNewMemberEmail.setText(null);
         if (!GlobalApplication.isValidEmail(email)) {
             Toast.makeText(this, getString(R.string.error_no_valid_email), Toast.LENGTH_SHORT).show();
             return;

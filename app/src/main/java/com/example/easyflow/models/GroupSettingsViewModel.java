@@ -3,11 +3,8 @@ package com.example.easyflow.models;
 import android.arch.lifecycle.ViewModel;
 
 import com.example.easyflow.utils.FirebaseHelper;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
-
-import java.util.List;
 
 public class GroupSettingsViewModel extends ViewModel {
 
