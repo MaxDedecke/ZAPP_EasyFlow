@@ -7,7 +7,9 @@ import android.text.TextUtils;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
+import com.example.easyflow.models.AccountData;
 import com.example.easyflow.models.Category;
+import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.User;
 import com.google.gson.Gson;
 
@@ -20,6 +22,7 @@ public class GlobalApplication extends Application {
     public static List<Category> categoriesCost = new ArrayList<>();
     public static Category categoryTransferFrom;
     public static Category categoryTransferTo;
+    public static ArrayList<AccountData> listAccounts;
     private static Context appContext;
 
 
@@ -29,6 +32,14 @@ public class GlobalApplication extends Application {
         super.onCreate();
         appContext = getApplicationContext();
         loadCategories();
+        loadListAccounts();
+    }
+
+    private void loadListAccounts() {
+        listAccounts=new ArrayList<>();
+        listAccounts.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
+        listAccounts.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
+        listAccounts.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
     }
 
     public static Context getAppContext() {

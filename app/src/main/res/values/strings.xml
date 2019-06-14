@@ -10,7 +10,7 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
+    <string name="menu_settings">Allgemeine Einstellungen</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="einnahme">Einnahme</string>
@@ -89,4 +89,9 @@
     <string name="login_frage_ein_konto">Du hast ein Konto?</string>
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
     <string name="delete">Löschen</string>
+    <string name="menu_show_group">Gruppe anzeigen</string>
+    <string name="menu_settings_group">Gruppe verwalten</string>
+    <string name="menu_show_cash">Bargeld anzeigen</string>
+    <string name="menu_show_bank_account">Bankkonto anzeigen</string>
+    <string name="menu_create_group">Gruppe erstellen</string>
 </resources>

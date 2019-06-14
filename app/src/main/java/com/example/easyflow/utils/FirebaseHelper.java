@@ -53,6 +53,7 @@ public class FirebaseHelper {
     private static DatabaseReference mDbRefGroupSettings;
     private static DatabaseReference mDbRefGroupInvitations;
     private static DatabaseReference mDbRefUser;
+    private static ValueEventListener mValueEventListenerCostSum;
     private static Date mStartDate;
     private static Date mEndDate;
     private static Date mEndOfTodayDate;
@@ -77,6 +78,9 @@ public class FirebaseHelper {
         mDbRefCostFuture = database.getReference("costs-future/");
         mDbRefGroupSettings = database.getReference("group/settings/");
         mDbRefGroupInvitations = database.getReference("group/invitations/");
+
+        // Init ValueEventListener for Cost Sum.
+        mValueEventListenerCostSum = initValueEventListenerCostSum();
 
         // Set Start and Enddate for Database Queries
         mSimpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE);
@@ -153,6 +157,29 @@ public class FirebaseHelper {
         });
 
 
+    }
+
+
+    private static ValueEventListener initValueEventListenerCostSum() {
+        return new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (mListenerCostSum == null)
+                    return;
+
+                CostSum cur = dataSnapshot.getValue(CostSum.class);
+                if (cur != null) {
+                    mListenerCostSum.Notify(cur);
+                } else {
+                    mListenerCostSum.Notify(null);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
     }
 
     private void checkCostSums() {
@@ -367,7 +394,10 @@ public class FirebaseHelper {
     }
 
     public void setKeyAccount(StateAccount stateAccount) {
+        if (mKeyAccount != null)
+            mDbRefCostSum.child(mKeyAccount).removeEventListener(mValueEventListenerCostSum);
         mKeyAccount = getKeyAccountString(stateAccount);
+        mDbRefCostSum.child(mKeyAccount).addValueEventListener(mValueEventListenerCostSum);
     }
 
     public boolean isCurrentUserGroupAdmin() {
@@ -661,31 +691,6 @@ public class FirebaseHelper {
         return user;
     }
 
-    private void getActualAccountSum() {
-        if (mListenerCostSum == null)
-            return;
-
-        // Get Sum over all Costs for this month
-        ValueEventListener valueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                CostSum cur = dataSnapshot.getValue(CostSum.class);
-                if (cur != null) {
-                    mListenerCostSum.Notify(cur);
-                } else {
-                    mListenerCostSum.Notify(null);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        mDbRefCostSum.child(mKeyAccount).addListenerForSingleValueEvent(valueEventListener);
-
-    }
 
     public void setListener(NotifyEventHandlerCostSum listenerCostSum, NotifyEventHandlerStringMap listenerStringMap) {
         mListenerCostSum = listenerCostSum;
@@ -705,7 +710,6 @@ public class FirebaseHelper {
     }
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsCosts() {
-        getActualAccountSum();
 
         Query query = mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mSimpleDateFormat.format(mStartDate)).endAt(mSimpleDateFormat.format(mEndDate));
 

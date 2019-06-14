@@ -57,12 +57,8 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
         });
 
 
-        ArrayList<AccountData> list=new ArrayList<>();
-        list.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
-        list.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
-        list.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
 
-        SpinnerAccountAdapter adapter= new SpinnerAccountAdapter(this,R.layout.spinner_choose_account_item,R.id.textSpinner,list);
+        SpinnerAccountAdapter adapter= new SpinnerAccountAdapter(this,R.layout.spinner_choose_account_item,R.id.textSpinner,GlobalApplication.listAccounts);
 
 
         mSpinnerFrom=findViewById(R.id.spinnerFrom);

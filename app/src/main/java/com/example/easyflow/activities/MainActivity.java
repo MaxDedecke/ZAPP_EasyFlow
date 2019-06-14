@@ -10,6 +10,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,10 +18,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.easyflow.R;
 import com.example.easyflow.adapters.CostAdapter;
@@ -58,22 +61,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         mRecyclerView = findViewById(R.id.list);
         mSumTextView = findViewById(R.id.tvSummary);
-        mEmptyTextView=findViewById(R.id.tvEmpty);
+        mEmptyTextView = findViewById(R.id.tvEmpty);
 
         setSupportActionBar(toolbar);
 
 
-        // todo sammeln von ideen für drawer
-        /*
-            gruppen einstellungen
-            dark mode
-            monats anfang
-            einträge exportieren
-            einträge löschen
-
-         */
-
-        /*
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -81,14 +73,13 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
-*/
+
+        if (!TextUtils.isEmpty(FirebaseHelper.mCurrentUser.getGroupId()))
+            navigationView.getMenu().getItem(3).getSubMenu().getItem(0).setTitle(R.string.menu_settings_group);
 
 
         FirebaseHelper helper = new FirebaseHelper();
         helper.setListener(this, this);
-
-        mViewModel.setStateAccount(mViewModel.getStateAccount());
-
 
         // Initialize and show LiveData for the Main Content
         setUpRecyclerView();
@@ -98,8 +89,10 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        if(mMenuItemSelectAccount!=null)
+        if (mMenuItemSelectAccount != null)
             setActionBarHeadItem();
+
+
     }
 
     @Override
@@ -130,6 +123,8 @@ public class MainActivity extends AppCompatActivity
         mMenuItemSelectAccount = menu.getItem(1);
         setActionBarHeadItem();
 
+
+
         return true;
     }
 
@@ -153,7 +148,6 @@ public class MainActivity extends AppCompatActivity
             setActionBarHeadItem();
             return true;
         } else if (id == R.id.action_account_cash) {
-
             mViewModel.setStateAccount(StateAccount.Cash);
             setActionBarHeadItem();
             return true;
@@ -165,27 +159,42 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(getString(R.string.alertdialog_keine_gruppe_message));
-            builder.setTitle(getString(R.string.alertdialog_keine_gruppe_title));
-            builder.setNegativeButton(getString(R.string.alertdialog_keine_gruppe_negative_button), null);
-            builder.setPositiveButton(getString(R.string.alertdialog_keine_gruppe_positive_button), (dialog, which) -> {
-                FirebaseHelper helper = FirebaseHelper.getInstance();
-                helper.createGroup();
-
-                GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
-
-
-
-                mViewModel.setStateAccount(StateAccount.Group);
-                setActionBarHeadItem();
-
-            });
-            builder.show();
-
+            showAlertDialogCreateGroup();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void showAlertDialogCreateGroup() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.alertdialog_keine_gruppe_message));
+        builder.setTitle(getString(R.string.alertdialog_keine_gruppe_title));
+        builder.setNegativeButton(getString(R.string.alertdialog_keine_gruppe_negative_button), (dialog, which) -> {
+            switch (mViewModel.getStateAccount()){
+                case Cash:
+                    ((NavigationView)findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
+                    break;
+                case BankAccount:
+                    ((NavigationView)findViewById(R.id.nav_view)).getMenu().getItem(1).setChecked(true);
+                    break;
+            }
+
+        });
+        builder.setPositiveButton(getString(R.string.alertdialog_keine_gruppe_positive_button), (dialog, which) -> {
+            FirebaseHelper helper = FirebaseHelper.getInstance();
+            helper.createGroup();
+
+            GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
+
+
+            ((MenuItem) findViewById(R.id.nav_settings_group)).setTitle(R.string.menu_settings_group);
+
+            mViewModel.setStateAccount(StateAccount.Group);
+            setActionBarHeadItem();
+
+        });
+        builder.show();
     }
 
     private void setActionBarHeadItem() {
@@ -211,28 +220,58 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_home) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
+        if (id == R.id.nav_show_cash) {
+            mViewModel.setStateAccount(StateAccount.Cash);
+            setActionBarHeadItem();
+        } else if (id == R.id.nav_show_bank_account) {
+            mViewModel.setStateAccount(StateAccount.BankAccount);
+            setActionBarHeadItem();
+        } else if (id == R.id.nav_show_group) {
+            if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
+                showAlertDialogCreateGroup();
+            }
+            else {
+                mViewModel.setStateAccount(StateAccount.Group);
+                setActionBarHeadItem();
+            }
 
-        } else if (id == R.id.nav_tools) {
+        } else if (id == R.id.nav_settings_group) {
+            if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
+                showAlertDialogCreateGroup();
+            } else {
+                Intent intent = new Intent(this, GroupSettingsActivity.class);
+                startActivity(intent);
+            }
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_settings) {
+            //todo show settings
 
-        } else if (id == R.id.nav_send) {
+
+            // todo sammeln von ideen für drawer
+        /*
+            Gruppe gründen /Gruppen einstellungen
+            dark mode
+            monats anfang
+            einträge exportieren
+            einträge löschen
+
+         */
+
+            Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
 
         }
 
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+
         return true;
     }
 
@@ -319,8 +358,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void Notify(CostSum costSum) {
 
-        if (costSum == null)
-            return;
+        if (costSum == null){
+            costSum=new CostSum();
+            costSum.setCurrentValue(0);
+            costSum.setFutureValue(0);
+        }
+
 
         mViewModel.setCostSum(costSum);
 
@@ -335,8 +378,8 @@ public class MainActivity extends AppCompatActivity
             color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.buttonRed) & 0x00ffffff);
         }
 
-        String actSum = getColoredSpanned(String.format(Locale.getDefault(),Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue()), color);
-        String futureSum = getColoredSpanned(String.format(Locale.getDefault(),Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getFutureValue()), Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.lightGrey) & 0x00ffffff));
+        String actSum = getColoredSpanned(String.format(Locale.getDefault(), Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue()), color);
+        String futureSum = getColoredSpanned(String.format(Locale.getDefault(), Constants.DOUBLE_FORMAT_TWO_DECIMAL, costSum.getCurrentValue() + costSum.getFutureValue()), Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.lightGrey) & 0x00ffffff));
 
         mSumTextView.setText(Html.fromHtml(actSum + " / " + futureSum));
     }

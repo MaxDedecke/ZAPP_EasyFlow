@@ -87,6 +87,9 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
         holder.mConstraintLayoutGrey.setVisibility(mCostHashMap.get(cost));
 
+        //FirebaseHelper helper=FirebaseHelper.getInstance();
+        //helper.initGetActualAccountSum();
+
     }
 
 
