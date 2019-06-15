@@ -12,7 +12,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity android:name=".activities.EditRecurringCostsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.easyflow.activities.MainActivity" />
+        </activity>
         <activity android:name=".activities.GroupSettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -40,8 +44,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.easyflow.activities.MainActivity" />
         </activity>
-
-
     </application>
 
 </manifest>

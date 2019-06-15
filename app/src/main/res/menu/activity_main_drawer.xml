@@ -22,6 +22,10 @@
     <item android:title="Einstellungen">
         <menu>
             <item
+                android:id="@+id/nav_edit_recurring_costs"
+                android:icon="@drawable/ic_menu_recurring_costs"
+                android:title="@string/menu_edit_recurring_costs" />
+            <item
                 android:id="@+id/nav_settings_group"
                 android:icon="@drawable/ic_group_black_32dp"
                 android:title="@string/menu_create_group" />

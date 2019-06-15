@@ -25,7 +25,6 @@ import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.Frequency;
 import com.example.easyflow.models.StateAccount;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
@@ -57,8 +56,7 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
         });
 
 
-
-        SpinnerAccountAdapter adapter= new SpinnerAccountAdapter(this,R.layout.spinner_choose_account_item,R.id.textSpinner,GlobalApplication.listAccounts);
+        SpinnerAccountAdapter adapter= new SpinnerAccountAdapter(this,R.layout.spinner_choose_account_item,R.id.textSpinner, GlobalApplication.getListAccounts());
 
 
         mSpinnerFrom=findViewById(R.id.spinnerFrom);
@@ -126,8 +124,8 @@ public class BookCostActivity extends AppCompatActivity implements NotifyEventHa
             return;
         }
 
-        Cost fromCost =new Cost(-Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.categoryTransferFrom, Frequency.Einmalig,null);
-        Cost toCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.categoryTransferTo, Frequency.Einmalig,null);
+        Cost fromCost =new Cost(-Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.getCategoryTransferFrom(), Frequency.Einmalig,null);
+        Cost toCost =new Cost(Double.parseDouble(Objects.requireNonNull(mEditText.getText()).toString()),mDateOfCosts, GlobalApplication.getCategoryTransferTo(), Frequency.Einmalig,null);
 
 
         FirebaseHelper helper= FirebaseHelper.getInstance();

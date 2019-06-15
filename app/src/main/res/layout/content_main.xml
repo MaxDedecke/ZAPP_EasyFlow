@@ -33,6 +33,7 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@drawable/border_grey_top"
         app:layout_constraintBottom_toTopOf="@id/layoutPlusMinus"
         app:layout_constraintTop_toBottomOf="@id/tvSummary"/>
 
@@ -52,14 +53,14 @@
             android:id="@+id/btnAusgabe"
             style="@style/buttonEinnahmeAusgabe"
             android:background="@drawable/buttonshapeausgabe"
-            android:text="@string/ausgabe"
+            android:text="@string/cost"
             android:textColor="@color/buttonRed"
             android:onClick="showEinAusgabeActivity"/>
         <Button
             android:id="@+id/btnEinnahme"
             style="@style/buttonEinnahmeAusgabe"
             android:background="@drawable/buttonshapeeinnahme"
-            android:text="@string/einnahme"
+            android:text="@string/income"
             android:textColor="@color/buttonGreen"
             android:onClick="showEinAusgabeActivity"/>
 

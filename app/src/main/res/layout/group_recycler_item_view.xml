@@ -11,7 +11,7 @@
     android:paddingLeft="4dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/border_grey_recyclerview">
+    android:background="@drawable/border_grey">
 
 
     <ImageView

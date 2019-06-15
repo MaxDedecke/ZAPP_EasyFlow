@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     private MenuItem mMenuItemGroup;
     private MenuItem mMenuItemSelectAccount;
     private TextView mEmptyTextView;
+    private Menu mNavigationViewMenu;
 
 
     @Override
@@ -63,11 +64,13 @@ public class MainActivity extends AppCompatActivity
         mSumTextView = findViewById(R.id.tvSummary);
         mEmptyTextView = findViewById(R.id.tvEmpty);
 
+
         setSupportActionBar(toolbar);
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        mNavigationViewMenu = navigationView.getMenu();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -75,7 +78,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         if (!TextUtils.isEmpty(FirebaseHelper.mCurrentUser.getGroupId()))
-            navigationView.getMenu().getItem(3).getSubMenu().getItem(0).setTitle(R.string.menu_settings_group);
+            //mNavigationViewMenu.getItem(3).getSubMenu().getItem(0).setTitle(R.string.menu_settings_group);
+            mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
 
 
         FirebaseHelper helper = new FirebaseHelper();
@@ -124,7 +128,6 @@ public class MainActivity extends AppCompatActivity
         setActionBarHeadItem();
 
 
-
         return true;
     }
 
@@ -171,12 +174,12 @@ public class MainActivity extends AppCompatActivity
         builder.setMessage(getString(R.string.alertdialog_keine_gruppe_message));
         builder.setTitle(getString(R.string.alertdialog_keine_gruppe_title));
         builder.setNegativeButton(getString(R.string.alertdialog_keine_gruppe_negative_button), (dialog, which) -> {
-            switch (mViewModel.getStateAccount()){
+            switch (mViewModel.getStateAccount()) {
                 case Cash:
-                    ((NavigationView)findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
+                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
                     break;
                 case BankAccount:
-                    ((NavigationView)findViewById(R.id.nav_view)).getMenu().getItem(1).setChecked(true);
+                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(1).setChecked(true);
                     break;
             }
 
@@ -188,7 +191,7 @@ public class MainActivity extends AppCompatActivity
             GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
 
-            ((MenuItem) findViewById(R.id.nav_settings_group)).setTitle(R.string.menu_settings_group);
+            mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
 
             mViewModel.setStateAccount(StateAccount.Group);
             setActionBarHeadItem();
@@ -235,8 +238,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_show_group) {
             if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
                 showAlertDialogCreateGroup();
-            }
-            else {
+            } else {
                 mViewModel.setStateAccount(StateAccount.Group);
                 setActionBarHeadItem();
             }
@@ -249,11 +251,13 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
 
+        } else if (id == R.id.nav_edit_recurring_costs) {
+            Intent intent = new Intent(this, EditRecurringCostsActivity.class);
+            startActivity(intent);
+
         } else if (id == R.id.nav_settings) {
             //todo show settings
-
-
-            // todo sammeln von ideen für drawer
+            // sammeln von ideen für drawer
         /*
             Gruppe gründen /Gruppen einstellungen
             dark mode
@@ -307,7 +311,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-                mCostAdapter.deleteItem(viewHolder.getAdapterPosition());
+                mCostAdapter.onItemRemove(viewHolder,mRecyclerView);
             }
         }).attachToRecyclerView(mRecyclerView);
 
@@ -319,11 +323,11 @@ public class MainActivity extends AppCompatActivity
             mCostAdapter.stopListening();
 
 
-        mCostAdapter = new CostAdapter(MainActivity.this, mViewModel.getFirebaseRecyclerOptions());
+        mCostAdapter = new CostAdapter(MainActivity.this, mViewModel.getFirebaseRecyclerOptions(), false);
         mCostAdapter.setEmptyView(mEmptyTextView);
+        mCostAdapter.startListening();
         mRecyclerView.setAdapter(mCostAdapter);
 
-        mCostAdapter.startListening();
     }
 
 
@@ -358,14 +362,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void Notify(CostSum costSum) {
 
-        if (costSum == null){
-            costSum=new CostSum();
+        if (costSum == null) {
+            costSum = new CostSum();
             costSum.setCurrentValue(0);
             costSum.setFutureValue(0);
         }
-
-
-        mViewModel.setCostSum(costSum);
 
         initSumTextView(costSum);
     }

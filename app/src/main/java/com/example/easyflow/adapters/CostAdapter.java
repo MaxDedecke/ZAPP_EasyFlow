@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,29 +35,31 @@ import java.util.Locale;
 public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapter.ViewHolder> {
     private LayoutInflater mInflater;
     private Date mEndDate;
-    private HashMap<Cost,Integer> mCostHashMap= new HashMap<>();
+    private HashMap<Cost, Integer> mCostHashMap = new HashMap<>();
     private TextView mEmptyView;
+    private boolean mShowRecurringCosts;
     //private SparseIntArray mSparseIntArray =new SparseIntArray();
 
 
-    public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions<DataSnapshot> options) {
+    public CostAdapter(Context context, @NonNull FirebaseRecyclerOptions<DataSnapshot> options, boolean showRecurringCosts) {
         super(options);
         mInflater = LayoutInflater.from(context);
-        Calendar calendar=Calendar.getInstance(Locale.getDefault());
+        Calendar calendar = Calendar.getInstance(Locale.getDefault());
         calendar.setTime(new Date());
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
 
-        mEndDate=calendar.getTime();
+        mEndDate = calendar.getTime();
+        this.mShowRecurringCosts = showRecurringCosts;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View mItemVview = mInflater.inflate(R.layout.main_recycler_item_view, viewGroup, false);
-        return new ViewHolder(mItemVview);
+        View mItemView = mInflater.inflate(R.layout.main_recycler_item_view, viewGroup, false);
+        return new ViewHolder(mItemView);
     }
 
     @SuppressLint({"SimpleDateFormat", "DefaultLocale"})
@@ -70,34 +73,58 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
         String description = new SimpleDateFormat(Constants.DATE_FORMAT_WEEKDAY).format(cost.getDate());
         if (cost.getNote() != null && !cost.getNote().isEmpty())
             description += " - " + cost.getNote();
+        if (mShowRecurringCosts)
+            description += " - " + cost.getFrequency().name()
+                    .replace("oe", "ö")
+                    .replace("ae", "ä");
         holder.mTxtDesc.setText(description);
         // Set Value text.
         holder.mTxtValue.setText(String.format(Constants.DOUBLE_FORMAT_TWO_DECIMAL, Math.abs(cost.getValue())).trim());
         // Set Imageviews.
-        setImageViews(holder,cost.getCategory().getId());
+        setImageViews(holder, cost.getCategory().getId());
         // Set grey overlay, if cost date is in future
 
 
-        if(!mCostHashMap.containsKey(cost)){
-            if(cost.getDate().after(mEndDate))
-                mCostHashMap.put(cost,View.VISIBLE);
+        if (mShowRecurringCosts)
+            return;
+
+
+        if (!mCostHashMap.containsKey(cost)) {
+            if (cost.getDate().after(mEndDate))
+                mCostHashMap.put(cost, View.VISIBLE);
             else
-                mCostHashMap.put(cost,View.INVISIBLE);
+                mCostHashMap.put(cost, View.INVISIBLE);
         }
 
         holder.mConstraintLayoutGrey.setVisibility(mCostHashMap.get(cost));
-
-        //FirebaseHelper helper=FirebaseHelper.getInstance();
-        //helper.initGetActualAccountSum();
-
     }
 
 
-    public void deleteItem(int position) {
-        DataSnapshot snapshot = getSnapshots().getSnapshot(position);
+    public void onItemRemove(RecyclerView.ViewHolder viewHolder, RecyclerView recyclerView) {
+        Resources resources = mInflater.getContext().getResources();
+        int position = viewHolder.getAdapterPosition();
 
-        FirebaseHelper firebaseHelper=FirebaseHelper.getInstance();
-        firebaseHelper.deleteCost(snapshot);
+
+        DataSnapshot snapshot = getSnapshots().getSnapshot(position);
+        Cost cost = snapshot.getValue(Cost.class);
+
+        FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+        firebaseHelper.deleteCost(snapshot, mShowRecurringCosts);
+
+
+        Snackbar snackbar = Snackbar
+                .make(recyclerView, resources.getString(R.string.snackbar_message_cost_deleted), Snackbar.LENGTH_LONG)
+                .setAction("UNDO", view -> {
+                    if (mShowRecurringCosts)
+                        firebaseHelper.addFutureCost(cost);
+                    else
+                        firebaseHelper.addCost(cost);
+                    recyclerView.scrollToPosition(position);
+                })
+                .setActionTextColor(resources.getColor(R.color.colorPrimary));
+        snackbar.show();
+
+
     }
 
     private void setImageViews(ViewHolder holder, int categoryId) {
@@ -110,22 +137,21 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
 
 
         // Set specified data and return, if matching category was found.
-        if ((matching = listContainsCategory(GlobalApplication.categoriesCost, categoryId)) != null) {
+        if ((matching = listContainsCategory(GlobalApplication.getCategoriesCost(), categoryId)) != null) {
             iconId = matching.getIconId();
             arrowId = R.drawable.ic_arrow_downward_red_32dp;
         }
         // Set specified data and return, if matching category was found.
-        else if ((matching = listContainsCategory(GlobalApplication.categoriesIncome, categoryId)) != null) {
+        else if ((matching = listContainsCategory(GlobalApplication.getCategoriesIncome(), categoryId)) != null) {
             iconId = matching.getIconId();
             arrowId = R.drawable.ic_arrow_upward_green_24dp;
         }
         // If matching Category was not in categories Income or Cost, look for it in transfer categories.
-        else if (categoryId == GlobalApplication.categoryTransferTo.getId()) {
-            iconId = GlobalApplication.categoryTransferTo.getIconId();
+        else if (categoryId == GlobalApplication.getCategoryTransferTo().getId()) {
+            iconId = GlobalApplication.getCategoryTransferTo().getIconId();
             arrowId = R.drawable.ic_arrow_upward_green_24dp;
-        }
-        else if (categoryId == GlobalApplication.categoryTransferFrom.getId()) {
-            iconId = GlobalApplication.categoryTransferFrom.getIconId();
+        } else if (categoryId == GlobalApplication.getCategoryTransferFrom().getId()) {
+            iconId = GlobalApplication.getCategoryTransferFrom().getIconId();
             arrowId = R.drawable.ic_arrow_downward_red_32dp;
         }
 
@@ -180,16 +206,8 @@ public class CostAdapter extends FirebaseRecyclerAdapter<DataSnapshot, CostAdapt
             mTxtValue = itemView.findViewById(R.id.list_value);
             mIVArrow = itemView.findViewById(R.id.list_arrow);
             mIVCategory = itemView.findViewById(R.id.list_category);
-            mConstraintLayoutGrey=itemView.findViewById(R.id.transparent_constraint_layout);
+            mConstraintLayoutGrey = itemView.findViewById(R.id.transparent_constraint_layout);
 
-            /*
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            });
-            */
         }
     }
 

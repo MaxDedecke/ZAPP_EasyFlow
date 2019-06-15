@@ -32,7 +32,7 @@
 
     <Button
         android:id="@+id/add_member_btn"
-        android:background="@drawable/border"
+        android:background="@drawable/border_green"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
@@ -44,7 +44,7 @@
         app:layout_constraintRight_toRightOf="parent"/>
     <Button
         android:id="@+id/delete_leave_group_button"
-        android:background="@drawable/border"
+        android:background="@drawable/border_green"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp"

@@ -18,13 +18,39 @@ import java.util.List;
 
 public class GlobalApplication extends Application {
 
-    public static List<Category> categoriesIncome = new ArrayList<>();
-    public static List<Category> categoriesCost = new ArrayList<>();
-    public static Category categoryTransferFrom;
-    public static Category categoryTransferTo;
-    public static ArrayList<AccountData> listAccounts;
+    private static List<Category> categoriesIncome = new ArrayList<>();
+    private static List<Category> categoriesCost = new ArrayList<>();
+    private static Category categoryTransferFrom;
+    private static Category categoryTransferTo;
+    private static ArrayList<AccountData> listAccounts;
     private static Context appContext;
 
+    public static List<Category> getCategoriesIncome() {
+        return categoriesIncome;
+    }
+
+    public static List<Category> getCategoriesCost() {
+        return categoriesCost;
+    }
+
+    public static Category getCategoryTransferFrom() {
+        return categoryTransferFrom;
+    }
+
+    public static Category getCategoryTransferTo() {
+        return categoryTransferTo;
+    }
+
+    public static ArrayList<AccountData> getListAccounts() {
+
+        listAccounts=new ArrayList<>();
+        listAccounts.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
+        listAccounts.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
+        if(FirebaseHelper.mCurrentUser!=null&&FirebaseHelper.mCurrentUser.getGroupId()!=null)
+            listAccounts.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
+
+        return listAccounts;
+    }
 
 
     @Override
@@ -32,16 +58,7 @@ public class GlobalApplication extends Application {
         super.onCreate();
         appContext = getApplicationContext();
         loadCategories();
-        loadListAccounts();
     }
-
-    private void loadListAccounts() {
-        listAccounts=new ArrayList<>();
-        listAccounts.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
-        listAccounts.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
-        listAccounts.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
-    }
-
     public static Context getAppContext() {
         return appContext;
     }
@@ -52,7 +69,7 @@ public class GlobalApplication extends Application {
     }
 
     public static void saveUserInSharedPreferences(User user){
-        SharedPreferences pref = appContext.getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        SharedPreferences pref = getAppContext().getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = pref.edit();
 
         Gson gson = new Gson();
@@ -64,7 +81,7 @@ public class GlobalApplication extends Application {
 
     public static void saveStartUpInSharedPreferences(User user,boolean started) {
 
-        SharedPreferences pref = appContext.getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+        SharedPreferences pref = getAppContext().getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = pref.edit();
         edt.putBoolean(Constants.SHARED_PREF_KEY_ACTIVITY_EXECUTED, started);
 
@@ -81,28 +98,28 @@ public class GlobalApplication extends Application {
         Context context = GlobalApplication.getAppContext();
 
         // Kategorien für Ausgaben.
-        categoriesCost.add(new Category(context.getString(R.string.category_auto), R.drawable.ic_car_darkblue_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_kommunikation), R.drawable.ic_communication_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.categoiy_eating), R.drawable.ic_eating_green_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_lebensmittel), R.drawable.ic_food_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_gesundheit), R.drawable.ic_health_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_haus), R.drawable.ic_home_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_taxi), R.drawable.ic_local_taxi_black_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_geschenke), R.drawable.ic_present_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_sport), R.drawable.ic_sport_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_verkehrsmittel), R.drawable.ic_traffic_24dp));
-        categoriesCost.add(new Category(context.getString(R.string.category_haustiere), R.drawable.ic_haustier));
-        categoriesCost.add(new Category(context.getString(R.string.category_hygieneartikel), R.drawable.ic_hygieneartikel));
-        categoriesCost.add(new Category(context.getString(R.string.category_kleidung), R.drawable.ic_kleidung));
-        categoriesCost.add(new Category(context.getString(R.string.category_rechnungen), R.drawable.ic_rechnungen));
-        categoriesCost.add(new Category(context.getString(R.string.category_unterhaltung), R.drawable.ic_unterhaltung));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_auto), R.drawable.ic_car_darkblue_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_kommunikation), R.drawable.ic_communication_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_eating), R.drawable.ic_eating_green_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_lebensmittel), R.drawable.ic_food_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_gesundheit), R.drawable.ic_health_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_haus), R.drawable.ic_home_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_taxi), R.drawable.ic_local_taxi_black_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_geschenke), R.drawable.ic_present_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_sport), R.drawable.ic_sport_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_verkehrsmittel), R.drawable.ic_traffic_24dp));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_haustiere), R.drawable.ic_haustier));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_hygieneartikel), R.drawable.ic_hygieneartikel));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_kleidung), R.drawable.ic_kleidung));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_rechnungen), R.drawable.ic_rechnungen));
+        getCategoriesCost().add(new Category(context.getString(R.string.category_unterhaltung), R.drawable.ic_unterhaltung));
 //Haustiere,hygieneartikel,Kleidung, Rechnungen, unterhaltung
 
 
         // Kategorien für Einkommen.
-        categoriesIncome.add(new Category(context.getString(R.string.category_einzahlungen), R.drawable.ic_einzahlungen_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.category_ersparnisse), R.drawable.ic_trending_up_black_24dp));
-        categoriesIncome.add(new Category(context.getString(R.string.category_gehalt), R.drawable.ic_gehalt_24dp));
+        getCategoriesIncome().add(new Category(context.getString(R.string.category_einzahlungen), R.drawable.ic_einzahlungen_24dp));
+        getCategoriesIncome().add(new Category(context.getString(R.string.category_ersparnisse), R.drawable.ic_trending_up_black_24dp));
+        getCategoriesIncome().add(new Category(context.getString(R.string.category_gehalt), R.drawable.ic_gehalt_24dp));
 
         // Kategorien für Transfer
         categoryTransferFrom = new Category(context.getString(R.string.ueberweisung), R.drawable.ic_swap_horiz_red_32dp);

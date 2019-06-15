@@ -205,16 +205,22 @@ public class FirebaseHelper {
                 mDbRefCost.child(keyAccount).orderByChild("date").startAt(costSum.getStringDateLastUpdated()).endAt(dateTimeNow).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        double valueCurrent=0;
+                        double valueFuture=0;
 
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-
-
                             Cost cost = snapshot.getValue(Cost.class);
 
-                            if (cost != null) {
-                                addCostValueToCostSum(cost, keyAccount);
-                            }
+                            if (cost == null)
+                                continue;
+
+                            if (cost.getDate().after(mEndOfTodayDate))
+                                valueFuture+=cost.getValue();
+                            else
+                                valueCurrent+=cost.getValue();
                         }
+
+                        addValueToCostSum(valueCurrent,valueFuture,keyAccount);
                     }
 
                     @Override
@@ -245,13 +251,16 @@ public class FirebaseHelper {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                double valueCurrent=0;
+                double valueFuture=0;
+
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Cost cost = snapshot.getValue(Cost.class);
 
 
                     if (cost == null)
-                        return;
+                        continue;
 
                     while (!cost.getDate().after(mEndDate)) {
                         String key = mDbRefCost.child(keyAccount).push().getKey();
@@ -263,11 +272,10 @@ public class FirebaseHelper {
                         mDbRefCost.child(keyAccount).updateChildren(childUpdates);
 
 
-                        //if (cost.getDate().before(mStartDate))
-                        //    return;
-
-                        // Update Sum over all Costs for this month
-                        addCostValueToCostSum(cost, keyAccount);
+                        if (cost.getDate().after(mEndOfTodayDate))
+                            valueFuture+=cost.getValue();
+                        else
+                            valueCurrent+=cost.getValue();
 
 
                         switch (cost.getFrequency()) {
@@ -289,13 +297,19 @@ public class FirebaseHelper {
                     addFutureCost(cost, keyAccount);
                     snapshot.getRef().removeValue();
                 }
+
+
+
+                // Update Sum over all Costs for this month
+                addValueToCostSum(valueCurrent,valueFuture,keyAccount);
+
+
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-//.endAt(mSimpleDateFormat.format(mEndDate))
         mDbRefCostFuture.child(keyAccount).orderByChild("date").endAt(mSimpleDateFormat.format(mEndDate)).addListenerForSingleValueEvent(valueEventListener);
 
     }
@@ -414,6 +428,9 @@ public class FirebaseHelper {
 
     private void addCost(Cost cost, String keyAccount) {
 
+        double valueCurrent=0;
+        double valueFuture=0;
+
 
         do {
             String key = mDbRefCost.child(keyAccount).push().getKey();
@@ -424,12 +441,10 @@ public class FirebaseHelper {
 
             mDbRefCost.child(keyAccount).updateChildren(childUpdates);
 
-
-            //if (cost.getDate().before(mStartDate))
-            //    return;
-
-            // Update Sum over all Costs for this month
-            addCostValueToCostSum(cost, keyAccount);
+            if (cost.getDate().after(mEndOfTodayDate))
+                valueFuture+=cost.getValue();
+            else
+                valueCurrent+=cost.getValue();
 
 
             switch (cost.getFrequency()) {
@@ -449,12 +464,19 @@ public class FirebaseHelper {
 
         } while (!cost.getDate().after(mEndDate) && cost.getFrequency() != Frequency.Einmalig);
 
+        // Update Sum over all Costs for this month
+
+        addValueToCostSum(valueCurrent,valueFuture,keyAccount);
 
         if (cost.getFrequency() != Frequency.Einmalig) {
             addFutureCost(cost, keyAccount);
         }
 
 
+    }
+
+    public void addFutureCost(Cost cost) {
+        addFutureCost(cost, mKeyAccount);
     }
 
     private void addFutureCost(Cost cost, String keyAccount) {
@@ -467,7 +489,7 @@ public class FirebaseHelper {
         mDbRefCostFuture.child(keyAccount).updateChildren(childUpdates);
     }
 
-    private void addCostValueToCostSum(Cost cost, String keyAccount) {
+    private void addValueToCostSum(double valueCurrent, double valueFuture, String keyAccount) {
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -477,19 +499,18 @@ public class FirebaseHelper {
                 if (costSum == null)
                     costSum = new CostSum();
 
-                if (cost.getDate().after(mEndOfTodayDate))
-                    costSum.setFutureValue(costSum.getFutureValue() + cost.getValue());
-                else
-                    costSum.setCurrentValue(costSum.getCurrentValue() + cost.getValue());
+                costSum.setFutureValue(costSum.getFutureValue() + valueFuture);
+                costSum.setCurrentValue(costSum.getCurrentValue() + valueCurrent);
 
                 costSum.setDateLastUpdated(mSimpleDateFormat.format(new Date()));
 
 
                 Map<String, Object> costSumValues = costSum.toMap();
                 dataSnapshot.getRef().updateChildren(costSumValues);
-
+/*
                 if (mListenerCostSum != null && mKeyAccount.equals(keyAccount))
                     mListenerCostSum.Notify(costSum);
+                    */
             }
 
             @Override
@@ -500,11 +521,11 @@ public class FirebaseHelper {
         mDbRefCostSum.child(keyAccount).addListenerForSingleValueEvent(valueEventListener);
     }
 
-    public void deleteCost(DataSnapshot snapshot) {
+    public void deleteCost(DataSnapshot snapshot, boolean isFutureCost) {
         Cost cost = snapshot.getValue(Cost.class);
         snapshot.getRef().removeValue();
 
-        if (mListenerCostSum == null)
+        if (mListenerCostSum == null || isFutureCost)
             return;
 
         // Update Sum over all Costs for this month
@@ -578,7 +599,21 @@ public class FirebaseHelper {
     public void removeGroup() {
         mDbRefCost.child(mCurrentUser.getGroupId()).removeValue();
         for (GroupSettings groupSettings : mCurrentGroupSettings) {
-            removeUserFromGroup(groupSettings);
+
+            switch (groupSettings.getUserGroupSettings().getStateGroupMemberShip()) {
+                case Admin:
+                case Member:
+                    // Remove node from group settings and set groupId null by the user.
+                    mDbRefUser.child(groupSettings.getKey()).child(Constants.DATABASE_KEY_GROUP_ID).removeValue();
+                    break;
+                case Pending:
+                    // Remove node from group settings and invitations.
+                    mDbRefGroupInvitations.child(groupSettings.getKey()).removeValue();
+                    break;
+            }
+
+            mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(groupSettings.getKey()).removeValue();
+
         }
         mCurrentUser.setGroupId(null);
         mCurrentGroupSettings = null;
@@ -602,21 +637,24 @@ public class FirebaseHelper {
             case Admin:
             case Member:
                 // Remove node from group settings and set groupId null by the user.
-                mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(groupSettings.getKey()).removeValue();
                 mDbRefUser.child(groupSettings.getKey()).child(Constants.DATABASE_KEY_GROUP_ID).removeValue();
                 break;
             case Pending:
                 // Remove node from group settings and invitations.
-                mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(groupSettings.getKey()).removeValue();
                 mDbRefGroupInvitations.child(groupSettings.getKey()).removeValue();
-                break;
-            case Refused:
-                // Remove node for user from group settings.
-                mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(groupSettings.getKey()).removeValue();
                 break;
         }
 
-        mCurrentGroupSettings.remove(groupSettings);
+        mDbRefGroupSettings.child(mCurrentUser.getGroupId()).child(groupSettings.getKey()).removeValue();
+
+        for (GroupSettings groupSettingsInList : mCurrentGroupSettings) {
+            if (groupSettings.getKey().equals(groupSettingsInList.getKey())) {
+                mCurrentGroupSettings.remove(groupSettingsInList);
+                break;
+            }
+        }
+
+
     }
 
     public void addUserToGroup(String newUserEmail) {
@@ -710,8 +748,16 @@ public class FirebaseHelper {
     }
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsCosts() {
-
         Query query = mDbRefCost.child(mKeyAccount).orderByChild("date").startAt(mSimpleDateFormat.format(mStartDate)).endAt(mSimpleDateFormat.format(mEndDate));
+
+        return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
+    }
+
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsRecurringCosts(StateAccount stateAccount) {
+        String stateAccountString = getKeyAccountString(stateAccount);
+        Query query = mDbRefCostFuture.child(stateAccountString).orderByChild("date");
 
         return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
                 .setQuery(query, snapshot -> snapshot)
@@ -753,43 +799,6 @@ public class FirebaseHelper {
 
             }
         });
-
-
-        /*
-        mDbRefUser.orderByChild("email").equalTo(email).getRef().runTransaction(new Transaction.Handler() {
-            @NonNull
-            @Override
-            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                User user = mutableData.getValue(User.class);
-
-                if(user==null||!user.getEmail().equals(email)) {
-                    mListenerBoolean.Notify(false, false);
-                    return Transaction.abort();
-                }
-
-                if (!user.getPassword().equals(password)) {
-                    mListenerBoolean.Notify(true, false);
-                    return Transaction.abort();
-                }
-
-                mListenerBoolean.Notify(true,true);
-                mCurrentUser=user;
-                return Transaction.success(mutableData);
-
-            }
-
-            @Override
-            public void onComplete(@Nullable DatabaseError databaseError, boolean success, @Nullable DataSnapshot dataSnapshot) {
-                if (databaseError != null || !success || dataSnapshot == null) {
-                    System.out.println("Failed to get DataSnapshot");
-                } else {
-                    System.out.println("Successfully get DataSnapshot");
-                    //handle data here
-                }
-
-            }
-        });
-        */
     }
 
 }

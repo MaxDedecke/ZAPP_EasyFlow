@@ -7,19 +7,27 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_bargeld">Bargeld</string>
 
-    <string name="menu_home">Home</string>
+    <!--    <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_settings">Allgemeine Einstellungen</string>
     <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
-    <string name="einnahme">Einnahme</string>
-    <string name="ausgabe">Ausgabe</string>
+    <string name="menu_send">Send</string>-->
+
+    <string name="menu_settings">Allgemeine Einstellungen</string>
+    <string name="menu_show_group">Gruppe anzeigen</string>
+    <string name="menu_settings_group">Gruppe verwalten</string>
+    <string name="menu_show_cash">Bargeld anzeigen</string>
+    <string name="menu_show_bank_account">Bankkonto anzeigen</string>
+    <string name="menu_create_group">Gruppe erstellen</string>
+    <string name="menu_edit_recurring_costs">Wiederkehrende Ausgaben</string>
+
+    <string name="income">Einnahme</string>
+    <string name="cost">Ausgabe</string>
+    <string name="new_income">Neue Einnahme</string>
+    <string name="new_cost">Neue Ausgabe</string>
 
     <string name="kategorie">Kategorie</string>
     <string name="key_show_ein_or_ausgabe">KEY_SHOW_EIN_OR_AUSGABE</string>
-    <string name="new_income">Neue Einnahme</string>
-    <string name="new_cost">Neue Ausgabe</string>
     <string name="category_reisen">Reisen</string>
     <string name="category_auto">Auto</string>
     <string name="category_verkehrsmittel">Verkehrsmittel</string>
@@ -29,12 +37,19 @@
     <string name="category_haus">Haus</string>
     <string name="category_gesundheit">Gesundheit</string>
     <string name="category_lebensmittel">Lebensmittel</string>
-    <string name="categoiy_eating">Essen gehen</string>
+    <string name="category_eating">Essen gehen</string>
     <string name="category_kommunikation">Kommunikation</string>
     <string name="category_einzahlungen">Einzahlungen</string>
     <string name="category_ersparnisse">Ersparnisse</string>
     <string name="category_gehalt">Gehalt</string>
     <string name="category_bildung">Bildung</string>
+    <string name="category_unterhaltung">Unterhaltung</string>
+    <string name="category_rechnungen">Rechnungen</string>
+    <string name="category_kleidung">Kleidung</string>
+    <string name="category_hygieneartikel">Hygieneartikel</string>
+    <string name="category_haustiere">Haustiere</string>
+
+
     <string name="add_note_hint">Notiz hinzufügen</string>
     <string name="email_adresse">Email</string>
     <string name="passwort">Passwort</string>
@@ -78,20 +93,11 @@
     <string name="alert_leave_group_title">Aus Gruppe austreten</string>
     <string name="message_group_removed_successfully">Gruppe wurde erfolgreich gelöscht.</string>
     <string name="messag_user_not_registered">Nutzer ist nicht angemeldet.</string>
-    <string name="category_unterhaltung">Unterhaltung</string>
-    <string name="category_rechnungen">Rechnungen</string>
-    <string name="category_kleidung">Kleidung</string>
-    <string name="category_hygieneartikel">Hygieneartikel</string>
-    <string name="category_haustiere">Haustiere</string>
     <string name="login_registrieren"> Registrieren</string>
     <string name="login_frage_kein_konto">Du hast kein Konto?</string>
     <string name="login_anmelden">Anmelden</string>
     <string name="login_frage_ein_konto">Du hast ein Konto?</string>
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
     <string name="delete">Löschen</string>
-    <string name="menu_show_group">Gruppe anzeigen</string>
-    <string name="menu_settings_group">Gruppe verwalten</string>
-    <string name="menu_show_cash">Bargeld anzeigen</string>
-    <string name="menu_show_bank_account">Bankkonto anzeigen</string>
-    <string name="menu_create_group">Gruppe erstellen</string>
+    <string name="snackbar_message_cost_deleted">Eintrag gelöscht.</string>
 </resources>

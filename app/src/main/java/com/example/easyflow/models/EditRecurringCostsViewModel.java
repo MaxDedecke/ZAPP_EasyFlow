@@ -6,36 +6,29 @@ import com.example.easyflow.utils.FirebaseHelper;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 
-public class MainViewModel extends ViewModel {
+public class EditRecurringCostsViewModel extends ViewModel {
 
     private FirebaseRecyclerOptions<DataSnapshot> mFireBaseRecyclerOptions;
     private FirebaseHelper mFirebaseHelper;
-    public static StateAccount mStateAccount =StateAccount.Cash;
+    private StateAccount mStateAccount=StateAccount.Cash;
 
-
-    public MainViewModel() {
+    public EditRecurringCostsViewModel() {
         super();
         mFirebaseHelper=FirebaseHelper.getInstance();
-        setStateAccount(mStateAccount);
     }
 
 
-
+    public FirebaseRecyclerOptions<DataSnapshot> getFireBaseRecyclerOptions() {
+        return mFireBaseRecyclerOptions;
+    }
 
     public StateAccount getStateAccount() {
         return mStateAccount;
     }
 
     public void setStateAccount(StateAccount stateAccount) {
+        this.mStateAccount = stateAccount;
         mFirebaseHelper.setKeyAccount(stateAccount);
-        mFireBaseRecyclerOptions=mFirebaseHelper.getFirebaseRecyclerOptionsCosts();
-
-        mStateAccount =stateAccount;
+        mFireBaseRecyclerOptions=mFirebaseHelper.getFirebaseRecyclerOptionsRecurringCosts(getStateAccount());
     }
-
-
-    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptions() {
-        return mFireBaseRecyclerOptions;
-    }
-
 }

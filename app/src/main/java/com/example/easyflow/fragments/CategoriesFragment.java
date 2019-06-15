@@ -55,9 +55,9 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
         View layout = inflater.inflate(R.layout.fragment_categories, container, false);
 
             if (mEingabe) {
-                loadCategories(layout, GlobalApplication.categoriesIncome);
+                loadCategories(layout, GlobalApplication.getCategoriesIncome());
             } else {
-                loadCategories(layout, GlobalApplication.categoriesCost);
+                loadCategories(layout, GlobalApplication.getCategoriesCost());
             }
 
         return layout;
@@ -83,7 +83,7 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
             btn.setLayoutParams(params);
             btn.setOnClickListener(this);
-            btn.setBackgroundResource(R.drawable.border);
+            btn.setBackgroundResource(R.drawable.border_green);
             btn.setCompoundDrawablesWithIntrinsicBounds(null, ContextCompat.getDrawable(context, c.getIconId()), null, null);
 
             if (countBtnPerLinearLayout == BTN_PER_ROW) {
