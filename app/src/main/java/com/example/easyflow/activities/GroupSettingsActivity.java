@@ -46,7 +46,6 @@ public class GroupSettingsActivity extends AppCompatActivity {
 
 
         setUpRecyclerView();
-        updateAndSetCostAdapter();
     }
 
     @Override
@@ -87,6 +86,12 @@ public class GroupSettingsActivity extends AppCompatActivity {
         for(mRecyclerView.getchild)
     }
     */
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateAndSetCostAdapter();
+    }
 
     public void deleteGroup(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

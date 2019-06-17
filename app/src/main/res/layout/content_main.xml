@@ -34,6 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/border_grey_top"
+        android:paddingTop="1dp"
         app:layout_constraintBottom_toTopOf="@id/layoutPlusMinus"
         app:layout_constraintTop_toBottomOf="@id/tvSummary"/>
 

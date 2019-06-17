@@ -1,12 +1,19 @@
 package com.example.easyflow.activities;
 
+import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -51,6 +58,15 @@ public class MainActivity extends AppCompatActivity
     private TextView mEmptyTextView;
     private Menu mNavigationViewMenu;
 
+    // Constants for the notification actions buttons.
+    private static final String ACTION_UPDATE_NOTIFICATION = "com.example.easyflow.easyflow.ACTION_UPDATE_NOTIFICATION";
+    // Notification channel ID.
+    private static final String PRIMARY_CHANNEL_ID = "primary_notification_channel";
+    // Notification ID.
+    private static final int NOTIFICATION_ID = 0;
+
+
+    private NotificationManager mNotifyManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +82,7 @@ public class MainActivity extends AppCompatActivity
 
 
         setSupportActionBar(toolbar);
+        createNotificationChannel();
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -77,16 +94,19 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        if (!TextUtils.isEmpty(FirebaseHelper.mCurrentUser.getGroupId()))
-            //mNavigationViewMenu.getItem(3).getSubMenu().getItem(0).setTitle(R.string.menu_settings_group);
-            mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
-
 
         FirebaseHelper helper = new FirebaseHelper();
         helper.setListener(this, this);
 
+        if (!TextUtils.isEmpty(FirebaseHelper.mCurrentUser.getGroupId()))
+            mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
+        else
+            helper.initInvitationsForGroup();
+
+
         // Initialize and show LiveData for the Main Content
         setUpRecyclerView();
+
     }
 
     @Override
@@ -311,7 +331,7 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-                mCostAdapter.onItemRemove(viewHolder,mRecyclerView);
+                mCostAdapter.onItemRemove(viewHolder, mRecyclerView);
             }
         }).attachToRecyclerView(mRecyclerView);
 
@@ -333,31 +353,109 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void Notify(String key, String email) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Sie haben eine Einladung von '" + email + "' erhalten.\n Wollen sie der Gruppe beitreten?");
-        builder.setTitle(getString(R.string.invitation));
-        builder.setNegativeButton(getString(R.string.nein), (dialog, which) -> {
-            FirebaseHelper helper = FirebaseHelper.getInstance();
-            helper.declineGroupInvitation(key);
+        if (GlobalApplication.isIsInForeGround()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Du hast eine Einladung von '" + email + "' erhalten.\n Wollen sie der Gruppe beitreten?");
+            builder.setTitle(getString(R.string.invitation));
+            builder.setNegativeButton(getString(R.string.nein), (dialog, which) -> {
+                FirebaseHelper helper = FirebaseHelper.getInstance();
+                helper.declineGroupInvitation(key);
 
-        });
-        builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
-            FirebaseHelper helper = FirebaseHelper.getInstance();
-            helper.followGroupInvitation(key);
+            });
+            builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
+                FirebaseHelper helper = FirebaseHelper.getInstance();
+                helper.followGroupInvitation(key);
 
-            SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
-            SharedPreferences.Editor edt = pref.edit();
+                SharedPreferences pref = getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
+                SharedPreferences.Editor edt = pref.edit();
 
-            Gson gson = new Gson();
-            String json = gson.toJson(FirebaseHelper.mCurrentUser);
-            edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
-            edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
-            edt.apply();
+                Gson gson = new Gson();
+                String json = gson.toJson(FirebaseHelper.mCurrentUser);
+                edt.remove(Constants.SHARED_PREF_KEY_USER_DATABASE);
+                edt.putString(Constants.SHARED_PREF_KEY_USER_DATABASE, json);
+                edt.apply();
 
 
-        });
-        builder.show();
+            });
+            builder.show();
+        } else {
+
+            // Build the notification with all of the parameters using helper
+            // method.
+            NotificationCompat.Builder notifyBuilder = getNotificationBuilder();
+            notifyBuilder.setStyle(new NotificationCompat.BigTextStyle().bigText("Du hast eine Einladung von '" + email + "' erhalten."));
+
+            // Deliver the notification.
+            mNotifyManager.notify(NOTIFICATION_ID, notifyBuilder.build());
+
+
+
+        }
     }
+
+
+    private NotificationCompat.Builder getNotificationBuilder() {
+
+        // Set up the pending intent that is delivered when the notification
+        // is clicked.
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity
+                (this, NOTIFICATION_ID, notificationIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        // Sets up the pending intent to update the notification.
+        // Corresponds to a press of the Update Me! button.
+        Intent updateIntent = new Intent(ACTION_UPDATE_NOTIFICATION);
+        PendingIntent updatePendingIntent = PendingIntent.getBroadcast(this,
+                NOTIFICATION_ID, updateIntent, PendingIntent.FLAG_ONE_SHOT);
+
+        // Build the notification with all of the parameters.
+        NotificationCompat.Builder notifyBuilder = new NotificationCompat
+                .Builder(this, PRIMARY_CHANNEL_ID)
+                .setContentTitle("Einladung")
+                .setSmallIcon(R.drawable.ic_start_logo)
+                .setContentIntent(updatePendingIntent)
+                .setContentText("Du hast eine Gruppeneinladung erhalten.")
+                .setAutoCancel(true).setContentIntent(notificationPendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL);
+
+
+        return notifyBuilder;
+    }
+
+    /**
+     * Creates a Notification channel, for OREO and higher.
+     */
+    public void createNotificationChannel() {
+
+        // Create a notification manager object.
+        mNotifyManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        // Notification channels are only available in OREO and higher.
+        // So, add a check on SDK version.
+        if (android.os.Build.VERSION.SDK_INT >=
+                android.os.Build.VERSION_CODES.O) {
+
+            // Create the NotificationChannel with all the parameters.
+            NotificationChannel notificationChannel = new NotificationChannel
+                    (PRIMARY_CHANNEL_ID,
+                            getString(R.string.notification_channel_name),
+                            NotificationManager.IMPORTANCE_HIGH);
+
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(R.color.colorPrimaryDark);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setDescription
+                    (getString(R.string.notification_channel_description));
+
+            mNotifyManager.createNotificationChannel(notificationChannel);
+        }
+    }
+
 
     @Override
     public void Notify(CostSum costSum) {
@@ -384,4 +482,5 @@ public class MainActivity extends AppCompatActivity
 
         mSumTextView.setText(Html.fromHtml(actSum + " / " + futureSum));
     }
+
 }

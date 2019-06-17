@@ -100,4 +100,8 @@
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
     <string name="delete">Löschen</string>
     <string name="snackbar_message_cost_deleted">Eintrag gelöscht.</string>
+    <string name="msg_subscribed">Subscribed to topic</string>
+    <string name="msg_subscribe_failed">Subscribing to topic failed</string>
+    <string name="notification_channel_name">Easyflow Benachrichtigung</string>
+    <string name="notification_channel_description">Benachrichtigung von Easyflow</string>
 </resources>

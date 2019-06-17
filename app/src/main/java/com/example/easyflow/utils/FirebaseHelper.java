@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import static com.example.easyflow.interfaces.Constants.TAG;
+
 public class FirebaseHelper {
 
     private static FirebaseHelper instance;
@@ -133,10 +135,10 @@ public class FirebaseHelper {
 
                 FirebaseHelper helper = FirebaseHelper.getInstance();
 
-                helper.checkInvitationsForGroup();
                 helper.checkFutureCosts();
                 helper.checkCostSums();
                 helper.initializeCurrentGroupSettingsList();
+
 
 
                 GlobalApplication.saveUserInSharedPreferences(mCurrentUser);
@@ -320,6 +322,7 @@ public class FirebaseHelper {
         if (TextUtils.isEmpty(mCurrentUser.getGroupId()))
             return;
 
+
         mDbRefGroupSettings.child(mCurrentUser.getGroupId()).runTransaction(new Transaction.Handler() {
             @NonNull
             @Override
@@ -355,7 +358,7 @@ public class FirebaseHelper {
         });
     }
 
-    private void checkInvitationsForGroup() {
+    public void initInvitationsForGroup() {
 
         // Check new invitations
         if (mCurrentUser == null || mCurrentUser.getGroupId() != null || mListenerStringMap == null)
@@ -384,7 +387,7 @@ public class FirebaseHelper {
                 for (Map.Entry<String, String> entry : set) {
                     mListenerStringMap.Notify(entry.getKey(), entry.getValue());
                 }
-                mDbRefGroupInvitations.child(mCurrentUser.getUserId()).removeEventListener(this);
+                //mDbRefGroupInvitations.child(mCurrentUser.getUserId()).removeEventListener(this);
             }
 
             @Override
@@ -392,7 +395,7 @@ public class FirebaseHelper {
 
             }
         };
-        mDbRefGroupInvitations.child(mCurrentUser.getUserId()).addListenerForSingleValueEvent(valueEventListenerGroupInvitaions);
+        mDbRefGroupInvitations.child(mCurrentUser.getUserId()).addValueEventListener(valueEventListenerGroupInvitaions);
     }
 
     private static String getKeyAccountString(StateAccount stateAccount) {
@@ -570,15 +573,15 @@ public class FirebaseHelper {
         mCurrentUserGroupAdmin = true;
 
         mDbRefUser.child(mCurrentUser.getUserId()).child(Constants.DATABASE_KEY_GROUP_ID).setValue(key)
-                .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupId saved successfully"))
-                .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupId"));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "GroupId saved successfully"))
+                .addOnFailureListener(e -> Log.d(TAG, "Failed saving GroupId"));
 
         // Add Settings for Group
         UserGroupSettings groupSettings = new UserGroupSettings(mCurrentUser.getEmail(), StateGroupMembership.Admin);
 
         mDbRefGroupSettings.child(key).child(mCurrentUser.getUserId()).setValue(groupSettings)
-                .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "GroupSettings saved successfully"))
-                .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving GroupSettings"));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "GroupSettings saved successfully"))
+                .addOnFailureListener(e -> Log.d(TAG, "Failed saving GroupSettings"));
 
         mCurrentGroupSettings = new ArrayList<>();
         mCurrentGroupSettings.add(new GroupSettings(mCurrentUser.getUserId(), groupSettings));
@@ -722,8 +725,8 @@ public class FirebaseHelper {
 
 
         mDbRefUser.child(keyUser).setValue(user)
-                .addOnSuccessListener(aVoid -> Log.d(Constants.TAG, "User saved successfully"))
-                .addOnFailureListener(e -> Log.d(Constants.TAG, "Failed saving User"));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "User saved successfully"))
+                .addOnFailureListener(e -> Log.d(TAG, "Failed saving User"));
 
         mCurrentUser = user;
         return user;
@@ -800,5 +803,4 @@ public class FirebaseHelper {
             }
         });
     }
-
 }

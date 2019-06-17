@@ -1,6 +1,10 @@
 package com.example.easyflow.utils;
 
 import android.app.Application;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
+import android.arch.lifecycle.ProcessLifecycleOwner;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -16,14 +20,16 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GlobalApplication extends Application {
+public class GlobalApplication extends Application implements LifecycleObserver {
 
     private static List<Category> categoriesIncome = new ArrayList<>();
     private static List<Category> categoriesCost = new ArrayList<>();
     private static Category categoryTransferFrom;
     private static Category categoryTransferTo;
-    private static ArrayList<AccountData> listAccounts;
     private static Context appContext;
+
+
+    private static boolean isInForeGround=false;
 
     public static List<Category> getCategoriesIncome() {
         return categoriesIncome;
@@ -43,32 +49,33 @@ public class GlobalApplication extends Application {
 
     public static ArrayList<AccountData> getListAccounts() {
 
-        listAccounts=new ArrayList<>();
-        listAccounts.add(new AccountData(StateAccount.Cash,"Bargeld",R.drawable.ic_cash_new_black));
-        listAccounts.add(new AccountData(StateAccount.BankAccount,"Bank",R.drawable.ic_bank_account_new_black));
-        if(FirebaseHelper.mCurrentUser!=null&&FirebaseHelper.mCurrentUser.getGroupId()!=null)
-            listAccounts.add(new AccountData(StateAccount.Group,"WG",R.drawable.ic_group_black_32dp));
+        ArrayList<AccountData> listAccounts = new ArrayList<>();
+        listAccounts.add(new AccountData(StateAccount.Cash, "Bargeld", R.drawable.ic_cash_new_black));
+        listAccounts.add(new AccountData(StateAccount.BankAccount, "Bank", R.drawable.ic_bank_account_new_black));
+        if (FirebaseHelper.mCurrentUser != null && FirebaseHelper.mCurrentUser.getGroupId() != null)
+            listAccounts.add(new AccountData(StateAccount.Group, "WG", R.drawable.ic_group_black_32dp));
 
         return listAccounts;
     }
-
 
     @Override
     public void onCreate() {
         super.onCreate();
         appContext = getApplicationContext();
         loadCategories();
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
+
     public static Context getAppContext() {
         return appContext;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isValidEmail(CharSequence target) {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches()&&!TextUtils.isEmpty(target);
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches() && !TextUtils.isEmpty(target);
     }
 
-    public static void saveUserInSharedPreferences(User user){
+    public static void saveUserInSharedPreferences(User user) {
         SharedPreferences pref = getAppContext().getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = pref.edit();
 
@@ -79,7 +86,7 @@ public class GlobalApplication extends Application {
         edt.apply();
     }
 
-    public static void saveStartUpInSharedPreferences(User user,boolean started) {
+    public static void saveStartUpInSharedPreferences(User user, boolean started) {
 
         SharedPreferences pref = getAppContext().getSharedPreferences(Constants.SHARED_PREF_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor edt = pref.edit();
@@ -91,8 +98,6 @@ public class GlobalApplication extends Application {
 
         edt.apply();
     }
-
-
 
     private static void loadCategories() {
         Context context = GlobalApplication.getAppContext();
@@ -127,4 +132,20 @@ public class GlobalApplication extends Application {
 
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onMoveToForeground() {
+        // app moved to foreground
+        isInForeGround=true;
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onMoveToBackground() {
+        // app moved to background
+        isInForeGround=false;
+    }
+
+
+    public static boolean isIsInForeGround() {
+        return isInForeGround;
+    }
 }
