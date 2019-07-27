@@ -26,7 +26,7 @@
     </style>
 
     <style name="buttonCalc">
-        <item name="android:background">@drawable/border</item>
+        <item name="android:background">@drawable/border_green</item>
         <item name="android:layout_gravity">fill</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
@@ -35,7 +35,9 @@
         <item name="android:textSize">15sp</item>
     </style>
 
-
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+    </style>
 
 
 </resources>
