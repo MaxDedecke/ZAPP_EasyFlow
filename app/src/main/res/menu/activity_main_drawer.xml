@@ -17,6 +17,11 @@
             android:id="@+id/nav_show_group"
             android:icon="@drawable/ic_group_black_32dp"
             android:title="@string/menu_show_group" />
+
+        <item
+            android:id="@+id/nav_show_notifications"
+            android:icon="@drawable/ic_chat_bubble_outline_black_32dp"
+            android:title="@string/menu_show_notifications"/>
     </group>
 
     <item android:title="Einstellungen">

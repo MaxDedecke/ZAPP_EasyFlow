@@ -11,7 +11,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications1);
+        setContentView(R.layout.activity_notifications);
     }
 
     @Override

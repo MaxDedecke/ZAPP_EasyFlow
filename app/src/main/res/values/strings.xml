@@ -20,6 +20,7 @@
     <string name="menu_show_bank_account">Bankkonto anzeigen</string>
     <string name="menu_create_group">Gruppe erstellen</string>
     <string name="menu_edit_recurring_costs">Wiederkehrende Ausgaben</string>
+    <string name="menu_show_notifications">Benachrichtigungen</string>
 
     <string name="income">Einnahme</string>
     <string name="cost">Ausgabe</string>

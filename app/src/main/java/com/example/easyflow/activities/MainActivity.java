@@ -290,6 +290,12 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
 
         }
+        else if(id == R.id.nav_show_notifications) {
+
+            //Activity verknüpfen hier (per Intent)
+
+            Toast.makeText(this, "nicht implementiert", Toast.LENGTH_SHORT).show();
+        }
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
