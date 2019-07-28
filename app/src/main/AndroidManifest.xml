@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".activities.NotificationsActivity"></activity>
         <activity android:name=".activities.EditRecurringCostsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
