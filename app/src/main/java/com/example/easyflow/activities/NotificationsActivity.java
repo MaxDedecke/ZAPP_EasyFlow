@@ -7,10 +7,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 
 import com.example.easyflow.R;
+import com.example.easyflow.adapters.NotificationAdapter;
 import com.example.easyflow.interfaces.NotifyEventHandler;
+import com.example.easyflow.utils.GlobalApplication;
 
 public class NotificationsActivity extends AppCompatActivity implements NotifyEventHandler {
     private RecyclerView mRecyclerView;
+    private NotificationAdapter mNotificationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,5 +45,14 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
+    }
+
+    private void updateAndSetNotificationsAdapter() {
+
+        if(mNotificationAdapter != null) {
+            mNotificationAdapter.stopListening();
+        }
+
+        //mNotificationAdapter = new NotificationAdapter(GlobalApplication.getAppContext(),)
     }
 }

@@ -67,6 +67,7 @@
     <string name="actionbar_item_wg">WG</string>
     <string name="actionbar_item_bank">Bank</string>
     <string name="placeholder_description">Description</string>
+    <string name="placeholder_amount">Amount</string>
     <string name="ueberweisung_hinzufügen">Überweisung hinzufügen</string>
     <string name="konten_muessen_verschieden_sein">Konten müssen verschieden sein.</string>
     <string name="alertdialog_keine_gruppe_title">Keine Gruppe vorhanden</string>
@@ -100,6 +101,7 @@
     <string name="login_frage_ein_konto">Du hast ein Konto?</string>
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
     <string name="delete">Löschen</string>
+    <string name="confirm">Bestätigen</string>
     <string name="snackbar_message_cost_deleted">Eintrag gelöscht.</string>
     <string name="msg_subscribed">Subscribed to topic</string>
     <string name="msg_subscribe_failed">Subscribing to topic failed</string>
