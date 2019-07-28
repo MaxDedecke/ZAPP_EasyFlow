@@ -263,7 +263,11 @@ public class MainActivity extends AppCompatActivity
                 setActionBarHeadItem();
             }
 
-        } else if (id == R.id.nav_settings_group) {
+        }  else if(id == R.id.nav_show_notifications){
+            Intent intent = new Intent(this, NotificationsActivity.class);
+            startActivity(intent);
+
+        }else if (id == R.id.nav_settings_group) {
             if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
                 showAlertDialogCreateGroup();
             } else {
