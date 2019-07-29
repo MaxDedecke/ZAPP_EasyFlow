@@ -9,9 +9,9 @@ public class NotificationSettings {
 
     public NotificationSettings(){}
 
-    public NotificationSettings(String notificationId, String email, int a, String note) {
+    public NotificationSettings(String notificationId, String email, String a) {
         setKey(notificationId);
-        setUserNotificationSettings(new UserNotificationSettings(email, a, note));
+        setUserNotificationSettings(new UserNotificationSettings(email, a));
     }
 
     public NotificationSettings(String key, UserNotificationSettings userNotificationSettings) {

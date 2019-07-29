@@ -37,13 +37,9 @@ public class GroupSettingsActivity extends AppCompatActivity {
         Button btnDeleteOrLeaveGroup = findViewById(R.id.delete_leave_group_button);
 
 
-
-
         if(!mViewModel.isCurrentUserGroupAdmin()){
             btnDeleteOrLeaveGroup.setText(R.string.leave_group_button);
         }
-
-
 
         setUpRecyclerView();
     }

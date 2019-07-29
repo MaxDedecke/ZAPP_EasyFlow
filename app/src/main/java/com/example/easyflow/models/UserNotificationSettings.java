@@ -3,19 +3,16 @@ package com.example.easyflow.models;
 public class UserNotificationSettings {
 
     private String mEmail;
-    private int mAmount;
-    private String mNote;
+    private String mAmount;
 
     public UserNotificationSettings() {}
 
-    public UserNotificationSettings(String email, int a, String note) {
+    public UserNotificationSettings(String email, String amount) {
 
         setEmail(email);
-        setAmount(a);
-        setNote(note);
+        setAmount(amount);
 
     }
-
 
     public void setEmail(String email) {
         this.mEmail = email;
@@ -25,20 +22,12 @@ public class UserNotificationSettings {
         return this.mEmail;
     }
 
-    public void setAmount(int a) {
+    public void setAmount(String a) {
         this.mAmount = a;
     }
 
-    public int getAmount() {
+    public String getAmount() {
         return this.mAmount;
-    }
-
-    public void setNote(String note) {
-        this.mNote = note;
-    }
-
-    public String getNote() {
-        return this.mNote;
     }
 
 }

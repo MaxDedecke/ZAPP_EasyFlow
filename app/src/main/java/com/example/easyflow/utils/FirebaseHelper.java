@@ -1,6 +1,7 @@
 package com.example.easyflow.utils;
 
 import android.content.Context;
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -16,10 +17,12 @@ import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.Frequency;
 import com.example.easyflow.models.GroupSettings;
+import com.example.easyflow.models.NotificationSettings;
 import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.StateGroupMembership;
 import com.example.easyflow.models.User;
 import com.example.easyflow.models.UserGroupSettings;
+import com.example.easyflow.models.UserNotificationSettings;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -53,6 +56,7 @@ public class FirebaseHelper {
     private static DatabaseReference mDbRefCostSum;
     private static DatabaseReference mDbRefCostFuture;
     private static DatabaseReference mDbRefGroupSettings;
+    private static DatabaseReference mDbRefNotificationSettings;
     private static DatabaseReference mDbRefGroupInvitations;
     private static DatabaseReference mDbRefUser;
     private static ValueEventListener mValueEventListenerCostSum;
@@ -68,6 +72,7 @@ public class FirebaseHelper {
     private static NotifyEventHandlerStringMap mListenerStringMap;
     private static NotifyEventHandlerBoolean mListenerBoolean;
     private static List<GroupSettings> mCurrentGroupSettings;
+    private static List<NotificationSettings> mCurrentNotificationSettings;
 
 
     static {
@@ -160,7 +165,6 @@ public class FirebaseHelper {
 
 
     }
-
 
     private static ValueEventListener initValueEventListenerCostSum() {
         return new ValueEventListener() {
@@ -567,6 +571,43 @@ public class FirebaseHelper {
 
     }
 
+    public void createNotification() {
+        String key = mDbRefCost.push().getKey();
+        mCurrentUser.setNotificationId(key);
+
+        mDbRefUser.child(mCurrentUser.getUserId()).child(Constants.DATABASE_KEY_NOTIFICATION_ID).setValue(key)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "NotificationId saved successfully"))
+                .addOnFailureListener(e -> Log.d(TAG, "Failed saving NotificationId"));
+
+        //Add Settings for Notification
+        UserNotificationSettings notificationSettings = new UserNotificationSettings(mCurrentUser.getEmail(), mCurrentUser.getAmountId());
+
+        mDbRefNotificationSettings.child(key).child(mCurrentUser.getUserId()).setValue(notificationSettings)
+                .addOnSuccessListener(aVoid -> Log.d(TAG,"NotificationSettings saved successfully"))
+                .addOnFailureListener(e -> Log.d(TAG, "Failed saving NotificationSettings"));
+
+        mCurrentNotificationSettings = new ArrayList<>();
+        mCurrentNotificationSettings.add(new NotificationSettings(mCurrentUser.getUserId(), notificationSettings));
+
+    }
+    //finished
+
+    public void sendNotificationBackToUser() {
+        for(NotificationSettings notificationSettings : mCurrentNotificationSettings) {
+            if(!notificationSettings.getKey().equals(mCurrentUser.getUserId()))
+                continue;
+            sendNotificationBackToUser(notificationSettings);
+            break;
+        }
+    }
+    //finished
+
+    public void sendNotificationBackToUser(NotificationSettings notificationSettings) {
+
+        //Hier muss noch implementiert werden!
+    }
+    //in progress!
+
     public void createGroup() {
         String key = mDbRefCost.push().getKey();
         mCurrentUser.setGroupId(key);
@@ -732,7 +773,6 @@ public class FirebaseHelper {
         return user;
     }
 
-
     public void setListener(NotifyEventHandlerCostSum listenerCostSum, NotifyEventHandlerStringMap listenerStringMap) {
         mListenerCostSum = listenerCostSum;
         mListenerStringMap = listenerStringMap;
@@ -740,6 +780,14 @@ public class FirebaseHelper {
 
     public void setListenerBoolean(NotifyEventHandlerBoolean listenerBoolean) {
         mListenerBoolean = listenerBoolean;
+    }
+
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionNotifications() {
+        Query query = mDbRefNotificationSettings.child(mCurrentUser.getNotificationId());
+
+        return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
     }
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsMembersGroup() {

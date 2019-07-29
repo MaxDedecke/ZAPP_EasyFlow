@@ -11,6 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.easyflow.R;
+import com.example.easyflow.models.NotificationSettings;
+import com.example.easyflow.models.UserNotificationSettings;
+import com.example.easyflow.utils.FirebaseHelper;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -32,16 +35,25 @@ public class NotificationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, N
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot model) {
 
-        int imageId1;
-        int imageId2;
+        NotificationSettings notificationSettings = getNotificationSettingsFromDataSnapshot(model);
+        int messageImageId;
+        int euroImageId;
 
-        int emailId;
-        int numberId;
+        messageImageId = R.drawable.ic_email_black;
+        euroImageId = R.drawable.ic_euro_symbol_black_24dp;
 
-        //Erst MessageSettings implementieren
-        //holder.mTvEmail.setText(mContext.getString());
+        holder.mTvEmail.setText(notificationSettings.getUserNotificationSettings().getEmail());
+        holder.mTvAmount.setText(notificationSettings.getUserNotificationSettings().getAmount());
+        holder.mImageEuro.setImageResource(euroImageId);
+        holder.mImageMessage.setImageResource(messageImageId);
 
     }
+    //finished
+
+    private NotificationSettings getNotificationSettingsFromDataSnapshot(@NonNull DataSnapshot model) {
+        return new NotificationSettings(model.getKey(), model.getValue(UserNotificationSettings.class));
+    }
+    //finished
 
     @NonNull
     @Override
@@ -49,21 +61,24 @@ public class NotificationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, N
         View itemView = mInflater.inflate(R.layout.notifications_recycler_item_view, viewGroup, false);
         return new NotificationAdapter.ViewHolder(itemView);
         }
+    //finished
 
-        private void enableCheckbox(CheckBox checkBox, int position) {
+    private void enableCheckbox(CheckBox checkBox, int position) {
 
         checkBox.setBackgroundColor(mContext.getResources().getColor(R.color.buttonGreen));
         checkBox.setTag(position);
         checkBox.setOnClickListener(v -> {
 
-            //Declare Action when Checkbox checked here !
-            //
-            //
+           NotificationSettings snapshot = getNotificationSettingsFromDataSnapshot(getSnapshots().getSnapshot(position));
+
+            FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
+            firebaseHelper.sendNotificationBackToUser(snapshot);
 
         });
 
         checkBox.setEnabled(true);
-        }
+    }
+    //finished
 
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView mTvEmail;
@@ -83,4 +98,5 @@ public class NotificationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, N
 
         }
     }
+    //finished
 }
