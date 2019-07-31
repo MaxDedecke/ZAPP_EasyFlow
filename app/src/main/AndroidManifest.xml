@@ -12,11 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity android:name=".activities.CreateNotificationActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.easyflow.activities.NotificationsActivity" />
+        </activity>
         <activity android:name=".activities.NotificationsActivity">
             <meta-data
-                android:name = "android.support.PARENT_ACTIVITY"
-                android:value = "com.example.easyflow.activities.MainActivity" />
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.easyflow.activities.MainActivity" />
         </activity>
         <activity android:name=".activities.EditRecurringCostsActivity">
             <meta-data

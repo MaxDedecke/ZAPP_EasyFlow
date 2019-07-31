@@ -1,5 +1,6 @@
 package com.example.easyflow.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,7 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.app.Application;
+import android.content.Context;
 
+import com.example.easyflow.activities.CreateNotificationActivity;
 import com.example.easyflow.activities.EinAusgabeActivity;
 import com.example.easyflow.R;
 import com.example.easyflow.utils.GlobalApplication;
@@ -22,8 +26,9 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
     private static final String ARG_PARAM = "param1";
     private static final int BTN_PER_ROW = 3;
     private boolean mEingabe;
-    private EinAusgabeActivity mParentActivity;
 
+    private EinAusgabeActivity mParentActivity;
+    private CreateNotificationActivity mParentActivity1;
 
     public CategoriesFragment() {
         // Required empty public constructor
@@ -111,27 +116,62 @@ public class CategoriesFragment extends Fragment implements View.OnClickListener
 
     @Override
     public void onAttach(Context context) {
-        super.onAttach(context);
-        if (mParentActivity == null)
-            mParentActivity = (EinAusgabeActivity) this.getActivity();
 
-        mParentActivity.mDisplayValueEditText.disableInput();
+        super.onAttach(context);
+
+        String classname = context.getClass().getSimpleName();
+
+        switch(classname) {
+
+            case "EditRecurringCostsActivity": {
+                if (mParentActivity == null) {
+                    mParentActivity = (EinAusgabeActivity) this.getActivity();
+                    mParentActivity.mDisplayValueEditText.disableInput();}
+                break;
+            }
+
+            case "CreateNotificationActivity": {
+                if (mParentActivity1 == null) {
+                    mParentActivity1 = (CreateNotificationActivity) this.getActivity();
+                    mParentActivity1.mDisplayValueEditText.disableInput();
+                }
+                break;
+            }
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mParentActivity.mDisplayValueEditText.enableInput();
+        Context context = getContext();
+        String classname = context.getClass().getSimpleName();
+
+        switch(classname) {
+            case "EditRecurringCostsActivity":  mParentActivity.mDisplayValueEditText.enableInput();
+            case "CreateNotificationActivity":  mParentActivity1.mDisplayValueEditText.enableInput();
+        }
+
     }
 
     @Override
     public void onClick(View v) {
-        EinAusgabeActivity activity = (EinAusgabeActivity) getActivity();
-        if (activity != null) {
-            Category c = (Category) v.getTag();
 
-            activity.finishEinAusgabeActivity(c);
+        Category c = (Category) v.getTag();
+        Context context = v.getContext();
+        String classname =context.getClass().getSimpleName();
+
+        switch(classname) {
+            case "EinAusgabeActivity": {
+                EinAusgabeActivity activity1 = (EinAusgabeActivity) getActivity();
+                if (activity1 != null) {
+                    activity1.finishEinAusgabeActivity(c); }
+                break;
+            }
+            case"CreateNotificationActivity": {
+                CreateNotificationActivity activity2 = (CreateNotificationActivity) getActivity();
+                if(activity2 != null) {
+                    activity2.finishCreateNotificationActivity(c); }
+            }
         }
-
     }
 }

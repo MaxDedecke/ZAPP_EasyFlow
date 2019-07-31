@@ -33,7 +33,7 @@
         android:paddingTop="8dp"
         android:text="Email"
         android:textColor="@android:color/black"
-        android:textSize="16sp"
+        android:textSize="10sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/checkBoxMessage"
         app:layout_constraintStart_toEndOf="@+id/list_notification"
@@ -65,11 +65,21 @@
 
     <CheckBox
         android:id="@+id/checkBoxMessage"
-        android:layout_width="130dp"
-        android:layout_height="0dp"
+        android:layout_width="106dp"
+        android:layout_height="103dp"
+        android:background="@drawable/border_green"
+        android:checked="false"
+        android:fadingEdge="none"
+        android:soundEffectsEnabled="true"
         android:text="@string/confirm"
+        android:textAlignment="center"
+        android:textColor="@color/buttonGreen"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:buttonTint="@color/buttonGreen"
+        tools:text="@string/confirm" />
 
 </android.support.constraint.ConstraintLayout>

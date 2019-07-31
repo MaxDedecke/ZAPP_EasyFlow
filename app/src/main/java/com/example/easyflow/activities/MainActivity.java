@@ -188,6 +188,33 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void showAlertDialogNoNotifications() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(getString(R.string.alertdialog_keine_benachrichtigungen_message));
+        builder.setTitle(getString(R.string.alertdialog_keine_benachrichtigungen_title));
+        builder.setNegativeButton(getString(R.string.alertdialog_keine_benachrichtigungen_negative_button), (dialog, which) -> {
+            switch(mViewModel.getStateAccount()) {
+                case Cash:
+                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
+                    break;
+                case BankAccount:
+                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(1).setChecked(true);
+                    break;
+                case Group:
+                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(2).setChecked(true);
+            }
+        });
+
+        builder.setPositiveButton(getString(R.string.alertdialog_keine_benachrichtigungen_positive_button), (dialog, which) -> {
+            FirebaseHelper helper = FirebaseHelper.getInstance();
+            helper.createNotification();
+
+            GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
+
+        });
+        builder.show();
+    }
 
     private void showAlertDialogCreateGroup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -242,7 +269,6 @@ public class MainActivity extends AppCompatActivity
         updateAndSetCostAdapter();
     }
 
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
@@ -263,9 +289,13 @@ public class MainActivity extends AppCompatActivity
                 setActionBarHeadItem();
             }
 
-        }  else if(id == R.id.nav_show_notifications){
-            Intent intent = new Intent(this, NotificationsActivity.class);
-            startActivity(intent);
+        } else if(id == R.id.nav_show_notifications){
+            if(FirebaseHelper.mCurrentUser.getNotificationId() == null) {
+                showAlertDialogNoNotifications();
+            } else {
+                Intent intent = new Intent(this, NotificationsActivity.class);
+                startActivity(intent);
+            }
 
         }else if (id == R.id.nav_settings_group) {
             if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
@@ -323,7 +353,6 @@ public class MainActivity extends AppCompatActivity
         MainActivity.this.startActivity(newIntent);
     }
 
-
     private void setUpRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
@@ -359,7 +388,6 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setAdapter(mCostAdapter);
 
     }
-
 
     @Override
     public void Notify(String key, String email) {
@@ -402,7 +430,6 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
-
 
     private NotificationCompat.Builder getNotificationBuilder() {
 
@@ -465,7 +492,6 @@ public class MainActivity extends AppCompatActivity
             mNotifyManager.createNotificationChannel(notificationChannel);
         }
     }
-
 
     @Override
     public void Notify(CostSum costSum) {

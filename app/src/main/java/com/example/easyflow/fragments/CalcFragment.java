@@ -13,6 +13,7 @@ import android.widget.Button;
 
 import com.example.easyflow.EditTextWithClear;
 import com.example.easyflow.activities.BookCostActivity;
+import com.example.easyflow.activities.CreateNotificationActivity;
 import com.example.easyflow.activities.EinAusgabeActivity;
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.NotifyEventHandler;
@@ -50,6 +51,9 @@ public class CalcFragment extends Fragment implements View.OnClickListener {
         } else if (getActivity().getClass() == BookCostActivity.class) {
             mEditText = ((BookCostActivity) parentActivity).mEditText;
             ((Button)mView.findViewById(R.id.btnCategory)).setText(getString(R.string.ueberweisung_hinzufügen));
+        } else if(getActivity().getClass() == CreateNotificationActivity.class) {
+            mEditText = ((CreateNotificationActivity) parentActivity).mDisplayValueEditText;
+            //((Button)mView.findViewById(R.id.btnCategory)).setText("Benachrichtigung versenden");
         }
         setButtonOnClickListener();
     }

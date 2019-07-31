@@ -6,6 +6,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,7 +36,6 @@ public class GroupSettingsActivity extends AppCompatActivity {
         mNewMemberEmail = findViewById(R.id.email_address_new_member_edittext);
         mRecyclerView = findViewById(R.id.recyclerview_members);
         Button btnDeleteOrLeaveGroup = findViewById(R.id.delete_leave_group_button);
-
 
         if(!mViewModel.isCurrentUserGroupAdmin()){
             btnDeleteOrLeaveGroup.setText(R.string.leave_group_button);
@@ -132,7 +132,6 @@ public class GroupSettingsActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
     }
-
 
     private void updateAndSetCostAdapter() {
 

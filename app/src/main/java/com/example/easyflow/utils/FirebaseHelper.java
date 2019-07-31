@@ -85,6 +85,7 @@ public class FirebaseHelper {
         mDbRefCostFuture = database.getReference("costs-future/");
         mDbRefGroupSettings = database.getReference("group/settings/");
         mDbRefGroupInvitations = database.getReference("group/invitations/");
+        mDbRefNotificationSettings = database.getReference("notification/settings/");
 
         // Init ValueEventListener for Cost Sum.
         mValueEventListenerCostSum = initValueEventListenerCostSum();
@@ -136,6 +137,7 @@ public class FirebaseHelper {
                 mCurrentUser.setCashId(cur.getCashId());
                 mCurrentUser.setBankAccountId(cur.getBankAccountId());
                 mCurrentUser.setGroupId(cur.getGroupId());
+                mCurrentUser.setNotificationId(cur.getNotificationId());
 
 
                 FirebaseHelper helper = FirebaseHelper.getInstance();
@@ -143,6 +145,7 @@ public class FirebaseHelper {
                 helper.checkFutureCosts();
                 helper.checkCostSums();
                 helper.initializeCurrentGroupSettingsList();
+                helper.initializeCurrentNotificationSettingsList();
 
 
 
@@ -361,6 +364,40 @@ public class FirebaseHelper {
             }
         });
     }
+
+    private void initializeCurrentNotificationSettingsList() {
+
+        if (TextUtils.isEmpty(mCurrentUser.getNotificationId()))
+            return;
+
+        mDbRefNotificationSettings.child(mCurrentUser.getNotificationId()).runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                Iterator<MutableData> iterator = mutableData.getChildren().iterator();
+                mCurrentNotificationSettings = new ArrayList<>();
+
+                while(iterator.hasNext()) {
+                    MutableData snapshot = iterator.next();
+                    NotificationSettings notificationSettings = new NotificationSettings(snapshot.getKey(), snapshot.getValue(UserNotificationSettings.class));
+
+
+                    mCurrentNotificationSettings.add(notificationSettings);
+                }
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, boolean success, @Nullable DataSnapshot dataSnapshot) {
+                if(databaseError != null || !success || dataSnapshot == null) {
+                    System.out.println("Failed to get Datasnapshot");
+                } else {
+                    System.out.println("Successfully get DataSnapshot");
+                }
+            }
+        });
+    }
+    //finished
 
     public void initInvitationsForGroup() {
 
@@ -789,6 +826,7 @@ public class FirebaseHelper {
                 .setQuery(query, snapshot -> snapshot)
                 .build();
     }
+    //finished
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsMembersGroup() {
         Query query = mDbRefGroupSettings.child(mCurrentUser.getGroupId());

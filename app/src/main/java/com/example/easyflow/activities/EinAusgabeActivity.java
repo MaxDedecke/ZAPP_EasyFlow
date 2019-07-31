@@ -119,7 +119,6 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
         mDisplayDateEditText.setText(s);
     }
 
-
     public void finishEinAusgabeActivity(Category c) {
         if(TextUtils.isEmpty(mDisplayDateEditText.getText()))
             return;
@@ -139,7 +138,6 @@ public class EinAusgabeActivity extends AppCompatActivity implements NotifyEvent
 
         this.finish();
     }
-
 
     @Override
     public void Notify() {

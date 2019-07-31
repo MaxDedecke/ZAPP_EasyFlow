@@ -26,9 +26,11 @@
     <string name="cost">Ausgabe</string>
     <string name="new_income">Neue Einnahme</string>
     <string name="new_cost">Neue Ausgabe</string>
+    <string name="new_notification">Neue Benachrichtigung</string>
 
     <string name="kategorie">Kategorie</string>
     <string name="key_show_ein_or_ausgabe">KEY_SHOW_EIN_OR_AUSGABE</string>
+    <string name="key_create_notification">KEY_CREATE_NOTIFICATION</string>
     <string name="category_reisen">Reisen</string>
     <string name="category_auto">Auto</string>
     <string name="category_verkehrsmittel">Verkehrsmittel</string>
@@ -74,6 +76,10 @@
     <string name="alertdialog_keine_gruppe_message">Du befindest dich noch nicht in einer Gruppe. Willst du eine Gruppe erstellen?</string>
     <string name="alertdialog_keine_gruppe_positive_button">Gruppe erstellen</string>
     <string name="alertdialog_keine_gruppe_negative_button">Abbrechen</string>
+    <string name="alertdialog_keine_benachrichtigungen_title">Keine Nachrichten vorhanden</string>
+    <string name="alertdialog_keine_benachrichtigungen_message">Du hast leider noch keine Nachrichten :(</string>
+    <string name="alertdialog_keine_benachrichtigungen_negative_button">Zurück</string>
+    <string name="alertdialog_keine_benachrichtigungen_positive_button">Benachrichtigung senden</string>
     <string name="guppe_bearbeiten">Guppe bearbeiten</string>
     <string name="ueberweisung">Überweisung</string>
     <string name="user_already_in_group">User befindet sich bereits in einer Gruppe.</string>
@@ -102,6 +108,7 @@
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
     <string name="delete">Löschen</string>
     <string name="confirm">Bestätigen</string>
+    <string name="send">Benachrichtigung verfassen</string>
     <string name="snackbar_message_cost_deleted">Eintrag gelöscht.</string>
     <string name="msg_subscribed">Subscribed to topic</string>
     <string name="msg_subscribe_failed">Subscribing to topic failed</string>
