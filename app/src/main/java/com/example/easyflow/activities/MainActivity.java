@@ -1,6 +1,5 @@
 package com.example.easyflow.activities;
 
-import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,12 +7,10 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -73,34 +70,49 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Initialize ViewModel
         mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
+        //Initialize Toolbar with pre defined layout element
         Toolbar toolbar = findViewById(R.id.toolbar);
+        //Initialize RecyclerView with pre defined layout element
         mRecyclerView = findViewById(R.id.list);
+        //Initialize Sum for MainActivity with pre defined layout element
         mSumTextView = findViewById(R.id.tvSummary);
+        //Initialized Placeholder for Sum in MainActivity with pre defined layout element
         mEmptyTextView = findViewById(R.id.tvEmpty);
 
-
+        //Set Action Bar
         setSupportActionBar(toolbar);
+
+        //Create Channel for internal Notifications (not Groupmessage !)
         createNotificationChannel();
 
-
+        //Initialize Drawer for Menu with pre defined layout element
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
+
+        //Initialize NavigationView for menu items with pre defined layout element
         NavigationView navigationView = findViewById(R.id.nav_view);
         mNavigationViewMenu = navigationView.getMenu();
+
+        //Initialize Drawer Toggle for "slide"-movement (from left to right)
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        //Set Listener for clickable Menu items
         navigationView.setNavigationItemSelectedListener(this);
 
-
+        //Set Listener for data updates in MainActivity
         FirebaseHelper helper = new FirebaseHelper();
         helper.setListener(this, this);
 
+        //Set "Gruppe verwalten" if group existent
         if (!TextUtils.isEmpty(FirebaseHelper.mCurrentUser.getGroupId()))
             mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
         else
+            //if not existent check for group invitations
             helper.initInvitationsForGroup();
 
 
@@ -113,6 +125,10 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
+        //Called when Activity gets in foreground again
+        //Checkout in which disposition the user had as he pushed the Activity
+        //-> Then show the right disposition
+
         if (mMenuItemSelectAccount != null)
             setActionBarHeadItem();
 
@@ -122,15 +138,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
+
+        //When Activity stops
+        //-> Stop communication with Database
+
         mCostAdapter.stopListening();
     }
 
     private String getColoredSpanned(String text, String color) {
+
+        //Set visual appearance of Sum
+
         return "<font color=#" + color + ">" + text + "</font>";
     }
 
     @Override
     public void onBackPressed() {
+
+        //Handle Drawer Actions when pressing back
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -153,35 +178,52 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        //Handle Actions of Icons on Action bar here
+        //
+
         int id = item.getItemId();
 
-
+        //if right disposition -> return true
         if (id == R.id.action_account_current) {
             return true;
+
+            //if arrow icon is pressed -> start BookCostActitvity for value exchange
         } else if (id == R.id.action_booking) {
+            //Start via intent
             Intent intent = new Intent(this, BookCostActivity.class);
             startActivity(intent);
             return true;
+            //if in disposition "WG" -> group icon has been pressed -> start GroupSettingsActivity to get there
         } else if (id == R.id.action_menu_group) {
+            //Start via intent
             Intent intent = new Intent(this, GroupSettingsActivity.class);
             startActivity(intent);
             return true;
+            //if money icon is pressed and "Bank" has been selected -> change State to BankAccount
         } else if (id == R.id.action_account_bank) {
             mViewModel.setStateAccount(StateAccount.BankAccount);
+            //Update Sum
             setActionBarHeadItem();
             return true;
+            //if money icon is pressed and "Cash" has been selected -> change State to CashAccount
         } else if (id == R.id.action_account_cash) {
             mViewModel.setStateAccount(StateAccount.Cash);
+            //Update Sum
             setActionBarHeadItem();
             return true;
+            //if money icon is pressed and "WG" has been selected -> change State to GroupAccount
         } else if (id == R.id.action_account_group) {
             if (FirebaseHelper.mCurrentUser.getGroupId() != null) {
 
                 mViewModel.setStateAccount(StateAccount.Group);
+                //Update Sum
                 setActionBarHeadItem();
                 return true;
             }
 
+            //Initialize Alert Dialog if "WG" was selected but there's no group yet
+            //with possibility of opening up a new one
             showAlertDialogCreateGroup();
         }
 
@@ -190,10 +232,16 @@ public class MainActivity extends AppCompatActivity
 
     private void showAlertDialogNoNotifications() {
 
+        //Handle Actions if Menu item "Benachrichtigungen" has been selected,
+        //but there are no notifications yet.
+        //The user has then the opportunity to create a new notification
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.alertdialog_keine_benachrichtigungen_message));
         builder.setTitle(getString(R.string.alertdialog_keine_benachrichtigungen_title));
         builder.setNegativeButton(getString(R.string.alertdialog_keine_benachrichtigungen_negative_button), (dialog, which) -> {
+
+            //Handle Actions if user presses "zurück" in alert dialog
             switch(mViewModel.getStateAccount()) {
                 case Cash:
                     ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
@@ -206,21 +254,31 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Handle Actions if user presses "Benachrichtigung senden" here
         builder.setPositiveButton(getString(R.string.alertdialog_keine_benachrichtigungen_positive_button), (dialog, which) -> {
             FirebaseHelper helper = FirebaseHelper.getInstance();
-            helper.createNotification();
+            helper.createNotificationList();
 
             GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
         });
+
+        //initialize builder
         builder.show();
     }
 
     private void showAlertDialogCreateGroup() {
+
+        //Handle Actions if Menu item "Gruppe verwalten" is selected,
+        //but there's no group yet
+        //The user then has the opportunity to open up a new one
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.alertdialog_keine_gruppe_message));
         builder.setTitle(getString(R.string.alertdialog_keine_gruppe_title));
         builder.setNegativeButton(getString(R.string.alertdialog_keine_gruppe_negative_button), (dialog, which) -> {
+
+            //Handle Actions if user presses "Zurück" in dialog here
             switch (mViewModel.getStateAccount()) {
                 case Cash:
                     ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
@@ -231,23 +289,32 @@ public class MainActivity extends AppCompatActivity
             }
 
         });
+        //Handle Actions if user presses "Gruppe erstellen" here
         builder.setPositiveButton(getString(R.string.alertdialog_keine_gruppe_positive_button), (dialog, which) -> {
             FirebaseHelper helper = FirebaseHelper.getInstance();
             helper.createGroup();
 
+            //Update User information after group has been created
             GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
-
+            //Change Menu item title from "Gruppe erstellen" to "Gruppe verwalten"
             mNavigationViewMenu.findItem(R.id.nav_settings_group).setTitle(R.string.menu_settings_group);
 
+            //Add group state to ViewModel
             mViewModel.setStateAccount(StateAccount.Group);
+
+            //Refresh ActionBar items
             setActionBarHeadItem();
 
         });
+
+        //Initialize builder
         builder.show();
     }
 
     private void setActionBarHeadItem() {
+
+        //Change Menu of items of Actionbar depending on the users states
         switch (mViewModel.getStateAccount()) {
             case Cash:
                 mMenuItemSelectAccount.setTitle(getString(R.string.actionbar_item_bargeld));
@@ -266,38 +333,52 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
 
+        //Update Adapter if changes have been made
         updateAndSetCostAdapter();
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
+
+        // Handle navigation view item clicks here. (Menu item clicks)
         int id = item.getItemId();
 
-
+        //if "Bargeld anzeigen" has been selected
         if (id == R.id.nav_show_cash) {
             mViewModel.setStateAccount(StateAccount.Cash);
             setActionBarHeadItem();
+
+            //if "Bankkonto anzeigen" has been selected
         } else if (id == R.id.nav_show_bank_account) {
             mViewModel.setStateAccount(StateAccount.BankAccount);
             setActionBarHeadItem();
+
+            //if "Gruppe anzeigen" has been selected
         } else if (id == R.id.nav_show_group) {
+
+            //If thers's no group yet -> show alert Dialog
             if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
                 showAlertDialogCreateGroup();
             } else {
                 mViewModel.setStateAccount(StateAccount.Group);
                 setActionBarHeadItem();
             }
-
+            //if "Benachrichtigungen anzeigen" has been selected
         } else if(id == R.id.nav_show_notifications){
-            if(FirebaseHelper.mCurrentUser.getNotificationId() == null) {
-                showAlertDialogNoNotifications();
-            } else {
-                Intent intent = new Intent(this, NotificationsActivity.class);
-                startActivity(intent);
-            }
+            FirebaseHelper helper = FirebaseHelper.getInstance();
 
+            if(FirebaseHelper.mCurrentUser.getNotificationListId() == null) {
+            helper.createNotificationList(); }
+
+            else {
+            GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
+
+                Intent intent = new Intent(this, NotificationsActivity.class);
+                startActivity(intent); }
+            //if "Gruppe verwalten" has been selected
         }else if (id == R.id.nav_settings_group) {
+
+            //if there's no group yet -> show alert Dialog
             if (FirebaseHelper.mCurrentUser.getGroupId() == null) {
                 showAlertDialogCreateGroup();
             } else {
@@ -305,10 +386,12 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
 
+            //if "Wiederkehrende Ausgaben" has been selected
         } else if (id == R.id.nav_edit_recurring_costs) {
             Intent intent = new Intent(this, EditRecurringCostsActivity.class);
             startActivity(intent);
 
+            //If "Allgemeine Einstellungen" has been selected
         } else if (id == R.id.nav_settings) {
             //todo show settings
             // sammeln von ideen für drawer
@@ -324,14 +407,8 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
 
         }
-        else if(id == R.id.nav_show_notifications) {
 
-            //Activity verknüpfen hier (per Intent)
-
-            Toast.makeText(this, "nicht implementiert", Toast.LENGTH_SHORT).show();
-        }
-
-
+        //Close Drawer if item has been selected
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
@@ -342,25 +419,32 @@ public class MainActivity extends AppCompatActivity
     public void showEinAusgabeActivity(View view) {
         int viewId = view.getId();
 
+        //Create intent for switching between MainActivity and EinAusgabeActivity
         Intent newIntent = new Intent(MainActivity.this, EinAusgabeActivity.class);
 
         if (viewId == R.id.btnEinnahme) {
+            //if "Einnahme" has been pressed
             newIntent.putExtra(getString(R.string.key_show_ein_or_ausgabe), true);
+
+            //if "Ausgabe" has been pressed
         } else if (viewId == R.id.btnAusgabe) {
             newIntent.putExtra(getString(R.string.key_show_ein_or_ausgabe), false);
         }
 
+        //Start EinAusgabeActivity
         MainActivity.this.startActivity(newIntent);
     }
 
     private void setUpRecyclerView() {
+
+        //Set Layout Manager for RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
 
-
+        //Handle Actions of RecyclerView items here
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -368,6 +452,7 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
 
+            //if item is swiped to the left -> remove item
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                 mCostAdapter.onItemRemove(viewHolder, mRecyclerView);
@@ -378,28 +463,40 @@ public class MainActivity extends AppCompatActivity
 
     private void updateAndSetCostAdapter() {
 
+        //If Adapter has items -> stop updating
         if (mCostAdapter != null)
             mCostAdapter.stopListening();
 
-
+        //Initialize Cost Adapter with empty view if new
         mCostAdapter = new CostAdapter(MainActivity.this, mViewModel.getFirebaseRecyclerOptions(), false);
         mCostAdapter.setEmptyView(mEmptyTextView);
+        //Start looking for updates
         mCostAdapter.startListening();
+        //Connect Recylcerview with Adapter
         mRecyclerView.setAdapter(mCostAdapter);
 
     }
 
     @Override
     public void Notify(String key, String email) {
+
+        //Notify interface for displaying internal Messages for selected Actions in app
+
+        //Show notification if there's a group invitation
+        //-> Handle Actions for Dialog here
         if (GlobalApplication.isIsInForeGround()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Du hast eine Einladung von '" + email + "' erhalten.\n Wollen sie der Gruppe beitreten?");
             builder.setTitle(getString(R.string.invitation));
+
+            //if "nein" has been pressed -> decline group invitation
             builder.setNegativeButton(getString(R.string.nein), (dialog, which) -> {
                 FirebaseHelper helper = FirebaseHelper.getInstance();
                 helper.declineGroupInvitation(key);
 
             });
+
+            //if "ja" has been pressed -> follow group
             builder.setPositiveButton(getString(R.string.ja), (dialog, which) -> {
                 FirebaseHelper helper = FirebaseHelper.getInstance();
                 helper.followGroupInvitation(key);
@@ -416,6 +513,7 @@ public class MainActivity extends AppCompatActivity
 
             });
             builder.show();
+
         } else {
 
             // Build the notification with all of the parameters using helper
@@ -506,9 +604,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initSumTextView(CostSum costSum) {
+
+        //Set color of Sum in MainActivity here
         String color;
+
+        //if value >= 0 -> positiv -> green color
         if (costSum.getCurrentValue() >= 0) {
             color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary) & 0x00ffffff);
+            //else  -> negativ -> red color
         } else {
             color = Integer.toHexString(ContextCompat.getColor(getApplicationContext(), R.color.buttonRed) & 0x00ffffff);
         }

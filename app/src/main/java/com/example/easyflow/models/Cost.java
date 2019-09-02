@@ -47,7 +47,6 @@ public class Cost {
         }
     }
 
-
     public Category getCategory() {
         return mCategory;
     }
@@ -71,7 +70,6 @@ public class Cost {
     public void setNote(String note) {
         this.mNote = note;
     }
-
 
     public Map<String, Object> toMap() {
 

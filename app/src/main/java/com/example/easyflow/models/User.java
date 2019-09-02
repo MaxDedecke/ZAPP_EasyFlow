@@ -11,8 +11,7 @@ public class User {
     private String mBankAccountId;
     private String mGroupId;
 
-    private String mNotificationId;
-    private String mAmountId;
+    private String mNotificationListId;
 
     public User() { }
 
@@ -64,12 +63,8 @@ public class User {
         this.mGroupId = mGroup;
     }
 
-    public String getNotificationId() {return mNotificationId;}
+    public String getNotificationListId() {return mNotificationListId;}
 
-    public void setNotificationId(String mNotification) {this.mNotificationId = mNotification;}
-
-    public String getAmountId() {return mAmountId;}
-
-    public void setAmountId(String mAmountId) {this.mAmountId = mAmountId;}
+    public void setNotificationListId(String mNotification) {this.mNotificationListId = mNotification;}
 
 }

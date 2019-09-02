@@ -6,7 +6,6 @@ public class UserGroupSettings {
     private StateGroupMembership mStateGroupMemberShip;
 
     public UserGroupSettings(){
-
     }
 
     public UserGroupSettings(String email, StateGroupMembership stateGroupMembership) {

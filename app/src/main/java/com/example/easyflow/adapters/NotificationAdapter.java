@@ -12,7 +12,8 @@ import android.widget.TextView;
 
 import com.example.easyflow.R;
 import com.example.easyflow.models.NotificationSettings;
-import com.example.easyflow.models.UserNotificationSettings;
+import com.example.easyflow.models.UserNotification;
+import com.example.easyflow.models.UserNotificationConverter;
 import com.example.easyflow.utils.FirebaseHelper;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -35,15 +36,17 @@ public class NotificationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, N
     @Override
     protected void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull DataSnapshot model) {
 
-        NotificationSettings notificationSettings = getNotificationSettingsFromDataSnapshot(model);
+        NotificationSettings notifications = getNotificationSettingsFromDataSnapshot(model);
         int messageImageId;
         int euroImageId;
+        double helpValue = notifications.getUserNotification().getValue();
+        String helpEmail = notifications.getUserNotification().getEmailSending();
 
         messageImageId = R.drawable.ic_email_black;
         euroImageId = R.drawable.ic_euro_symbol_black_24dp;
 
-        holder.mTvEmail.setText(notificationSettings.getUserNotificationSettings().getEmail());
-        holder.mTvAmount.setText(notificationSettings.getUserNotificationSettings().getAmount());
+        holder.mTvEmail.setText(helpEmail);
+        holder.mTvAmount.setText(Double.toString(helpValue));
         holder.mImageEuro.setImageResource(euroImageId);
         holder.mImageMessage.setImageResource(messageImageId);
 
@@ -51,7 +54,8 @@ public class NotificationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, N
     //finished
 
     private NotificationSettings getNotificationSettingsFromDataSnapshot(@NonNull DataSnapshot model) {
-        return new NotificationSettings(model.getKey(), model.getValue(UserNotificationSettings.class));
+        //return new NotificationSettings(model.getKey(), model.getValue(UserNotification.class));
+        return new NotificationSettings(model.getKey(), model.getValue(UserNotificationConverter.class));
     }
     //finished
 

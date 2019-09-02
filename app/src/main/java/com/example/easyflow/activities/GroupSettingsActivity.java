@@ -69,11 +69,11 @@ public class GroupSettingsActivity extends AppCompatActivity {
     /*
     private boolean groupAlreadyContainsMember(String email) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return mViewModel.getMembers().stream().anyMatch(o-> Objects.equals(o.getUserGroupSettings().getEmail(), email));
+            return mViewModel.getMembers().stream().anyMatch(o-> Objects.equals(o.getUserGroupSettings().getEmailSending(), email));
         }
 
         for(GroupSettings groupSettings:mViewModel.getMembers()){
-            if(Objects.equals(groupSettings.getUserGroupSettings().getEmail(), email))
+            if(Objects.equals(groupSettings.getUserGroupSettings().getEmailSending(), email))
                 return true;
         }
 

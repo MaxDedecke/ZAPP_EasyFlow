@@ -15,6 +15,7 @@ public class NotificationSettingsViewModel extends ViewModel {
         super();
         FirebaseHelper helper = FirebaseHelper.getInstance();
         mFireBaseRecyclerOptions = helper.getFirebaseRecyclerOptionNotifications();
+        int a = 0;
     }
 
     public FirebaseRecyclerOptions<DataSnapshot> getmFireBaseRecyclerOptions() {

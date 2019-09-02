@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 import com.example.easyflow.R;
 import com.example.easyflow.adapters.NotificationAdapter;
@@ -22,6 +23,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     private RecyclerView mRecyclerView;
     private NotificationAdapter mNotificationAdapter;
     private NotificationSettingsViewModel mViewModel;
+    private TextView emptyRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +33,8 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
         mViewModel = ViewModelProviders.of(this).get(NotificationSettingsViewModel.class);
 
         mRecyclerView = findViewById(R.id.recyclerview_notifications);
+        emptyRecyclerView = findViewById(R.id.empty_view);
+
         setUpRecyclerview();
     }
     //finished
@@ -53,13 +57,13 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     }
     //finished
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.activity_notification_menu, menu);
 
         return true;
-    }*/
+    }
     //in progress
 
     @Override
@@ -85,6 +89,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
 
         mNotificationAdapter = new NotificationAdapter(GlobalApplication.getAppContext(),mViewModel.getmFireBaseRecyclerOptions());
         mRecyclerView.setAdapter(mNotificationAdapter);
+
 
         mNotificationAdapter.startListening();
     }

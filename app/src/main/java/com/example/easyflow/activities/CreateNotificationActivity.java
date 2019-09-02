@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -23,6 +22,7 @@ import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.Category;
 import com.example.easyflow.models.CreateNotificationViewModel;
 import com.example.easyflow.models.Frequency;
+import com.example.easyflow.models.UserNotification;
 import com.example.easyflow.utils.FirebaseHelper;
 
 public class CreateNotificationActivity extends AppCompatActivity implements NotifyEventHandler {
@@ -79,7 +79,6 @@ public class CreateNotificationActivity extends AppCompatActivity implements Not
         });
 
         this.mDisplayMemberEditText = findViewById(R.id.editTextMember);
-        this.mDisplayMemberEditText.setInputType(InputType.TYPE_NULL);
         this.mNoteEditText = findViewById(R.id.editTextNote);
 
     }
@@ -90,12 +89,14 @@ public class CreateNotificationActivity extends AppCompatActivity implements Not
         double amountOfNotification = Double.parseDouble(mDisplayValueEditText.getText().toString());
         String note = mNoteEditText.getText().toString();
         int frequenceId = mSpinnerMembers.getSelectedItemPosition();
+        String emailSending = FirebaseHelper.mCurrentUser.getEmail();
+        String emailReceiving = mDisplayMemberEditText.getText().toString();
 
-        //GroupMemberNotification notification = new GroupMemberNotification(amountOfNotification, c, Frequency.fromId(frequenceId), note);
+
+        UserNotification notification = new UserNotification(note, emailReceiving, emailSending, false, amountOfNotification);
 
         FirebaseHelper helper = FirebaseHelper.getInstance();
-        //helper.addNotification(GroupMemberNotification);
-
+        helper.addNotification(notification);
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.placeholder_activity_create_notification);
         if(fragment != null) {
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();

@@ -2,32 +2,19 @@ package com.example.easyflow.models;
 
 public class UserNotificationSettings {
 
-    private String mEmail;
-    private String mAmount;
+    private String Creator;
 
     public UserNotificationSettings() {}
 
-    public UserNotificationSettings(String email, String amount) {
+    public UserNotificationSettings(String emailAdmin) {
 
-        setEmail(email);
-        setAmount(amount);
-
+        setEmailHost(emailAdmin);
     }
 
-    public void setEmail(String email) {
-        this.mEmail = email;
-    }
+    public String getEmailHost() {return this.Creator;}
 
-    public String getEmail() {
-        return this.mEmail;
-    }
-
-    public void setAmount(String a) {
-        this.mAmount = a;
-    }
-
-    public String getAmount() {
-        return this.mAmount;
+    public void setEmailHost(String email) {
+        this.Creator = email;
     }
 
 }

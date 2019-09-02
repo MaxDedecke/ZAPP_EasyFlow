@@ -174,7 +174,7 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
         }
 
         tvRole.setText(mContext.getString(roleTextId));
-        tvEmail.setText(groupSettings.getUserGroupSettings().getEmail());
+        tvEmail.setText(groupSettings.getUserGroupSettings().getEmailSending());
         imageRole.setImageResource(imageId);
 
         return view;
