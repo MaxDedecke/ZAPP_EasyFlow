@@ -13,10 +13,58 @@
     app:layout_constraintTop_toTopOf="parent">
 
 
+    <Button
+        android:id="@+id/button_msg_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#DFDCDC"
+        android:enabled="false"
+        android:includeFontPadding="false"
+        android:text="@string/button_confirm_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/buttonGreen"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.39" />
+
+    <TextView
+        android:id="@+id/display_note"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center|start"
+        android:text="@string/text_recyclerView_note"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/list_number"
+        app:layout_constraintTop_toBottomOf="@+id/list_number"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/display_from"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center|start"
+        android:text="@string/text_recyclerView_from"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/list_number"
+        app:layout_constraintStart_toStartOf="@+id/list_number"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/list_notification"
         android:layout_width="50dp"
         android:layout_height="0dp"
+        android:foregroundGravity="center"
         android:paddingLeft="2dp"
         android:paddingTop="2dp"
         android:paddingRight="8dp"
@@ -28,65 +76,66 @@
 
     <TextView
         android:id="@+id/list_email2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="1dp"
+        android:gravity="start"
         android:hint="@string/add_email_hint"
         android:paddingTop="8dp"
+        android:singleLine="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="10sp"
         android:textStyle="bold"
-        android:visibility="visible"
-        app:layout_constraintEnd_toStartOf="@+id/checkBoxMessage"
-        app:layout_constraintStart_toEndOf="@+id/list_notification"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/list_number"
+        app:layout_constraintStart_toEndOf="@+id/display_from"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
 
     <TextView
         android:id="@+id/list_number"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:gravity="center|start"
         android:hint="@string/placeholder_amount"
-        android:paddingBottom="8dp"
-        android:singleLine="false"
+        android:singleLine="true"
         android:text="@string/placeholder_amount"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/list_note"
         app:layout_constraintEnd_toStartOf="@+id/list_euro"
-        app:layout_constraintStart_toEndOf="@+id/list_notification"
-        app:layout_constraintTop_toBottomOf="@+id/list_email2" />
+        app:layout_constraintStart_toEndOf="@+id/list_notification" />
 
     <ImageView
         android:id="@+id/list_euro"
-        android:layout_width="24dp"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="96dp"
+        android:foregroundGravity="center"
         android:src="@drawable/ic_euro_symbol_black_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/checkBoxMessage"
-        app:layout_constraintTop_toBottomOf="@+id/list_email2" />
+        app:layout_constraintBottom_toTopOf="@+id/list_note"
+        app:layout_constraintEnd_toStartOf="@+id/button_msg_confirm"
+        app:layout_constraintTop_toBottomOf="@+id/list_email2"
+        app:layout_constraintVertical_bias="0.0" />
 
-    <CheckBox
-        android:id="@+id/checkBoxMessage"
-        android:layout_width="106dp"
-        android:layout_height="103dp"
-        android:background="@drawable/border_green"
-        android:checked="false"
-        android:fadingEdge="none"
-        android:soundEffectsEnabled="true"
-        android:text="@string/confirm"
-        android:textAlignment="center"
-        android:textColor="@color/buttonGreen"
-        android:textStyle="bold"
+    <TextView
+        android:id="@+id/list_note"
+        android:layout_width="0dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center|start"
+        android:singleLine="true"
+        android:text="Note"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="10sp"
+        android:textStyle="normal"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
-        android:buttonTint="@color/buttonGreen"
-        tools:text="@string/confirm" />
+        app:layout_constraintStart_toEndOf="@+id/display_note" />
 
 </android.support.constraint.ConstraintLayout>

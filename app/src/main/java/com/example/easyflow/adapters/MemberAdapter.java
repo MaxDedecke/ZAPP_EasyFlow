@@ -102,6 +102,7 @@ public class MemberAdapter extends FirebaseRecyclerAdapter<DataSnapshot, MemberA
         deleteButton.setOnClickListener(v -> {
             GroupSettings snapshot = getGroupSettingsFromDataSnapshot(getSnapshots().getSnapshot(position));
 
+
             FirebaseHelper firebaseHelper = FirebaseHelper.getInstance();
             firebaseHelper.removeUserFromGroup(snapshot);
         });

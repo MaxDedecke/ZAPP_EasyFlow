@@ -2,20 +2,27 @@ package com.example.easyflow.activities;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.easyflow.R;
+import com.example.easyflow.adapters.ConfirmationAdapter;
 import com.example.easyflow.adapters.NotificationAdapter;
 import com.example.easyflow.interfaces.NotifyEventHandler;
 import com.example.easyflow.models.NotificationSettings;
 import com.example.easyflow.models.NotificationSettingsViewModel;
+import com.example.easyflow.utils.FirebaseHelper;
 import com.example.easyflow.utils.GlobalApplication;
 
 public class NotificationsActivity extends AppCompatActivity implements NotifyEventHandler {
@@ -23,6 +30,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     private RecyclerView mRecyclerView;
     private NotificationAdapter mNotificationAdapter;
     private NotificationSettingsViewModel mViewModel;
+    private ConfirmationAdapter mConfirmationAdapter;
     private TextView emptyRecyclerView;
 
     @Override
@@ -43,13 +51,12 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     protected void onStop() {
         super.onStop();
         mNotificationAdapter.stopListening();
+
+        if(mConfirmationAdapter != null) {
+            mConfirmationAdapter.stopListening();
+        }
     }
     //finished
-
-    public void addNotification() {
-
-    }
-    //in progress
 
     protected void onStart() {
         super.onStart();
@@ -67,17 +74,58 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     //in progress
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+
+        if(id == R.id.sent) {
+
+            mNotificationAdapter = null;
+            mConfirmationAdapter = null;
+            mNotificationAdapter = new NotificationAdapter(this, mViewModel.getmFireBaseSentNotificationsRecyclerOptions());
+            mNotificationAdapter.startListening();
+            mRecyclerView.setAdapter(mNotificationAdapter);
+
+            return true;
+        }
+
+        else if(id == R.id.received) {
+
+            mNotificationAdapter = null;
+            mConfirmationAdapter = null;
+            mNotificationAdapter = new NotificationAdapter(this, mViewModel.getmFireBaseReceivedNotificationsRecyclerOptions());
+            mNotificationAdapter.startListening();
+            mRecyclerView.setAdapter(mNotificationAdapter);
+
+            return true;
+        }
+
+        else if(id == R.id.confirmations) {
+
+            updateAndSetConfirmationsAdapter();
+            return true;
+
+        }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void Notify() {
 
     }
     //in progress
 
     private void setUpRecyclerview() {
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         mRecyclerView.setHasFixedSize(true);
+
     }
     //finished
 
@@ -87,13 +135,44 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
             mNotificationAdapter.stopListening();
         }
 
-        mNotificationAdapter = new NotificationAdapter(GlobalApplication.getAppContext(),mViewModel.getmFireBaseRecyclerOptions());
-        mRecyclerView.setAdapter(mNotificationAdapter);
-
+        mNotificationAdapter = new NotificationAdapter(this ,mViewModel.getmFireBaseRecyclerOptions());
+        mNotificationAdapter.setEmptyView(emptyRecyclerView);
 
         mNotificationAdapter.startListening();
+
+        mRecyclerView.setAdapter(mNotificationAdapter);
+
     }
     //finished
+
+    private void updateAndSetConfirmationsAdapter() {
+
+        if(mConfirmationAdapter != null) {
+            mConfirmationAdapter.stopListening();
+        }
+
+        mConfirmationAdapter = new ConfirmationAdapter(this, mViewModel.getmFireBaseConfirmationsRecyclerOptions());
+        mConfirmationAdapter.setEmptyView(emptyRecyclerView);
+
+        mConfirmationAdapter.startListening();
+
+        mRecyclerView.setAdapter(mConfirmationAdapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                if (mConfirmationAdapter != null) {
+                    mConfirmationAdapter.onItemRemove(viewHolder, mRecyclerView);
+                }
+            }
+        }).attachToRecyclerView(mRecyclerView);
+    }
 
     public void showCreateNotificationActivity(View view) {
         int viewid = view.getId();

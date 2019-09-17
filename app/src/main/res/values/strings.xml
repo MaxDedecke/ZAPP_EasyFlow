@@ -30,6 +30,13 @@
 
     <string name="notifications_sent">Gesendet</string>
     <string name="notification_received">Empfangen</string>
+    <string name="notification_confirmation">Bestätigungen</string>
+    <string name="alert_dialog_confirm_notification">Wenn du die Benachrichtigung bestätigst, wir diese gelöscht und der Absender informiert. Fortfahren ?</string>
+    <string name="alert_diaolg_confirm_notification_title">Bestätigung</string>
+    <string name="text_recyclerView_from">Von:</string>
+    <string name="text_recyclerView_note">Notiz:</string>
+    <string name="button_confirm_text">bestätigen</string>
+
 
     <string name="kategorie">Kategorie</string>
     <string name="key_show_ein_or_ausgabe">KEY_SHOW_EIN_OR_AUSGABE</string>

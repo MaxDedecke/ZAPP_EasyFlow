@@ -12,6 +12,8 @@ import com.example.easyflow.interfaces.Constants;
 import com.example.easyflow.interfaces.NotifyEventHandlerBoolean;
 import com.example.easyflow.interfaces.NotifyEventHandlerCostSum;
 import com.example.easyflow.interfaces.NotifyEventHandlerStringMap;
+import com.example.easyflow.models.Confirmation;
+import com.example.easyflow.models.ConfirmationConverter;
 import com.example.easyflow.models.Cost;
 import com.example.easyflow.models.CostSum;
 import com.example.easyflow.models.Frequency;
@@ -22,6 +24,7 @@ import com.example.easyflow.models.StateAccount;
 import com.example.easyflow.models.StateGroupMembership;
 import com.example.easyflow.models.User;
 import com.example.easyflow.models.UserGroupSettings;
+import com.example.easyflow.models.UserNotificationConverter;
 import com.example.easyflow.models.UserNotificationSettings;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -57,6 +60,7 @@ public class FirebaseHelper {
     private static DatabaseReference mDbRefCostFuture;
     private static DatabaseReference mDbRefGroupSettings;
     private static DatabaseReference mDbRefNotificationSettings;
+    private static DatabaseReference mDbRefConfirmationSettings;
     private static DatabaseReference mDbRefNotifications;
     private static DatabaseReference mDbRefGroupInvitations;
     private static DatabaseReference mDbRefUser;
@@ -75,9 +79,11 @@ public class FirebaseHelper {
     private static List<GroupSettings> mCurrentGroupSettings;
     private static List<NotificationSettings> mCurrentNotificationSettings;
     private static List<UserNotification> mCurrentNotifications;
+    private static List<Confirmation> mCurrentConfirmations;
 
 
     static {
+
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         instance = new FirebaseHelper();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -88,7 +94,7 @@ public class FirebaseHelper {
         mDbRefGroupSettings = database.getReference("group/settings/");
         mDbRefGroupInvitations = database.getReference("group/invitations/");
         mDbRefNotificationSettings = database.getReference("notificationlist/settings/");
-        mDbRefNotifications = database.getReference("notificationslist/settings/notifications/");
+        mDbRefConfirmationSettings = database.getReference("confirmations/settings");
 
         // Init ValueEventListener for Cost Sum.
         mValueEventListenerCostSum = initValueEventListenerCostSum();
@@ -149,7 +155,7 @@ public class FirebaseHelper {
                 helper.checkCostSums();
                 helper.initializeCurrentGroupSettingsList();
                 helper.initializeCurrentNotificationSettingsList();
-
+                helper.initializeCurrentConfirmationSettingsList();
 
 
                 GlobalApplication.saveUserInSharedPreferences(mCurrentUser);
@@ -382,7 +388,7 @@ public class FirebaseHelper {
 
                 while(iterator.hasNext()) {
                     MutableData snapshot = iterator.next();
-                    NotificationSettings notificationSettings = new NotificationSettings(snapshot.getKey(), snapshot.getValue(UserNotification.class));
+                    NotificationSettings notificationSettings = new NotificationSettings(snapshot.getKey(), snapshot.getValue(UserNotificationConverter.class));
 
 
                     mCurrentNotificationSettings.add(notificationSettings);
@@ -401,6 +407,10 @@ public class FirebaseHelper {
         });
     }
     //finished
+
+    private void initializeCurrentConfirmationSettingsList() {
+
+    }
 
     public void initInvitationsForGroup() {
 
@@ -568,6 +578,14 @@ public class FirebaseHelper {
         mDbRefCostSum.child(keyAccount).addListenerForSingleValueEvent(valueEventListener);
     }
 
+    public  void deleteConfirmation(DataSnapshot snapshot) {
+        snapshot.getRef().removeValue();
+    }
+
+    public void deleteNotification(DataSnapshot snapshot) {
+        snapshot.getRef().removeValue();
+    }
+
     public void deleteCost(DataSnapshot snapshot, boolean isFutureCost) {
         Cost cost = snapshot.getValue(Cost.class);
         snapshot.getRef().removeValue();
@@ -611,45 +629,56 @@ public class FirebaseHelper {
 
     }
 
-    public void createNotificationList() {
-        String key = mDbRefCost.push().getKey();
-        mCurrentUser.setNotificationListId(key);
+    public void sendConfirmationBackToUser(NotificationSettings notificationSettings) {
 
-        mDbRefUser.child(mCurrentUser.getUserId()).child(Constants.DATABASE_KEY_NOTIFICATION_ID).setValue(key)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "NotificationId saved successfully"))
-                .addOnFailureListener(e -> Log.d(TAG, "Failed saving NotificationId"));
+        ConfirmationConverter confirmationconverter = new ConfirmationConverter(mCurrentUser.getEmail(), notificationSettings.getUserNotification().getValue());
 
-        //Add Settings for Notification
-        UserNotificationSettings notificationSettings = new UserNotificationSettings(mCurrentUser.getEmail());
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> iterable = dataSnapshot.getChildren();
 
-        //mDbRefNotificationSettings.child(key).child(mCurrentUser.getUserId()).setValue(notificationSettings)
-        mDbRefNotificationSettings.child(key).child(mCurrentUser.getUserId()).setValue(notificationSettings.getEmailHost())
-                .addOnSuccessListener(aVoid -> Log.d(TAG,"NotificationSettings saved successfully"))
-                .addOnFailureListener(e -> Log.d(TAG, "Failed saving NotificationSettings"));
+                User cur = null;
+                String emailReceiving = notificationSettings.getUserNotification().getEmailSending();
 
-        mCurrentNotificationSettings = new ArrayList<>();
-        mCurrentNotificationSettings.add(new NotificationSettings(mCurrentUser.getUserId(), notificationSettings));
+                for(DataSnapshot snapshot : iterable) {
+                    User temp = snapshot.getValue(User.class);
+                    if (temp == null)
+                        return;
+                    if (emailReceiving.equals(temp.getEmail())) {
+                        cur = temp;
+                        break;
+                    }
+                }
+                if(cur == null) {
+                    Toast.makeText(GlobalApplication.getAppContext(), "Nutzer nicht angemeldet", Toast.LENGTH_LONG).show();
+                    return;
+                }
 
-    }
-    //finished
+                else {
 
-    public void sendNotificationBackToUser() {
-        for(NotificationSettings notificationSettings : mCurrentNotificationSettings) {
-            if(!notificationSettings.getKey().equals(mCurrentUser.getUserId()))
-                continue;
-            sendNotificationBackToUser(notificationSettings);
-            break;
-        }
-    }
-    //finished
+                    Map<String, Object> confirmationInfo = confirmationconverter.toMap();
 
-    public void sendNotificationBackToUser(NotificationSettings notificationSettings) {
+                    mDbRefConfirmationSettings.child(cur.getNotificationListId()).push().setValue(confirmationInfo);
 
-        //Hier muss noch implementiert werden!
+                    mDbRefUser.removeEventListener(this);
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        mDbRefUser.orderByChild("mEmailReceiver").addListenerForSingleValueEvent(valueEventListener);
     }
     //in progress!
 
     public void addNotification(UserNotification notification) {
+
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -675,15 +704,21 @@ public class FirebaseHelper {
 
                     else {
                         UserNotification newUserNotification = notification;
-
                         Map<String, Object> notificationInfo = newUserNotification.toMap();
 
                         if(mCurrentNotifications == null) {
                             mCurrentNotifications = new ArrayList<>();
                         }
                             mCurrentNotifications.add(newUserNotification);
+
+                        //save Notification in Notifications ot the one receiving
+
                         //mDbRefNotificationSettings.child(cur.getNotificationListId()).child(cur.getUserId()).setValue(notificationInfo);
                         mDbRefNotificationSettings.child(cur.getNotificationListId()).push().setValue(notificationInfo);
+
+                        //save it also in the Notifications of the one sending
+                        mDbRefNotificationSettings.child(mCurrentUser.getNotificationListId()).push().setValue(notificationInfo);
+
                             mDbRefUser.removeEventListener(this);
                     }
 
@@ -847,6 +882,7 @@ public class FirebaseHelper {
 
         String keyBankAccount = mDbRefCost.push().getKey();
         String keyCash = mDbRefCost.push().getKey();
+        String keyNotifications = mDbRefCost.push().getKey();
 
         User user = new User();
         user.setUserId(keyUser);
@@ -854,6 +890,7 @@ public class FirebaseHelper {
         user.setPassword(password);
         user.setBankAccountId(keyBankAccount);
         user.setCashId(keyCash);
+        user.setNotificationListId(keyNotifications);
 
 
         mDbRefUser.child(keyUser).setValue(user)
@@ -881,6 +918,30 @@ public class FirebaseHelper {
                 .build();
     }
     //finished
+
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseConfirmations() {
+        Query query = mDbRefConfirmationSettings.child(mCurrentUser.getNotificationListId());
+
+        return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
+    }
+
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseSentNotifications() {
+        Query query = mDbRefNotificationSettings.child(mCurrentUser.getNotificationListId()).orderByChild("emailSending").equalTo(mCurrentUser.getEmail());
+
+        return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
+    }
+
+    public FirebaseRecyclerOptions<DataSnapshot> getFirebaseReceivedNotifications() {
+        Query query = mDbRefNotificationSettings.child(mCurrentUser.getNotificationListId()).orderByChild("emailReceiving").equalTo(mCurrentUser.getEmail());
+
+        return new FirebaseRecyclerOptions.Builder<DataSnapshot>()
+                .setQuery(query, snapshot -> snapshot)
+                .build();
+    }
 
     public FirebaseRecyclerOptions<DataSnapshot> getFirebaseRecyclerOptionsMembersGroup() {
         Query query = mDbRefGroupSettings.child(mCurrentUser.getGroupId());

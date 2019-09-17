@@ -2,6 +2,10 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/notifications_sent" />
-    <item android:title="@string/notification_received" />
+    <item android:title="@string/notifications_sent"
+        android:id="@+id/sent"/>
+    <item android:title="@string/notification_received"
+        android:id="@+id/received"/>
+    <item android:title="@string/notification_confirmation"
+        android:id="@+id/confirmations"/>
 </menu>

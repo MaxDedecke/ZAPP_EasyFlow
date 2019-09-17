@@ -230,43 +230,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void showAlertDialogNoNotifications() {
-
-        //Handle Actions if Menu item "Benachrichtigungen" has been selected,
-        //but there are no notifications yet.
-        //The user has then the opportunity to create a new notification
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(getString(R.string.alertdialog_keine_benachrichtigungen_message));
-        builder.setTitle(getString(R.string.alertdialog_keine_benachrichtigungen_title));
-        builder.setNegativeButton(getString(R.string.alertdialog_keine_benachrichtigungen_negative_button), (dialog, which) -> {
-
-            //Handle Actions if user presses "zurück" in alert dialog
-            switch(mViewModel.getStateAccount()) {
-                case Cash:
-                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(0).setChecked(true);
-                    break;
-                case BankAccount:
-                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(1).setChecked(true);
-                    break;
-                case Group:
-                    ((NavigationView) findViewById(R.id.nav_view)).getMenu().getItem(2).setChecked(true);
-            }
-        });
-
-        //Handle Actions if user presses "Benachrichtigung senden" here
-        builder.setPositiveButton(getString(R.string.alertdialog_keine_benachrichtigungen_positive_button), (dialog, which) -> {
-            FirebaseHelper helper = FirebaseHelper.getInstance();
-            helper.createNotificationList();
-
-            GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
-
-        });
-
-        //initialize builder
-        builder.show();
-    }
-
     private void showAlertDialogCreateGroup() {
 
         //Handle Actions if Menu item "Gruppe verwalten" is selected,
@@ -365,16 +328,17 @@ public class MainActivity extends AppCompatActivity
             }
             //if "Benachrichtigungen anzeigen" has been selected
         } else if(id == R.id.nav_show_notifications){
+
             FirebaseHelper helper = FirebaseHelper.getInstance();
 
-            if(FirebaseHelper.mCurrentUser.getNotificationListId() == null) {
-            helper.createNotificationList(); }
+            /*if(FirebaseHelper.mCurrentUser.getNotificationListId() == null) {
+            helper.createNotificationList(); }*/
 
-            else {
+            //else {
             GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
                 Intent intent = new Intent(this, NotificationsActivity.class);
-                startActivity(intent); }
+                startActivity(intent); //}
             //if "Gruppe verwalten" has been selected
         }else if (id == R.id.nav_settings_group) {
 
