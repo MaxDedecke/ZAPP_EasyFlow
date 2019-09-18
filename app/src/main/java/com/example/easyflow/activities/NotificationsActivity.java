@@ -50,7 +50,9 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
     @Override
     protected void onStop() {
         super.onStop();
-        mNotificationAdapter.stopListening();
+
+        if(mNotificationAdapter != null) {
+        mNotificationAdapter.stopListening(); }
 
         if(mConfirmationAdapter != null) {
             mConfirmationAdapter.stopListening();
@@ -86,7 +88,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
             mNotificationAdapter = new NotificationAdapter(this, mViewModel.getmFireBaseSentNotificationsRecyclerOptions());
             mNotificationAdapter.startListening();
             mRecyclerView.setAdapter(mNotificationAdapter);
-
+            this.setTitle(getString(R.string.sent_notification));
             return true;
         }
 
@@ -97,13 +99,15 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
             mNotificationAdapter = new NotificationAdapter(this, mViewModel.getmFireBaseReceivedNotificationsRecyclerOptions());
             mNotificationAdapter.startListening();
             mRecyclerView.setAdapter(mNotificationAdapter);
-
+            this.setTitle(getString(R.string.received_notifications));
             return true;
         }
 
         else if(id == R.id.confirmations) {
 
+            mNotificationAdapter = null;
             updateAndSetConfirmationsAdapter();
+            this.setTitle(getString(R.string.title_confirmation));
             return true;
 
         }
@@ -135,7 +139,7 @@ public class NotificationsActivity extends AppCompatActivity implements NotifyEv
             mNotificationAdapter.stopListening();
         }
 
-        mNotificationAdapter = new NotificationAdapter(this ,mViewModel.getmFireBaseRecyclerOptions());
+        mNotificationAdapter = new NotificationAdapter(this ,mViewModel.getmFireBaseSentNotificationsRecyclerOptions());
         mNotificationAdapter.setEmptyView(emptyRecyclerView);
 
         mNotificationAdapter.startListening();

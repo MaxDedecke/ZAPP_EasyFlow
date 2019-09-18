@@ -27,6 +27,9 @@
     <string name="new_income">Neue Einnahme</string>
     <string name="new_cost">Neue Ausgabe</string>
     <string name="new_notification">Neue Benachrichtigung</string>
+    <string name="sent_notification">Gesendet</string>
+    <string name="received_notifications">Empfangen</string>
+    <string name="title_confirmation">Bestätigungen</string>
 
     <string name="notifications_sent">Gesendet</string>
     <string name="notification_received">Empfangen</string>

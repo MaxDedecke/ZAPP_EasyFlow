@@ -70,7 +70,7 @@ public class ConfirmationAdapter extends FirebaseRecyclerAdapter<DataSnapshot, C
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-        setEmptyView(emptyView);
+        initEmptyView();
     }
 
     @NonNull
