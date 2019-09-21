@@ -1,13 +1,10 @@
 package com.example.easyflow.models;
 
-import android.content.res.Resources;
-
-import com.example.easyflow.R;
-import com.example.easyflow.activities.SplashActivity;
 import com.example.easyflow.interfaces.Constants;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,10 +38,14 @@ public class Cost {
 
     public Date getDate(){return mDate;}
 
-    public void setDate(String mDateString) throws ParseException {
-        this.mDate=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).parse(mDateString);
-    }
+    public void setDate(String mDateString) {
 
+        try {
+            this.mDate=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).parse(mDateString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 
     public Category getCategory() {
         return mCategory;
@@ -70,18 +71,45 @@ public class Cost {
         this.mNote = note;
     }
 
-
     public Map<String, Object> toMap() {
 
-        String dateString=new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
 
         HashMap<String, Object> result = new HashMap<>();
         result.put("value", getValue());
-        result.put("date", dateString);
+        result.put("date", getDateString());
         result.put("category", getCategory());
         result.put("frequency", getFrequency());
         result.put("note", getNote());
 
         return result;
+    }
+
+    public String getDateString() {
+        return new SimpleDateFormat(Constants.DATE_FORMAT_DATABASE).format(getDate());
+    }
+
+    public void addDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        cal.add(Calendar.DAY_OF_YEAR, +1);
+        this.mDate=cal.getTime();
+    }
+    public void addWeek() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        cal.add(Calendar.DAY_OF_YEAR, +7);
+        this.mDate=cal.getTime();
+    }
+    public void addMonth() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        cal.add(Calendar.MONTH, +1);
+        this.mDate=cal.getTime();
+    }
+    public void addYear() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(mDate);
+        cal.add(Calendar.YEAR, +1);
+        this.mDate=cal.getTime();
     }
 }

@@ -92,7 +92,7 @@ public class EditTextWithClear extends AppCompatEditText {
         mInputEnabled=false;
     }
 
-    private boolean onTouch(View v, MotionEvent event) {
+    private boolean onTouch(@SuppressWarnings("unused") View v, MotionEvent event) {
         if ((getCompoundDrawablesRelative()[2] == null) || !mInputEnabled) {
             return false;
         }

@@ -3,13 +3,13 @@ package com.example.easyflow.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.Constants;
-import com.example.easyflow.interfaces.FirebaseHelper;
 import com.example.easyflow.models.User;
+import com.example.easyflow.utils.FirebaseHelper;
 import com.google.gson.Gson;
 
 public class SplashActivity extends AppCompatActivity {

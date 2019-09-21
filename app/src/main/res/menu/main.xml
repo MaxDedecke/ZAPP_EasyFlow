@@ -11,24 +11,35 @@
 
     <item
         android:id="@+id/action_account_current"
-        android:icon="@drawable/ic_einzahlungen_white_32_dp"
+        android:icon="@drawable/ic_cash_new_white"
         android:orderInCategory="200"
         android:title="@string/actionbar_item_bargeld"
         app:showAsAction="always">
 
         <menu>
             <item
-                android:id="@+id/action_account_second"
+                android:id="@+id/action_account_cash"
+                android:icon="@drawable/ic_cash_new_black"
+                android:title="@string/actionbar_item_bargeld"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_account_bank"
+                android:icon="@drawable/ic_bank_account_new_black"
+                android:title="@string/actionbar_item_bank"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_account_group"
                 android:icon="@drawable/ic_group_black_32dp"
                 android:title="@string/actionbar_item_wg"
                 app:showAsAction="ifRoom" />
-            <item
-                android:id="@+id/action_account_third"
-                android:icon="@drawable/ic_gehalt_black_32dp"
-                android:title="@string/actionbar_item_bank"
-                app:showAsAction="ifRoom" />
         </menu>
-
-
     </item>
+
+    <item
+        android:id="@+id/action_menu_group"
+        android:icon="@drawable/ic_settings_white"
+        android:visible="false"
+        android:orderInCategory="300"
+        android:title="@string/guppe_bearbeiten"
+        app:showAsAction="ifRoom"/>
 </menu>

@@ -3,6 +3,7 @@ package com.example.easyflow.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Button;
 
 import com.example.easyflow.EditTextWithClear;
 import com.example.easyflow.activities.BookCostActivity;
+import com.example.easyflow.activities.CreateNotificationActivity;
 import com.example.easyflow.activities.EinAusgabeActivity;
 import com.example.easyflow.R;
 import com.example.easyflow.interfaces.NotifyEventHandler;
@@ -49,6 +51,9 @@ public class CalcFragment extends Fragment implements View.OnClickListener {
         } else if (getActivity().getClass() == BookCostActivity.class) {
             mEditText = ((BookCostActivity) parentActivity).mEditText;
             ((Button)mView.findViewById(R.id.btnCategory)).setText(getString(R.string.ueberweisung_hinzufügen));
+        } else if(getActivity().getClass() == CreateNotificationActivity.class) {
+            mEditText = ((CreateNotificationActivity) parentActivity).mDisplayValueEditText;
+            //((Button)mView.findViewById(R.id.btnCategory)).setText("Benachrichtigung versenden");
         }
         setButtonOnClickListener();
     }
@@ -69,7 +74,7 @@ public class CalcFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_calc, container, false);

@@ -1,9 +1,9 @@
 package com.example.easyflow.models;
 
 public class AccountData {
-    StateAccount stateAccount;
-    String stateAccountString;
-    Integer imageId;
+    private StateAccount stateAccount;
+    private String stateAccountString;
+    private Integer imageId;
 
     public AccountData(StateAccount stateAccount,String stateAccountString, Integer imageId) {
         this.stateAccount=stateAccount;
