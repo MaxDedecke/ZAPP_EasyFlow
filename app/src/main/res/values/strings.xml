@@ -13,6 +13,15 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>-->
 
+    <string name="settings_log_in">angemeldet bleiben</string>
+    <string name="settings_log_in_summary">Lege fest, ob ein neuer Login erfolgt, sobald die App erneut geöffnet wird.</string>
+    <string name="settings_messages_os">Benachrichtigungen aktivieren</string>
+    <string name="settings_messages_os_summary">Aktivieren, um Push-Benachrichtigungen zu erhalten.</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_summary">Ändere das Layoutdesing</string>
+    <string name="settings_notification_options">Darstellung Benachrichtigungen</string>
+    <string name="settings_notification_options_summary">Standardmäßig werden empfangene Benachrichtigungen angezeigt</string>
+
     <string name="menu_settings">Allgemeine Einstellungen</string>
     <string name="menu_show_group">Gruppe anzeigen</string>
     <string name="menu_settings_group">Gruppe verwalten</string>
@@ -117,7 +126,7 @@
     <string name="login_anmelden">Anmelden</string>
     <string name="login_frage_ein_konto">Du hast ein Konto?</string>
     <string name="no_data_available">Für diesen Zeitraum liegen noch keine Aufzeichnungen vor.</string>
-    <string name ="empty_recyclerView">Du hast noch keine Benachrichtigungen :(</string>
+    <string name="empty_recyclerView">Du hast noch keine Benachrichtigungen :(</string>
     <string name="delete">Löschen</string>
     <string name="confirm">Bestätigen</string>
     <string name="send">Benachrichtigung verfassen</string>
@@ -126,4 +135,7 @@
     <string name="msg_subscribe_failed">Subscribing to topic failed</string>
     <string name="notification_channel_name">Easyflow Benachrichtigung</string>
     <string name="notification_channel_description">Benachrichtigung von Easyflow</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

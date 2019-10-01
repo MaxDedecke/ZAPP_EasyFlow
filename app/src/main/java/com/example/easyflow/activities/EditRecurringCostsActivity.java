@@ -56,8 +56,6 @@ public class EditRecurringCostsActivity extends AppCompatActivity {
         });
     }
 
-
-
     private void setUpRecyclerView() {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -118,6 +119,10 @@ public class MainActivity extends AppCompatActivity
 
         // Initialize and show LiveData for the Main Content
         setUpRecyclerView();
+
+        //Initialize default settings
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
 
     }
 
@@ -331,14 +336,11 @@ public class MainActivity extends AppCompatActivity
 
             FirebaseHelper helper = FirebaseHelper.getInstance();
 
-            /*if(FirebaseHelper.mCurrentUser.getNotificationListId() == null) {
-            helper.createNotificationList(); }*/
-
-            //else {
             GlobalApplication.saveUserInSharedPreferences(FirebaseHelper.mCurrentUser);
 
                 Intent intent = new Intent(this, NotificationsActivity.class);
-                startActivity(intent); //}
+                startActivity(intent);
+
             //if "Gruppe verwalten" has been selected
         }else if (id == R.id.nav_settings_group) {
 
@@ -359,6 +361,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
             //todo show settings
             // sammeln von ideen für drawer
+
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         /*
             Gruppe gründen /Gruppen einstellungen
             dark mode
@@ -368,7 +373,7 @@ public class MainActivity extends AppCompatActivity
 
          */
 
-            Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "not implemented yet", Toast.LENGTH_SHORT).show();
 
         }
 

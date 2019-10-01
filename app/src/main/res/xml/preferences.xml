@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fadingEdge="horizontal"
+    android:foregroundGravity="left"
+    android:gravity="start"
+    android:showDividers="middle"
+    android:textAlignment="viewStart">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="switch_preference_1"
+        android:widgetLayout="@layout/preference_layout"
+        android:theme="@style/SwitchPreferenceThemeTitle"
+        android:title="@string/settings_log_in"
+        android:summary="@string/settings_log_in_summary"
+        android:textStyle="bold"
+        app:titleTextAppearance="@style/SwitchPreferenceThemeTitle"
+        app:subtitleTextAppearance="@style/SwitchPreferenceThemeSubtitle"/>
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="switch_preference_2"
+        android:summary="@string/settings_messages_os_summary"
+        android:theme="@style/SwitchPreferenceThemeTitle"
+        android:title="@string/settings_messages_os" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="switch_preference_3"
+        android:summary="@string/settings_dark_mode_summary"
+        android:theme="@style/SwitchPreferenceThemeTitle"
+        android:title="Dark Mode" />
+
+    <ListPreference
+        android:defaultValue="false"
+        android:entries="@array/notification_settings"
+        android:entryValues="@array/notification_settings_values"
+        android:key="list_preference_1"
+        android:summary="@string/settings_notification_options_summary"
+        android:theme="@style/SwitchPreferenceThemeTitle"
+        android:title="@string/settings_notification_options" />
+
+</PreferenceScreen>
