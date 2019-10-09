@@ -13,7 +13,7 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>-->
 
-    <string name="settings_log_in">angemeldet bleiben</string>
+    <string name="settings_log_in">Angemeldet bleiben</string>
     <string name="settings_log_in_summary">Lege fest, ob ein neuer Login erfolgt, sobald die App erneut geöffnet wird.</string>
     <string name="settings_messages_os">Benachrichtigungen aktivieren</string>
     <string name="settings_messages_os_summary">Aktivieren, um Push-Benachrichtigungen zu erhalten.</string>

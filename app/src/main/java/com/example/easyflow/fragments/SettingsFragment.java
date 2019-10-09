@@ -8,54 +8,37 @@ import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.SwitchPreferenceCompat;
+import android.widget.TextView;
 
 import com.example.easyflow.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
     private SwitchPreferenceCompat mSwitchPreference;
-    private SwitchPreference switchPreference;
     private ListPreference listPreference;
-    private PreferenceScreen mPreferenceScreen;
-    private String mTitle;
+    private TextView mTitle;
     private String mSummary;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        setPreferencesFromResource(R.xml.preferences, rootKey);
+        //setPreferencesFromResource(R.xml.preferences, rootKey);
+        addPreferencesFromResource(R.xml.preferences);
         setTitleAndSummary();
     }
 
     public void setTitleAndSummary() {
 
+        mSwitchPreference = (SwitchPreferenceCompat) findPreference("switch_preference_1");
+        mSwitchPreference.setIconSpaceReserved(false);
 
-        Context context = getPreferenceManager().getContext();
-        mPreferenceScreen = getPreferenceManager().createPreferenceScreen(context);
+        mSwitchPreference = (SwitchPreferenceCompat) findPreference("switch_preference_2");
+        mSwitchPreference.setIconSpaceReserved(false);
 
-        for(String key : getPreferenceScreen().getSharedPreferences().getAll().keySet()) {
-            String keyListPreference = "list_preference_1";
+        mSwitchPreference = (SwitchPreferenceCompat) findPreference("switch_preference_3");
+        mSwitchPreference.setIconSpaceReserved(false);
 
-            if(!key.equals(keyListPreference)) {
-
-                keyListPreference = "keep_logged_in";
-
-                if(keyListPreference.equals(key)) {break;}
-
-                switchPreference = (SwitchPreference) findPreference(key);
-
-                switchPreference.setIconSpaceReserved(false);
-                //switchPreference.setWidgetLayoutResource(R.layout.preference_layout);
-                mPreferenceScreen.addPreference(switchPreference);
-            }
-            else {
-                listPreference = (ListPreference) findPreference(key);
-                listPreference.setIconSpaceReserved(false);
-                mPreferenceScreen.addPreference(listPreference);
-            }
-
-
-        }
-        setPreferenceScreen(mPreferenceScreen);
+        listPreference = (ListPreference) findPreference("list_preference_1");
+        listPreference.setIconSpaceReserved(false);
     }
 
 }

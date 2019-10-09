@@ -42,15 +42,12 @@
     <style name="SwitchPreferenceThemeTitle">
         <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="SwitchPreferenceThemeSubtitle">
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/lightGrey</item>
+        <item name="android:textColor">@color/colorBlack</item>
     </style>
-
-
 
 </resources>

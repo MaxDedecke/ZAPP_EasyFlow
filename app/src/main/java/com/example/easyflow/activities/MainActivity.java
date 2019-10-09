@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity
         setUpRecyclerView();
 
         //Initialize default settings
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        //PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 
     }

@@ -7,30 +7,27 @@
     android:showDividers="middle"
     android:textAlignment="viewStart">
 
-    <SwitchPreference
+    <PreferenceCategory
+        android:layout="@layout/first_preference_placeholder">
+    </PreferenceCategory>
+
+    <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="switch_preference_1"
-        android:widgetLayout="@layout/preference_layout"
-        android:theme="@style/SwitchPreferenceThemeTitle"
-        android:title="@string/settings_log_in"
-        android:summary="@string/settings_log_in_summary"
-        android:textStyle="bold"
-        app:titleTextAppearance="@style/SwitchPreferenceThemeTitle"
-        app:subtitleTextAppearance="@style/SwitchPreferenceThemeSubtitle"/>
+        android:layout="@layout/custom_switch_login_layout" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="switch_preference_2"
-        android:summary="@string/settings_messages_os_summary"
-        android:theme="@style/SwitchPreferenceThemeTitle"
-        android:title="@string/settings_messages_os" />
+        android:layout = "@layout/custom_switch_messages_layout" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="switch_preference_3"
-        android:summary="@string/settings_dark_mode_summary"
-        android:theme="@style/SwitchPreferenceThemeTitle"
-        android:title="Dark Mode" />
+        android:layout = "@layout/custom_switch_darkmode_layout" />
+
+    <PreferenceCategory
+        android:layout="@layout/custom_preference_placeholder">
 
     <ListPreference
         android:defaultValue="false"
@@ -38,7 +35,9 @@
         android:entryValues="@array/notification_settings_values"
         android:key="list_preference_1"
         android:summary="@string/settings_notification_options_summary"
-        android:theme="@style/SwitchPreferenceThemeTitle"
-        android:title="@string/settings_notification_options" />
+        android:title="@string/settings_notification_options"
+        android:layout="@layout/custom_listpreference_layout"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
